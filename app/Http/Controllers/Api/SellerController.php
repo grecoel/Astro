@@ -65,7 +65,7 @@ class SellerController extends Controller
             return response()->json([
                 'message' => 'Registrasi berhasil! Data Anda sedang diverifikasi.',
                 'seller_id' => $seller->id
-            ], 201)
+            ], 201);
 
 
             } catch (\Exception $e) {
