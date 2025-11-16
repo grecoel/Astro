@@ -17,7 +17,7 @@ class SellerController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\JsonResponse
      */
-    
+
     public function store(Request $request){
         $validator = Validator::make($request->all(),[
             'store_name' => 'required|string|max:255',
