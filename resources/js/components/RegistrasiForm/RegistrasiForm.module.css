@@ -47,6 +47,20 @@
   font-size: 1rem;
 }
 
+.formRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.helpText {
+  display: block;
+  font-size: 0.85rem;
+  color: #666;
+  margin-top: 0.25rem;
+  font-style: italic;
+}
+
 .buttonGroup {
   display: flex;
   gap: 1rem;

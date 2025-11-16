@@ -95,42 +95,195 @@ function RegistrasiForm() {
                     <legend>Data Toko</legend>
                     <div className={styles.formGroup}>
                         <label htmlFor="store_name">Nama Toko*</label>
-                        <input type="text" id="store_name" name="store_name" onChange={handleChange} required />
+                        <input 
+                            type="text" 
+                            id="store_name" 
+                            name="store_name" 
+                            value={formData.store_name}
+                            onChange={handleChange} 
+                            required 
+                        />
                         {getError('store_name')}
                     </div>
-                    {/* ... (input deskripsi singkat) ... */}
+                    <div className={styles.formGroup}>
+                        <label htmlFor="store_description">Deskripsi Toko</label>
+                        <textarea 
+                            id="store_description" 
+                            name="store_description" 
+                            value={formData.store_description}
+                            onChange={handleChange}
+                            rows="4"
+                            placeholder="Jelaskan tentang toko Anda (opsional)"
+                        />
+                        {getError('store_description')}
+                    </div>
                 </fieldset>
 
                 <fieldset className={styles.formSection}>
-                    <legend>Data PIC</legend>
+                    <legend>Data PIC (Person in Charge)</legend>
                     <div className={styles.formGroup}>
                         <label htmlFor="pic_name">Nama PIC*</label>
-                        <input type="text" id="pic_name" name="pic_name" onChange={handleChange} required />
+                        <input 
+                            type="text" 
+                            id="pic_name" 
+                            name="pic_name" 
+                            value={formData.pic_name}
+                            onChange={handleChange} 
+                            required 
+                        />
                         {getError('pic_name')}
                     </div>
-                    {/* ... (input no HP & email) ... */}
+                    <div className={styles.formGroup}>
+                        <label htmlFor="pic_phone">No. HP PIC* (max 13 digit)</label>
+                        <input 
+                            type="tel" 
+                            id="pic_phone" 
+                            name="pic_phone" 
+                            value={formData.pic_phone}
+                            onChange={handleChange} 
+                            maxLength="13"
+                            placeholder="08xxxxxxxxxx"
+                            required 
+                        />
+                        {getError('pic_phone')}
+                    </div>
+                    <div className={styles.formGroup}>
+                        <label htmlFor="pic_email">Email PIC*</label>
+                        <input 
+                            type="email" 
+                            id="pic_email" 
+                            name="pic_email" 
+                            value={formData.pic_email}
+                            onChange={handleChange} 
+                            placeholder="email@example.com"
+                            required 
+                        />
+                        {getError('pic_email')}
+                    </div>
                 </fieldset>
 
                 <fieldset className={styles.formSection}>
                     <legend>Alamat PIC</legend>
-                    {/* ... (semua input alamat: jalan, rt, rw, dll) ... */}
+                    <div className={styles.formGroup}>
+                        <label htmlFor="pic_address">Alamat Lengkap*</label>
+                        <textarea 
+                            id="pic_address" 
+                            name="pic_address" 
+                            value={formData.pic_address}
+                            onChange={handleChange}
+                            rows="3"
+                            placeholder="Jalan, nomor rumah, dll"
+                            required 
+                        />
+                        {getError('pic_address')}
+                    </div>
+                    <div className={styles.formRow}>
+                        <div className={styles.formGroup}>
+                            <label htmlFor="pic_rt">RT* (max 3 digit)</label>
+                            <input 
+                                type="text" 
+                                id="pic_rt" 
+                                name="pic_rt" 
+                                value={formData.pic_rt}
+                                onChange={handleChange}
+                                maxLength="3"
+                                placeholder="001"
+                                required 
+                            />
+                            {getError('pic_rt')}
+                        </div>
+                        <div className={styles.formGroup}>
+                            <label htmlFor="pic_rw">RW* (max 3 digit)</label>
+                            <input 
+                                type="text" 
+                                id="pic_rw" 
+                                name="pic_rw" 
+                                value={formData.pic_rw}
+                                onChange={handleChange}
+                                maxLength="3"
+                                placeholder="001"
+                                required 
+                            />
+                            {getError('pic_rw')}
+                        </div>
+                    </div>
+                    <div className={styles.formGroup}>
+                        <label htmlFor="pic_district">Kecamatan*</label>
+                        <input 
+                            type="text" 
+                            id="pic_district" 
+                            name="pic_district" 
+                            value={formData.pic_district}
+                            onChange={handleChange} 
+                            required 
+                        />
+                        {getError('pic_district')}
+                    </div>
+                    <div className={styles.formGroup}>
+                        <label htmlFor="pic_city">Kota/Kabupaten*</label>
+                        <input 
+                            type="text" 
+                            id="pic_city" 
+                            name="pic_city" 
+                            value={formData.pic_city}
+                            onChange={handleChange} 
+                            required 
+                        />
+                        {getError('pic_city')}
+                    </div>
+                    <div className={styles.formGroup}>
+                        <label htmlFor="pic_province">Provinsi*</label>
+                        <input 
+                            type="text" 
+                            id="pic_province" 
+                            name="pic_province" 
+                            value={formData.pic_province}
+                            onChange={handleChange} 
+                            required 
+                        />
+                        {getError('pic_province')}
+                    </div>
                 </fieldset>
 
                 <fieldset className={styles.formSection}>
                     <legend>Dokumen Identitas PIC</legend>
                     <div className={styles.formGroup}>
-                        <label htmlFor="pic_ktp_number">No. KTP PIC*</label>
-                        <input type="text" id="pic_ktp_number" name="pic_ktp_number" onChange={handleChange} required />
+                        <label htmlFor="pic_ktp_number">No. KTP PIC* (max 20 digit)</label>
+                        <input 
+                            type="text" 
+                            id="pic_ktp_number" 
+                            name="pic_ktp_number" 
+                            value={formData.pic_ktp_number}
+                            onChange={handleChange}
+                            maxLength="20"
+                            placeholder="16 digit nomor KTP"
+                            required 
+                        />
                         {getError('pic_ktp_number')}
                     </div>
                     <div className={styles.formGroup}>
-                        <label htmlFor="pic_photo">Foto PIC (≤2MB)</label>
-                        <input type="file" id="pic_photo" name="pic_photo" onChange={(e) => setPicPhoto(e.target.files[0])} accept="image/*" />
+                        <label htmlFor="pic_photo">Foto PIC (Opsional, max 2MB)</label>
+                        <input 
+                            type="file" 
+                            id="pic_photo" 
+                            name="pic_photo" 
+                            onChange={(e) => setPicPhoto(e.target.files[0])} 
+                            accept="image/*" 
+                        />
+                        <small className={styles.helpText}>Format: JPG, PNG, GIF. Maksimal 2MB</small>
                         {getError('pic_photo')}
                     </div>
                     <div className={styles.formGroup}>
-                        <label htmlFor="pic_ktp_file">File KTP (≤5MB)*</label>
-                        <input type="file" id="pic_ktp_file" name="pic_ktp_file" onChange={(e) => setPicKtpFile(e.target.files[0])} accept="image/*,application/pdf" required />
+                        <label htmlFor="pic_ktp_file">File KTP* (max 5MB)</label>
+                        <input 
+                            type="file" 
+                            id="pic_ktp_file" 
+                            name="pic_ktp_file" 
+                            onChange={(e) => setPicKtpFile(e.target.files[0])} 
+                            accept="image/*,application/pdf" 
+                            required 
+                        />
+                        <small className={styles.helpText}>Format: JPG, PNG, PDF. Maksimal 5MB</small>
                         {getError('pic_ktp_file')}
                     </div>
                 </fieldset>
