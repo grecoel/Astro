@@ -71,7 +71,9 @@ function RegistrasiForm() {
                 alert('Registrasi gagal. Cek kembali data yang Anda masukkan.');
             } else {
                 console.error('Server Error:', error);
-                alert('Terjadi kesalahan pada server.');
+                console.error('Response data:', error.response?.data);
+                console.error('Response status:', error.response?.status);
+                alert(`Terjadi kesalahan pada server: ${error.response?.data?.message || error.message}`);
             }
         } finally {
             setIsLoading(false);
