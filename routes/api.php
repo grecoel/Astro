@@ -4,4 +4,4 @@ use app\Http\Controllers\Api\SellerController;
 
 
 //Route srs01
-Route::post('/sellers', [SellerController:class,'store']);
+Route::post('/sellers', [SellerController::class, 'store']);
