@@ -14,8 +14,8 @@ return new class extends Migration
             $table->string('image_url');
             $table->string('condition');  
 
-            $table->foreignUuid('seller_id')->constrained('sellers')->onDelete('cascade');
-            $table->foreignUuid('category_id')->constrained('categories')->onDelete('cascade');
+            $table->foreignUuid('id')->constrained('sellers')->onDelete('cascade');
+            $table->foreignUuid('id')->constrained('categories')->onDelete('cascade');
 
             $table->timestamps();
         }
