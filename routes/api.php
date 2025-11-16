@@ -1,6 +1,6 @@
 <?php
 use app\Http\Controllers\Api\SellerController;
-
+use Illuminate\Support\Facades\Route;
 
 
 //Route srs01
