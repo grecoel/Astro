@@ -60,6 +60,21 @@ return [
             'report' => false,
         ],
 
+        'supabase' => [
+        'driver' => 's3',
+        'key' => env('SUPABASE_KEY'),
+        'secret' => env('SUPABASE_SECRET'),
+        'region' => env('SUPABASE_REGION', 'us-east-1'), // Ini bisa 'us-east-1'
+        'bucket' => env('SUPABASE_BUCKET'),
+        
+        // INI BAGIAN PALING PENTING
+        'endpoint' => env('SUPABASE_ENDPOINT'), // Cth: https://[id_proyek].supabase.co/storage/v1
+        'url' => env('SUPABASE_URL'), // Cth: https://[id_proyek].supabase.co/storage/v1/object/public/[bucket]
+        
+        'use_path_style_endpoint' => true,
+        'visibility' => 'public',
+    ],
+
     ],
 
     /*
