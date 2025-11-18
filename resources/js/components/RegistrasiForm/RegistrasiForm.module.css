@@ -1,0 +1,97 @@
+/* resources/js/Components/RegistrasiForm/RegistrasiForm.module.css */
+/* Style ini HANYA berlaku untuk RegistrasiForm.jsx */
+
+.container {
+  padding: 1.5rem;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.formSection {
+  border: 1px solid var(--color-border); /* Pakai variabel global */
+  padding: 1rem 1.5rem;
+  border-radius: 8px;
+}
+
+.formSection legend {
+  font-weight: 600;
+  font-size: 1.1rem;
+  color: var(--color-primary);
+  padding: 0 0.5rem;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 1rem;
+}
+
+.formGroup label {
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+  font-size: 0.9rem;
+}
+
+.formGroup input[type="text"],
+.formGroup input[type="email"],
+.formGroup input[type="tel"],
+.formGroup textarea,
+.formGroup input[type="file"] {
+  padding: 0.75rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 1rem;
+}
+
+.formRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.helpText {
+  display: block;
+  font-size: 0.85rem;
+  color: #666;
+  margin-top: 0.25rem;
+  font-style: italic;
+}
+
+.buttonGroup {
+  display: flex;
+  gap: 1rem;
+}
+
+.submitButton,
+.cancelButton {
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 4px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.submitButton {
+  background-color: var(--color-primary);
+  color: white;
+}
+.submitButton:disabled {
+  background-color: #ccc;
+}
+
+.cancelButton {
+  background-color: #f4f4f4;
+  color: #555;
+  border: 1px solid #ccc;
+}
+
+.errorText {
+  color: var(--color-error);
+  font-size: 0.85rem;
+  margin-top: 0.25rem;
+}
