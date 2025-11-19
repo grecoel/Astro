@@ -92,7 +92,8 @@
         "allow-plugins": {
             "pestphp/pest-plugin": true,
             "php-http/discovery": true
-        }
+        },
+        "exclude-from-classmap": ["node_modules"]
     },
     "minimum-stability": "stable",
     "prefer-stable": true
