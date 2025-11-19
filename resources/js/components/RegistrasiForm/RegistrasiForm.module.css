@@ -139,9 +139,10 @@
   border: 2px solid var(--color-primary);
 }
 .submitButton:hover:not(:disabled) {
-  background-color: var(--color-primary-dark);
-  border-color: var(--color-primary-dark);
-  box-shadow: 0 4px 12px rgba(211, 242, 106, 0.3);
+  background-color: var(--color-dark);
+  color: var(--color-primary);
+  border-color: var(--color-dark);
+  box-shadow: 0 4px 12px rgba(23, 23, 25, 0.2);
   transform: translateY(-2px);
 }
 .submitButton:disabled {
@@ -296,9 +297,10 @@
 }
 
 .modalButton:hover {
-  background-color: var(--color-primary-dark);
-  border-color: var(--color-primary-dark);
-  box-shadow: 0 4px 12px rgba(211, 242, 106, 0.3);
+  background-color: var(--color-dark);
+  color: var(--color-primary);
+  border-color: var(--color-dark);
+  box-shadow: 0 4px 12px rgba(23, 23, 25, 0.2);
   transform: translateY(-2px);
 }
 
