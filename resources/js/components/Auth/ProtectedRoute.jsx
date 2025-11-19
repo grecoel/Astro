@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import axios from 'axios';
 
-function ProtectedRoute({ children }) {
+function ProtectedRoute({ children, role }) {
     const [isAuthenticated, setIsAuthenticated] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
 
@@ -58,6 +58,10 @@ function ProtectedRoute({ children }) {
 
     if (!isAuthenticated) {
         return <Navigate to="/login" replace />;
+    }
+
+    if (role && user.role !== role) {
+        return <Navigate to="/" replace />;
     }
 
     return children;

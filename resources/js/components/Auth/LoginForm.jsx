@@ -29,29 +29,49 @@ function LoginForm() {
         setError('');
 
         try {
-            // Login request (no CSRF needed for token auth)
+            console.log('Attempting login...'); // Debug log
+
+            // Login request
             const response = await axios.post('/api/login', formData);
 
-            if (response.data.token) {
+            console.log('Login response:', response.data); // Debug log
+
+            if (response.data.token && response.data.user) {
                 // Store token and user
                 localStorage.setItem('token', response.data.token);
                 localStorage.setItem('user', JSON.stringify(response.data.user));
-                
+
                 // Set token in axios header for future requests
                 axios.defaults.headers.common['Authorization'] = `Bearer ${response.data.token}`;
-                
-                // Redirect to admin dashboard
-                navigate('/admin/verifikasi');
+
+                const userRole = response.data.user.role;
+                console.log('User role:', userRole); // Debug log
+
+                // Redirect based on role
+                if (userRole === 'admin') {
+                    console.log('Redirecting to admin dashboard...'); // Debug log
+                    navigate('/admin/dashboard', { replace: true });
+                } else if (userRole === 'seller') {
+                    console.log('Redirecting to seller dashboard...'); // Debug log
+                    navigate('/seller', { replace: true });
+                } else {
+                    console.log('Redirecting to home...'); // Debug log
+                    navigate('/', { replace: true });
+                }
+            } else {
+                setError('Login gagal. Data tidak lengkap.');
             }
         } catch (err) {
-            let errorMsg = 'Terjadi kesalahan. Silakan coba lagi.';
+            console.error('Login error:', err); // Debug log
             
             if (err.response?.status === 422) {
                 errorMsg = 'Email atau password tidak boleh kosong';
             } else if (err.response?.status === 401) {
                 errorMsg = 'Email atau password salah';
             } else if (err.response?.status === 403) {
-                errorMsg = 'Akses ditolak. Anda bukan admin.';
+                setError('Akses ditolak.');
+            } else {
+                setError(err.response?.data?.message || 'Terjadi kesalahan. Silakan coba lagi.');
             }
             
             setModalType('error');
@@ -67,16 +87,16 @@ function LoginForm() {
         <div className={styles.authContainer}>
             <div className={styles.authBox}>
                 <h2 className={styles.authTitle}>Login</h2>
-                
+
                 {error && (
                     <div className={styles.errorAlert}>
                         {error}
                     </div>
                 )}
 
-                <form onSubmit={handleSubmit} className={styles.authForm}>
+                <form onSubmit={handleSubmit} className={styles.authForm}>     
                     <div className={styles.formGroup}>
-                        <label htmlFor="email" className={styles.label}>
+                        <label htmlFor="email" className={styles.label}>       
                             Email
                         </label>
                         <input
@@ -88,11 +108,12 @@ function LoginForm() {
                             className={styles.input}
                             placeholder="admin@astroecomm.com"
                             required
+                            disabled={isLoading}
                         />
                     </div>
 
                     <div className={styles.formGroup}>
-                        <label htmlFor="password" className={styles.label}>
+                        <label htmlFor="password" className={styles.label}>    
                             Password
                         </label>
                         <input
@@ -104,11 +125,12 @@ function LoginForm() {
                             className={styles.input}
                             placeholder="••••••••"
                             required
+                            disabled={isLoading}
                         />
                     </div>
 
-                    <button 
-                        type="submit" 
+                    <button
+                        type="submit"
                         className={styles.submitButton}
                         disabled={isLoading}
                     >
