@@ -117,31 +117,15 @@ function SellerDashboard() {
 
                     <div className={styles.quickActionsGrid}>
                         <div className={styles.actionCard}>
-                            <div className={styles.actionIcon}>📦</div>
                             <h3>Produk</h3>
                             <p>0 Produk</p>
                             <button onClick={() => {}}>Kelola Produk</button>
                         </div>
 
                         <div className={styles.actionCard}>
-                            <div className={styles.actionIcon}>📋</div>
-                            <h3>Pesanan</h3>
-                            <p>0 Pesanan</p>
-                            <button onClick={() => {}}>Lihat Pesanan</button>
-                        </div>
-
-                        <div className={styles.actionCard}>
-                            <div className={styles.actionIcon}>⭐</div>
                             <h3>Rating</h3>
                             <p>Belum ada rating</p>
                             <button onClick={() => {}}>Lihat Rating</button>
-                        </div>
-
-                        <div className={styles.actionCard}>
-                            <div className={styles.actionIcon}>💰</div>
-                            <h3>Penjualan</h3>
-                            <p>Rp 0</p>
-                            <button onClick={() => {}}>Laporan Penjualan</button>
                         </div>
                     </div>
 
@@ -149,16 +133,16 @@ function SellerDashboard() {
                         <h2>Pengaturan</h2>
                         <div className={styles.settingsMenu}>
                             <button className={styles.settingItem}>
-                                ⚙️ Edit Profil Toko
+                                Edit Profil Toko
                             </button>
                             <button className={styles.settingItem}>
-                                🏪 Atur Jam Operasional
+                                Atur Jam Operasional
                             </button>
                             <button className={styles.settingItem}>
-                                🚚 Pengaturan Pengiriman
+                                Pengaturan Pengiriman
                             </button>
                             <button className={styles.settingItem}>
-                                🔐 Ubah Password
+                                Ubah Password
                             </button>
                         </div>
                     </div>
