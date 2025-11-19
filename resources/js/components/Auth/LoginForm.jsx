@@ -82,6 +82,9 @@ function LoginForm() {
 
     return (
         <div className={styles.authContainer}>
+            <button onClick={() => navigate('/')} className={styles.homeButton}>
+                Home &gt;
+            </button>
             <div className={styles.authBox}>
                 <h2 className={styles.authTitle}>Login</h2>
                 
@@ -134,7 +137,7 @@ function LoginForm() {
                 </form>
 
                 <div className={styles.authFooter}>
-                    <p>Belum punya akun? <a href="/registrasi" style={{color: '#007bff'}}>Daftar di sini</a></p>
+                    <p>Belum punya akun? <a href="/registrasi" style={{color: '#7B923B'}}>Daftar di sini</a></p>
                 </div>
             </div>
 

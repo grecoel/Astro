@@ -136,12 +136,6 @@ function SellerDashboard() {
                                 Edit Profil Toko
                             </button>
                             <button className={styles.settingItem}>
-                                Atur Jam Operasional
-                            </button>
-                            <button className={styles.settingItem}>
-                                Pengaturan Pengiriman
-                            </button>
-                            <button className={styles.settingItem}>
                                 Ubah Password
                             </button>
                         </div>
