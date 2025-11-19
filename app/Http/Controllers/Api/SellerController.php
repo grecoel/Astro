@@ -108,4 +108,41 @@ class SellerController extends Controller
         // $seller = Seller::find($id);
         // return response()->json($seller);
     }
+
+    /**
+     * Get activation status untuk seller
+     * Check apakah seller sudah teraktivasi (User created)
+     */
+    public function getActivationStatus(Request $request)
+    {
+        $user = $request->user();
+        
+        // Jika user role bukan seller, return error
+        if ($user->role !== 'seller') {
+            return response()->json([
+                'message' => 'Akses ditolak. Hanya seller yang bisa check status.'
+            ], 403);
+        }
+
+        // Get seller data
+        $seller = Seller::find($user->seller_id);
+        
+        if (!$seller) {
+            return response()->json([
+                'message' => 'Data seller tidak ditemukan.',
+                'activated' => false
+            ], 404);
+        }
+
+        return response()->json([
+            'activated' => true,
+            'seller' => [
+                'id' => $seller->id,
+                'store_name' => $seller->store_name,
+                'pic_name' => $seller->pic_name,
+                'pic_email' => $seller->pic_email,
+                'status' => $seller->status
+            ]
+        ]);
+    }
 }

@@ -25,7 +25,7 @@ function ProtectedRoute({ children }) {
             
             const response = await axios.get('/api/user');
 
-            if (response.data.user && response.data.user.role === 'admin') {
+            if (response.data.user) {
                 setIsAuthenticated(true);
                 localStorage.setItem('user', JSON.stringify(response.data.user));
             } else {

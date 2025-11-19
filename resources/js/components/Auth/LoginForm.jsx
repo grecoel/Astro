@@ -28,6 +28,8 @@ function LoginForm() {
         try {
             // Login request (no CSRF needed for token auth)
             const response = await axios.post('/api/login', formData);
+            
+            console.log('Login response:', response.data);
 
             if (response.data.token) {
                 // Store token and user
@@ -37,18 +39,32 @@ function LoginForm() {
                 // Set token in axios header for future requests
                 axios.defaults.headers.common['Authorization'] = `Bearer ${response.data.token}`;
                 
-                // Redirect to admin dashboard
-                navigate('/admin/verifikasi');
+                console.log('User role:', response.data.user.role);
+                console.log('User data:', response.data.user);
+                
+                // Redirect based on role
+                if (response.data.user.role === 'admin') {
+                    console.log('Redirecting to admin dashboard');
+                    navigate('/admin/verifikasi');
+                } else if (response.data.user.role === 'seller') {
+                    console.log('Redirecting to seller dashboard');
+                    navigate('/seller/dashboard');
+                } else {
+                    console.log('Unknown role, redirecting to home');
+                    navigate('/');
+                }
             }
         } catch (err) {
+            console.error('Login error:', err);
             if (err.response?.status === 422) {
                 setError('Email atau password tidak boleh kosong');
             } else if (err.response?.status === 401) {
                 setError('Email atau password salah');
             } else if (err.response?.status === 403) {
-                setError('Akses ditolak. Anda bukan admin.');
+                setError('Akun Anda belum diaktivasi. Periksa email Anda untuk link aktivasi.');
             } else {
                 setError('Terjadi kesalahan. Silakan coba lagi.');
+                console.error('Error details:', err.response?.data || err.message);
             }
         } finally {
             setIsLoading(false);
@@ -58,7 +74,7 @@ function LoginForm() {
     return (
         <div className={styles.authContainer}>
             <div className={styles.authBox}>
-                <h2 className={styles.authTitle}>Login Admin</h2>
+                <h2 className={styles.authTitle}>Login</h2>
                 
                 {error && (
                     <div className={styles.errorAlert}>
@@ -78,7 +94,7 @@ function LoginForm() {
                             value={formData.email}
                             onChange={handleChange}
                             className={styles.input}
-                            placeholder="admin@astroecomm.com"
+                            placeholder="Email Anda"
                             required
                         />
                     </div>
@@ -109,9 +125,7 @@ function LoginForm() {
                 </form>
 
                 <div className={styles.authFooter}>
-                    <p>Default Admin:</p>
-                    <p>Email: admin@astroecomm.com</p>
-                    <p>Password: admin123</p>
+                    <p>Belum punya akun? <a href="/registrasi" style={{color: '#007bff'}}>Daftar di sini</a></p>
                 </div>
             </div>
         </div>
