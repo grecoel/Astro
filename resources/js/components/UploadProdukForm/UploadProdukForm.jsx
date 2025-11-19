@@ -122,25 +122,27 @@ function UploadProdukForm() {
     return (
         <div className={styles.container}>
             <h2>Form Jual Produk</h2>
+            <p className={styles.subtitle}>
+                Lengkapi informasi produk, foto pendukung, dan detail pengiriman sebelum menayangkan produk.
+            </p>
 
             <form onSubmit={handleSubmit} className={styles.form}>
-
-                {/* ------------------ INFORMASI PRODUK ------------------ */}
-                <fieldset className={styles.box}>
+                <fieldset className={styles.section}>
                     <legend>Informasi Produk</legend>
 
                     <label>Nama Produk</label>
                     <input
                         type="text"
                         name="product_name"
+                        placeholder="Contoh: Mie Instan"
                         value={formData.product_name}
                         onChange={handleChange}
                         required
                     />
                     {getError("product_name")}
 
-                    <div className={styles.row}>
-                        <div className={styles.col}>
+                    <div className={styles.gridTwo}>
+                        <div>
                             <label>Kategori</label>
                             <select name="category" value={formData.category} onChange={handleChange}>
                                 <option value="">Pilih Kategori</option>
@@ -149,7 +151,7 @@ function UploadProdukForm() {
                                 <option value="electronic">Elektronik</option>
                             </select>
                         </div>
-                        <div className={styles.col}>
+                        <div>
                             <label>Kondisi</label>
                             <select name="condition" value={formData.condition} onChange={handleChange}>
                                 <option value="">Pilih Kondisi</option>
@@ -159,21 +161,24 @@ function UploadProdukForm() {
                         </div>
                     </div>
 
-                    <div className={styles.row}>
-                        <div className={styles.col}>
-                            <label>Harga (Rp)</label>
+                    <div className={styles.gridTwo}>
+                        <div>
+                            <label>Harga (Rupiah)</label>
                             <input
                                 type="number"
                                 name="price"
+                                placeholder="3000"
+                                inputMode="numeric"
                                 value={formData.price}
                                 onChange={handleChange}
                             />
                         </div>
-                        <div className={styles.col}>
+                        <div>
                             <label>Stok</label>
                             <input
                                 type="number"
                                 name="stock"
+                                placeholder="25"
                                 value={formData.stock}
                                 onChange={handleChange}
                             />
@@ -185,62 +190,89 @@ function UploadProdukForm() {
                         name="description"
                         value={formData.description}
                         onChange={handleChange}
-                        rows="3"
+                        rows="4"
+                        placeholder="Ceritakan detail produk, varian rasa, dan alasan mengapa pembeli harus memilih produk ini."
                     />
 
-                    {/* Upload Foto */}
-                    <label>Upload Foto Produk</label>
-                    <input
-                        type="file"
-                        multiple
-                        accept="image/*"
-                        onChange={handlePhotoUpload}
-                    />
+                    <div className={styles.uploadSection}>
+                        <div className={styles.uploadHeader}>
+                            <label>Upload Foto Produk</label>
+                            <span className={styles.helperText}>Maksimal 5 foto, ukuran maksimal 2MB</span>
+                        </div>
 
-                    <div className={styles.previewRow}>
-                        {previewPhotos.map((src, i) => (
-                            <img key={i} src={src} alt="preview" className={styles.previewImg} />
-                        ))}
+                        <div className={styles.photoGrid}>
+                            <label htmlFor="productPhotos" className={styles.dropzone}>
+                                <span className={styles.dropIcon}>+</span>
+                                <p>Klik atau drop untuk upload</p>
+                            </label>
+                            <input
+                                id="productPhotos"
+                                type="file"
+                                multiple
+                                accept="image/*"
+                                onChange={handlePhotoUpload}
+                                className={styles.hiddenInput}
+                            />
+
+                            {previewPhotos.map((src, i) => (
+                                <div key={i} className={styles.photoItem}>
+                                    <img src={src} alt={`Foto ${i + 1}`} />
+                                </div>
+                            ))}
+
+                            {previewPhotos.length === 0 && (
+                                <div className={styles.photoPlaceholder}>Belum ada foto</div>
+                            )}
+
+                            {previewPhotos.length > 0 && (
+                                <div className={styles.photoCount}>Foto {previewPhotos.length}</div>
+                            )}
+                        </div>
                     </div>
                 </fieldset>
 
-                {/* ------------------ LOKASI & PENGIRIMAN ------------------ */}
-                <fieldset className={styles.box}>
+                <fieldset className={styles.section}>
                     <legend>Lokasi & Pengiriman</legend>
 
-                    <label>Lokasi Barang</label>
-                    <input
-                        type="text"
-                        name="location"
-                        value={formData.location}
-                        onChange={handleChange}
-                    />
-
-                    <label>Berat (gram)</label>
-                    <input
-                        type="number"
-                        name="weight"
-                        value={formData.weight}
-                        onChange={handleChange}
-                    />
+                    <div className={styles.gridTwo}>
+                        <div>
+                            <label>Lokasi Barang</label>
+                            <input
+                                type="text"
+                                name="location"
+                                placeholder="Contoh: Tembalang City"
+                                value={formData.location}
+                                onChange={handleChange}
+                            />
+                        </div>
+                        <div>
+                            <label>Berat (gram)</label>
+                            <input
+                                type="number"
+                                name="weight"
+                                placeholder="300"
+                                value={formData.weight}
+                                onChange={handleChange}
+                            />
+                        </div>
+                    </div>
 
                     <label>Metode Pengiriman</label>
-                    <div className={styles.checkboxGroup}>
-                        {["JNE", "J&T", "SiCepat", "COD Kampus"].map((s) => (
-                            <label key={s}>
+                    <div className={styles.shippingGrid}>
+                        {["JNE", "J&T", "SiCepat", "COD di Kampus"].map((s) => (
+                            <label key={s} className={styles.shippingOption}>
                                 <input
                                     type="checkbox"
                                     value={s}
                                     checked={formData.shipping_methods.includes(s)}
                                     onChange={handleCheckbox}
                                 />
-                                {s}
+                                <span>{s}</span>
                             </label>
                         ))}
                     </div>
                 </fieldset>
 
-                {/* BUTTON */}
                 <div className={styles.buttonRow}>
                     <button type="button" className={styles.draftButton}>
                         Simpan Draft
@@ -252,7 +284,6 @@ function UploadProdukForm() {
                 </div>
             </form>
 
-            {/* MODAL */}
             {showModal && (
                 <div className={styles.modalOverlay} onClick={() => setShowModal(false)}>
                     <div
