@@ -10,6 +10,7 @@ import VerifikasiList from './components/Admin/VerifikasiList';
 import VerifikasiDetail from './components/Admin/VerifikasiDetail';
 import LoginForm from './components/Auth/LoginForm';
 import ProtectedRoute from './components/Auth/ProtectedRoute';
+import DashboardAdmin from './components/Admin/DashboardAdmin';
 
 const container = document.getElementById('app');
 const root = createRoot(container);
@@ -23,6 +24,11 @@ root.render(
                     <Route path="/registrasi" element={<RegistrasiForm />} />
                     
                     {/* Protected Admin Routes */}
+                    <Route path="/admin" element={
+                        <ProtectedRoute>
+                            <DashboardAdmin />
+                        </ProtectedRoute>
+                    } />
                     <Route path="/admin/verifikasi" element={
                         <ProtectedRoute>
                             <VerifikasiList />
