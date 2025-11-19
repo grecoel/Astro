@@ -8,7 +8,7 @@ import { createRoot } from 'react-dom/client';
 import '../css/app.css'; 
 
 // 2. IMPOR KOMPONEN HALAMAN ANDA
-import RegistrasiForm from './components/RegistrasiForm/RegistrasiForm';
+import UploadProdukForm from './components/UploadProdukForm/UploadProdukForm';
 
 // 3. Dapatkan "Kanvas" dari app.blade.php
 const container = document.getElementById('app');
@@ -19,8 +19,9 @@ root.render(
     <React.StrictMode>
         {/* Gunakan class .page-container dari CSS global */}
         <div className="page-container">
-            <RegistrasiForm />
+            <UploadProdukForm />
         </div>
+
     </React.StrictMode>
 );
 
