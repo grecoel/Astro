@@ -21,15 +21,18 @@ class AuthController extends Controller
      */
     public function login(Request $request)
     {
+        // Log untuk debug
+        \Log::info('Login attempt:', $request->all());
+
         $validator = Validator::make($request->all(), [
-            'email'    => 'required|email',
+            'email' => 'required|email', // PENTING: Pastikan ada validasi email
             'password' => 'required|string|min:6',
         ]);
 
         if ($validator->fails()) {
             return response()->json([
-                'message' => 'Validasi gagal',
-                'errors'  => $validator->errors()
+                'message' => 'Data tidak lengkap',
+                'errors' => $validator->errors() // Tampilkan detail error
             ], 422);
         }
 
@@ -37,42 +40,36 @@ class AuthController extends Controller
 
         if (!$user) {
             return response()->json([
-                'message' => 'Email atau password salah'
-            ], 401);
+                'message' => 'Email tidak ditemukan'
+            ], 404);
         }
 
         // Check password
         if (!Hash::check($request->password, $user->password)) {
             return response()->json([
-                'message' => 'Email atau password salah'
+                'message' => 'Password salah'
             ], 401);
         }
 
-        // If login as seller → check seller status must APPROVED
+        // Admin bisa login kapan saja
+        // Seller hanya bisa login jika APPROVED
         if ($user->role === 'seller') {
-            if (!$user->seller) {
+            $seller = \App\Models\Seller::where('user_id', $user->id)->first();
+            if (!$seller || $seller->status !== 'APPROVED') {
                 return response()->json([
-                    'message' => 'Akun seller tidak ditemukan.'
-                ], 403);
-            }
-
-            if ($user->seller->status !== 'APPROVED') {
-                return response()->json([
-                    'message' => 'Akun Anda belum diverifikasi admin.'
+                    'message' => 'Akun seller belum disetujui'
                 ], 403);
             }
         }
 
-        // Create Sanctum Token
+        // Generate token
         $token = $user->createToken('auth_token')->plainTextToken;
 
         return response()->json([
             'message' => 'Login berhasil',
-            'data' => [
-                'user'  => $user,
-                'token' => $token
-            ]
-        ], 200);
+            'user' => $user,
+            'token' => $token
+        ]);
     }
 
     /**
@@ -105,7 +102,7 @@ class AuthController extends Controller
 
         return response()->json([
             'message' => 'Data profil berhasil diambil',
-            'data'    => $user
+            'data' => $user
         ]);
     }
 }
