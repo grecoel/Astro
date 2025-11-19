@@ -41,9 +41,9 @@ function AdminLayout({ children, title }) {
                     <h2>🚀 Astro Admin</h2>
                 </div>
                 <div className={styles.navLinks}>
-                    <Link to="/admin/verifikasi" className={styles.navLink}>
-                        Verifikasi Seller
-                    </Link>
+                    <Link to="/admin" className={styles.navLink}>Dashboard</Link>
+                    <Link to="/admin/verifikasi" className={styles.navLink}>Verifikasi Seller</Link>
+                    <Link to="/admin/seller" className={styles.navLink}>Data Seller</Link>
                 </div>
                 <div className={styles.navUser}>
                     {user && (
