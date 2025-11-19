@@ -23,18 +23,23 @@ function LoginForm() {
         setError('');
     };
 
+    const { email, password } = formData;
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         setIsLoading(true);
         setError('');
 
+        console.log('Data yang dikirim:', { email, password }); // Tambahkan ini
+
         try {
-            console.log('Attempting login...'); // Debug log
-
             // Login request
-            const response = await axios.post('/api/login', formData);
+            const response = await axios.post('/api/auth/login', {
+                email,
+                password
+            });
 
-            console.log('Login response:', response.data); // Debug log
+            console.log('Response:', response.data); // Tambahkan ini
 
             if (response.data.token && response.data.user) {
                 // Store token and user
@@ -63,6 +68,9 @@ function LoginForm() {
             }
         } catch (err) {
             console.error('Login error:', err); // Debug log
+            console.error('Error detail:', err.response); // Tambahkan ini
+            
+            let errorMsg = 'Terjadi kesalahan. Silakan coba lagi.';
             
             if (err.response?.status === 422) {
                 errorMsg = 'Email atau password tidak boleh kosong';
@@ -71,7 +79,7 @@ function LoginForm() {
             } else if (err.response?.status === 403) {
                 setError('Akses ditolak.');
             } else {
-                setError(err.response?.data?.message || 'Terjadi kesalahan. Silakan coba lagi.');
+                setError(err.response?.data?.message || errorMsg);
             }
             
             setModalType('error');
