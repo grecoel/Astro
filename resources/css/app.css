@@ -3,19 +3,24 @@
 /* 1. CSS Reset Sederhana */
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  background-color: #f7f9fc;
-  color: #333;
+  font-family: 'Helvetica Neue', 'Inter', Arial, sans-serif;
+  background-color: #F2F4F0;
+  color: #171719;
   line-height: 1.6;
 }
 
-/* 2. Variabel Warna Global (sesuaikan dengan UI Anda) */
+/* 2. Variabel Warna Global */
 :root {
-  --color-primary: #007bff;
-  --color-dark: #2a2a2a;
-  --color-light: #ffffff;
-  --color-error: #d9534f;
-  --color-border: #e0e0e0;
+  --color-primary: #D3F26A;
+  --color-primary-dark: #B8D354;
+  --color-secondary: #AD7BFF;
+  --color-secondary-dark: #9365E8;
+  --color-light: #FFFFFF;
+  --color-dark: #171719;
+  --color-bg: #F2F4F0;
+  --color-error: #FF6B6B;
+  --color-border: #E0DDD8;
+  --color-border-dark: #D1CDCA;
 }
 
 /* 3. Style Container Global */
@@ -24,13 +29,16 @@ body {
   margin: 2rem auto;
   padding: 1.5rem;
   background-color: var(--color-light);
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(23, 23, 25, 0.08);
+  border: 1px solid var(--color-border);
 }
 
 /* 4. Style Judul Global */
 h2 {
   color: var(--color-dark);
-  border-bottom: 2px solid var(--color-border);
-  padding-bottom: 0.5rem;
+  border-bottom: 3px solid var(--color-primary);
+  padding-bottom: 0.75rem;
+  font-weight: 700;
+  font-size: 1.75rem;
 }

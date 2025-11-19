@@ -29,6 +29,9 @@ function RegistrasiForm() {
     // State untuk UI
     const [isLoading, setIsLoading] = useState(false);
     const [errors, setErrors] = useState({}); // Untuk error validasi Laravel
+    const [showModal, setShowModal] = useState(false);
+    const [modalType, setModalType] = useState('success'); // 'success' atau 'error'
+    const [modalMessage, setModalMessage] = useState('');
 
     // Handler untuk semua input teks
     const handleChange = (e) => {
@@ -61,19 +64,25 @@ function RegistrasiForm() {
             });
 
             console.log(response.data);
-            alert('Registrasi berhasil! Data Anda sedang diverifikasi.');
+            setModalType('success');
+            setModalMessage('Registrasi berhasil! Data Anda sedang diverifikasi.');
+            setShowModal(true);
             // (Opsional: reset form di sini)
 
         } catch (error) {
             if (error.response && error.response.status === 422) {
                 // Tangani error validasi 422 dari Laravel
                 setErrors(error.response.data.errors);
-                alert('Registrasi gagal. Cek kembali data yang Anda masukkan.');
+                setModalType('error');
+                setModalMessage('Registrasi gagal. Cek kembali data yang Anda masukkan.');
+                setShowModal(true);
             } else {
                 console.error('Server Error:', error);
                 console.error('Response data:', error.response?.data);
                 console.error('Response status:', error.response?.status);
-                alert(`Terjadi kesalahan pada server: ${error.response?.data?.message || error.message}`);
+                setModalType('error');
+                setModalMessage(`Terjadi kesalahan pada server: ${error.response?.data?.message || error.message}`);
+                setShowModal(true);
             }
         } finally {
             setIsLoading(false);
@@ -299,6 +308,54 @@ function RegistrasiForm() {
                     </button>
                 </div>
             </form>
+
+            {/* Modal Popup */}
+            {showModal && (
+                <div className={styles.modalOverlay} onClick={() => setShowModal(false)}>
+                    <div className={`${styles.modal} ${styles[`modal-${modalType}`]}`} onClick={(e) => e.stopPropagation()}>
+                        <div className={styles.modalHeader}>
+                            {modalType === 'success' ? (
+                                <div className={styles.modalIcon + ' ' + styles.iconSuccess}>✓</div>
+                            ) : (
+                                <div className={styles.modalIcon + ' ' + styles.iconError}>✕</div>
+                            )}
+                        </div>
+                        <div className={styles.modalContent}>
+                            <h3>{modalType === 'success' ? 'Berhasil!' : 'Terjadi Kesalahan'}</h3>
+                            <p>{modalMessage}</p>
+                        </div>
+                        <div className={styles.modalFooter}>
+                            <button 
+                                className={styles.modalButton}
+                                onClick={() => {
+                                    setShowModal(false);
+                                    if (modalType === 'success') {
+                                        // Reset form jika berhasil
+                                        setFormData({
+                                            store_name: '',
+                                            store_description: '',
+                                            pic_name: '',
+                                            pic_phone: '',
+                                            pic_email: '',
+                                            pic_address: '',
+                                            pic_rt: '',
+                                            pic_rw: '',
+                                            pic_district: '',
+                                            pic_city: '',
+                                            pic_province: '',
+                                            pic_ktp_number: '',
+                                        });
+                                        setPicPhoto(null);
+                                        setPicKtpFile(null);
+                                    }
+                                }}
+                            >
+                                {modalType === 'success' ? 'Tutup' : 'Coba Lagi'}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
