@@ -20,20 +20,30 @@ const CategoryManager = () => {
             const token = localStorage.getItem('token');
             if (!token) {
                 setError('Token tidak ditemukan. Silakan login kembali.');
+                setCategories([]);
                 return;
             }
             
             const res = await axios.get('/api/admin/categories', {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
-            setCategories(res.data.data || res.data);
+            
+            // Ensure categories is always an array
+            let data = res.data?.data || res.data || [];
+            if (!Array.isArray(data)) {
+                data = [];
+            }
+            setCategories(data);
             setError(null);
         } catch (err) {
             console.error("Gagal load kategori:", err);
+            setCategories([]); // Ensure empty array on error
             if (err.response?.status === 401) {
                 setError('Anda tidak terautentikasi. Silakan login kembali.');
             } else if (err.response?.status === 403) {
                 setError('Anda tidak memiliki akses untuk melihat kategori.');
+            } else if (err.message === 'Network Error' || !err.response) {
+                setError('Gagal terhubung ke server. Periksa koneksi Anda.');
             } else {
                 setError('Gagal memuat kategori: ' + (err.response?.data?.message || err.message));
             }
