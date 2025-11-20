@@ -91,6 +91,18 @@ return [
             'throw' => true,
         ],
 
+        'supabase_products' => [
+            'driver' => 's3',
+            'key'    => env('SUPABASE_ACCESS_KEY_ID'), 
+            'secret' => env('SUPABASE_SECRET_ACCESS_KEY'),
+            'region' => 'ap-southeast-2',
+            'bucket' => 'products', 
+            'endpoint' => env('SUPABASE_URL') . '/storage/v1/s3',
+            'url' => env('SUPABASE_URL') . '/storage/v1/object/public/products',
+            'use_path_style_endpoint' => true,
+            'throw' => true,
+        ],
+
 
     ],
 

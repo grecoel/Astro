@@ -119,7 +119,7 @@ function SellerDashboard() {
                         <div className={styles.actionCard}>
                             <h3>Produk</h3>
                             <p>0 Produk</p>
-                            <button onClick={() => {}}>Kelola Produk</button>
+                            <button onClick={() => navigate('/seller/upload-produk')}>Upload Produk</button>
                         </div>
 
                         <div className={styles.actionCard}>

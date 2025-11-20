@@ -12,6 +12,7 @@ import LoginForm from './components/Auth/LoginForm';
 import ProtectedRoute from './components/Auth/ProtectedRoute';
 import AktivasiAkun from './components/Auth/AktivasiAkun';
 import SellerDashboard from './components/Seller/SellerDashboard';
+import UploadProduk from './components/Seller/UploadProduk';
 import AdminLayout from './components/Admin/AdminLayout';
 import CategoryManager from './components/Admin/CategoryManager';
 import AdminDashboard from './components/Admin/AdminDashboard';
@@ -55,6 +56,11 @@ root.render(
                 <Route path="/seller/dashboard" element={
                     <ProtectedRoute>
                         <SellerDashboard />
+                    </ProtectedRoute>
+                } />
+                <Route path="/seller/upload-produk" element={
+                    <ProtectedRoute>
+                        <UploadProduk />
                     </ProtectedRoute>
                 } />
 

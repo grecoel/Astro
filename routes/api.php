@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\SellerController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\ActivationController;
+use App\Http\Controllers\Api\SellerProductController;
 use App\Http\Controllers\Api\Admin\SellerVerificationController;
 use App\Http\Controllers\Api\Admin\CategoryController;
 
@@ -25,6 +26,9 @@ Route::middleware('auth:sanctum')->group(function () {
     // Seller Routes
     Route::prefix('seller')->group(function () {
         Route::get('/status', [SellerController::class, 'getActivationStatus']);
+        Route::get('/products', [SellerProductController::class, 'index']);
+        Route::get('/products/create', [SellerProductController::class, 'create']); 
+        Route::post('/products', [SellerProductController::class, 'store']);
     });
     
     // ADMIN ROUTES
