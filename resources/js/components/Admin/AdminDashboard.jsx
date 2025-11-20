@@ -1,13 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 import styles from './AdminDashboard.module.css';
 
 export default function AdminDashboard() {
+    const navigate = useNavigate();
     const [stats, setStats] = useState({
         totalCategories: 0,
         totalSellers: 0,
-        pendingSellers: 0,
-        totalUsers: 0
+        pendingSellers: 0
     });
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -29,8 +30,7 @@ export default function AdminDashboard() {
             const categoriesRes = await axios.get('/api/admin/categories', { headers });
             const totalCategories = categoriesRes.data.data?.length || 0;
 
-            // Fetch sellers count (if endpoint exists)
-            let totalSellers = 0;
+            // Fetch pending sellers count
             let pendingSellers = 0;
             try {
                 const sellersRes = await axios.get('/api/admin/pending-sellers', { headers });
@@ -41,58 +41,78 @@ export default function AdminDashboard() {
 
             setStats({
                 totalCategories,
-                totalSellers,
-                pendingSellers,
-                totalUsers: 0
+                totalSellers: 0,
+                pendingSellers
             });
             setError(null);
         } catch (err) {
             console.error('Error fetching stats:', err);
-            setError('Gagal memuat statistik dashboard');
+            setError('Gagal memuat data dashboard');
         } finally {
             setLoading(false);
         }
     };
 
     if (loading) {
-        return <div className={styles.container}><p>Memuat dashboard...</p></div>;
+        return (
+            <div className={styles.container}>
+                <div className={styles.loading}>
+                    <div className={styles.spinner}></div>
+                    <p>Memuat dashboard...</p>
+                </div>
+            </div>
+        );
     }
 
     return (
         <div className={styles.container}>
-            <h1>Dashboard Admin</h1>
-            
+            <div className={styles.header}>
+                <h1>Dashboard Admin</h1>
+                <p className={styles.subtitle}>Selamat datang kembali di panel administrasi marketplace</p>
+            </div>
+
             {error && <div className={styles.alert}>{error}</div>}
-            
+
             <div className={styles.statsGrid}>
-                <div className={styles.statCard}>
+                <div className={styles.statCard} onClick={() => navigate('/admin/kategori')}>
+                    <div className={styles.statIcon}>◆</div>
                     <h3>Kategori Produk</h3>
-                    <p className={styles.number}>{stats.totalCategories}</p>
+                    <p className={styles.statNumber}>{stats.totalCategories}</p>
+                    <span className={styles.statAction}>Kelola Kategori →</span>
                 </div>
-                
-                <div className={styles.statCard}>
-                    <h3>Penjual Menunggu Verifikasi</h3>
-                    <p className={styles.number}>{stats.pendingSellers}</p>
-                </div>
-                
-                <div className={styles.statCard}>
-                    <h3>Total Penjual</h3>
-                    <p className={styles.number}>{stats.totalSellers}</p>
-                </div>
-                
-                <div className={styles.statCard}>
-                    <h3>Total Pengguna</h3>
-                    <p className={styles.number}>{stats.totalUsers}</p>
+
+                <div className={styles.statCard + ' ' + styles.pending} onClick={() => navigate('/admin/verifikasi')}>
+                    <div className={styles.statIcon}>✓</div>
+                    <h3>Menunggu Verifikasi</h3>
+                    <p className={styles.statNumber}>{stats.pendingSellers}</p>
+                    <span className={styles.statAction}>Verifikasi Penjual →</span>
                 </div>
             </div>
 
-            <div className={styles.quickActions}>
-                <h2>Aksi Cepat</h2>
-                <ul>
-                    <li><a href="/admin/kategori">Kelola Kategori Produk</a></li>
-                    <li><a href="/admin/verifikasi">Verifikasi Penjual</a></li>
-                    <li><a href="/login">Logout</a></li>
-                </ul>
+            <div className={styles.infoGrid}>
+                <div className={styles.infoCard}>
+                    <h2>Fitur Manajemen</h2>
+                    <ul>
+                        <li>Kelola kategori produk yang tersedia di marketplace</li>
+                        <li>Verifikasi dan terima penjual baru yang mendaftar</li>
+                        <li>Monitor aktivitas penjual dan transaksi</li>
+                        <li>Kelola pengaturan dan konfigurasi sistem</li>
+                    </ul>
+                </div>
+
+                <div className={styles.infoCard}>
+                    <h2>Akses Cepat</h2>
+                    <div className={styles.quickLinks}>
+                        <a href="/admin/kategori" className={styles.quickLink}>
+                            <span className={styles.linkIcon}>→</span>
+                            <span>Manajemen Kategori</span>
+                        </a>
+                        <a href="/admin/verifikasi" className={styles.quickLink}>
+                            <span className={styles.linkIcon}>→</span>
+                            <span>Verifikasi Penjual</span>
+                        </a>
+                    </div>
+                </div>
             </div>
         </div>
     );
