@@ -1,56 +1,103 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
-import AdminLayout from './AdminLayout';
-import styles from './Admin.module.css';
+import styles from './VerifikasiList.module.css';
 
 function VerifikasiList() {
     const [pendingSellers, setPendingSellers] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
+    const [error, setError] = useState(null);
 
     useEffect(() => {
-        // Use absolute API path and include credentials for session-based auth
-        axios.get('/api/admin/pending-sellers', { withCredentials: true })
-            .then(response => {
-                setPendingSellers(response.data);
-                setIsLoading(false);
-            })
-            .catch(error => {
-                console.error("Error mengambil data:", error);
-                setIsLoading(false);
-            });
+        fetchPendingSellers();
     }, []);
 
-    if (isLoading) return <AdminLayout><div>Loading...</div></AdminLayout>;
-    if (pendingSellers.length === 0) return <AdminLayout><div>Tidak ada pendaftar baru.</div></AdminLayout>;
+    const fetchPendingSellers = async () => {
+        try {
+            setIsLoading(true);
+            const token = localStorage.getItem('token');
+            const response = await axios.get('/api/admin/pending-sellers', {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            setPendingSellers(response.data.data || response.data);
+            setError(null);
+        } catch (error) {
+            console.error("Error mengambil data:", error);
+            const message = error.response?.data?.message || 'Gagal memuat data penjual';
+            setError(message);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    if (isLoading) {
+        return (
+            <div className={styles.container}>
+                <div className={styles.loading}>
+                    <div className={styles.spinner}></div>
+                    <p>Memuat data penjual...</p>
+                </div>
+            </div>
+        );
+    }
 
     return (
-        <AdminLayout title="Verifikasi Penjual">
-            <table className={styles.table}>
-                <thead>
-                    <tr>
-                        <th>Nama Toko</th>
-                        <th>Email PIC</th>
-                        <th>Tanggal Daftar</th>
-                        <th>Aksi</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {pendingSellers.map(seller => (
-                        <tr key={seller.id}>
-                            <td>{seller.store_name}</td>
-                            <td>{seller.pic_email}</td>
-                            <td>{new Date(seller.created_at).toLocaleDateString()}</td>
-                            <td>
-                                <Link to={`/admin/verifikasi/${seller.id}`}>
-                                    Lihat Detail
-                                </Link>
-                            </td>
-                        </tr>
-                    ))}
-                </tbody>
-            </table>
-        </AdminLayout>
+        <div className={styles.container}>
+            <div className={styles.header}>
+                <h1>Verifikasi Penjual</h1>
+                <p className={styles.subtitle}>Kelola permohonan pendaftaran penjual baru</p>
+            </div>
+
+            {error && <div className={styles.error}>{error}</div>}
+
+            {pendingSellers.length === 0 ? (
+                <div className={styles.empty}>
+                    <p>Tidak ada penjual yang menunggu verifikasi.</p>
+                </div>
+            ) : (
+                <div className={styles.tableCard}>
+                    <div className={styles.tableInfo}>
+                        <p>Total penjual menunggu verifikasi: <strong>{pendingSellers.length}</strong></p>
+                    </div>
+                    <div className={styles.tableWrapper}>
+                        <table className={styles.table}>
+                            <thead>
+                                <tr>
+                                    <th>No</th>
+                                    <th>Nama Toko</th>
+                                    <th>Email PIC</th>
+                                    <th>No. KTP</th>
+                                    <th>Tanggal Daftar</th>
+                                    <th>Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {pendingSellers.map((seller, idx) => (
+                                    <tr key={seller.id}>
+                                        <td className={styles.colNo}>{idx + 1}</td>
+                                        <td className={styles.colStore}>{seller.store_name}</td>
+                                        <td className={styles.colEmail}>{seller.pic_email}</td>
+                                        <td className={styles.colKtp}>{seller.pic_ktp_number}</td>
+                                        <td className={styles.colDate}>
+                                            {new Date(seller.created_at).toLocaleDateString('id-ID', { 
+                                                year: 'numeric', 
+                                                month: 'short', 
+                                                day: 'numeric' 
+                                            })}
+                                        </td>
+                                        <td className={styles.colAction}>
+                                            <Link to={`/admin/verifikasi/${seller.id}`} className={styles.btnDetail}>
+                                                Lihat Detail
+                                            </Link>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            )}
+        </div>
     );
 }
 

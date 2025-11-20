@@ -68,12 +68,41 @@ return [
         'bucket' => env('SUPABASE_BUCKET'),
         
         // INI BAGIAN PALING PENTING
-        'endpoint' => env('SUPABASE_ENDPOINT'), // Cth: https://[id_proyek].supabase.co/storage/v1
-        'url' => env('SUPABASE_URL'), // Cth: https://[id_proyek].supabase.co/storage/v1/object/public/[bucket]
+        'endpoint' => env('SUPABASE_ENDPOINT'), 
+        'url' => env('SUPABASE_URL'), 
         
         'use_path_style_endpoint' => true,
         'visibility' => 'public',
-    ],
+        ],
+
+        'supabase_categories' => [
+            'driver' => 's3',
+            // GUNAKAN KUNCI S3 YANG BARU:
+            'key'    => env('SUPABASE_ACCESS_KEY_ID'), 
+            'secret' => env('SUPABASE_SECRET_ACCESS_KEY'),
+            
+            'region' => 'ap-southeast-2',
+            'bucket' => 'categories',
+            
+            'endpoint' => env('SUPABASE_URL') . '/storage/v1/s3',
+            
+            'url' => env('SUPABASE_URL') . '/storage/v1/object/public/categories',
+            'use_path_style_endpoint' => true,
+            'throw' => true,
+        ],
+
+        'supabase_products' => [
+            'driver' => 's3',
+            'key'    => env('SUPABASE_ACCESS_KEY_ID'), 
+            'secret' => env('SUPABASE_SECRET_ACCESS_KEY'),
+            'region' => 'ap-southeast-2',
+            'bucket' => 'products', 
+            'endpoint' => env('SUPABASE_URL') . '/storage/v1/s3',
+            'url' => env('SUPABASE_URL') . '/storage/v1/object/public/products',
+            'use_path_style_endpoint' => true,
+            'throw' => true,
+        ],
+
 
     ],
 

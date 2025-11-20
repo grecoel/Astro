@@ -48,7 +48,7 @@ function LoginForm() {
                 // Redirect based on role
                 if (response.data.user.role === 'admin') {
                     console.log('Redirecting to admin dashboard');
-                    navigate('/admin/verifikasi');
+                    navigate('/admin/dashboard');
                 } else if (response.data.user.role === 'seller') {
                     console.log('Redirecting to seller dashboard');
                     navigate('/seller/dashboard');
