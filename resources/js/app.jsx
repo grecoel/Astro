@@ -12,6 +12,9 @@ import LoginForm from './components/Auth/LoginForm';
 import ProtectedRoute from './components/Auth/ProtectedRoute';
 import AktivasiAkun from './components/Auth/AktivasiAkun';
 import SellerDashboard from './components/Seller/SellerDashboard';
+import AdminLayout from './components/Admin/AdminLayout';
+import CategoryManager from './components/Admin/CategoryManager';
+import AdminDashboard from './components/Admin/AdminDashboard';
 
 const container = document.getElementById('app');
 const root = createRoot(container);
@@ -24,17 +27,18 @@ root.render(
                     <Route path="/login" element={<LoginForm />} />
                     <Route path="/registrasi" element={<RegistrasiForm />} />
                     <Route path="/aktivasi-akun" element={<AktivasiAkun />} />
+                    
                     {/* Protected Admin Routes */}
-                    <Route path="/admin/verifikasi" element={
+                    <Route path="/admin" element={
                         <ProtectedRoute>
-                            <VerifikasiList />
+                            <AdminLayout />
                         </ProtectedRoute>
-                    } />
-                    <Route path="/admin/verifikasi/:sellerId" element={
-                        <ProtectedRoute>
-                            <VerifikasiDetail />
-                        </ProtectedRoute>
-                    } />
+                    }>
+                        <Route path="dashboard" element={<AdminDashboard />} />
+                        <Route path="kategori" element={<CategoryManager />} />
+                        <Route path="verifikasi" element={<VerifikasiList />} />
+                        <Route path="verifikasi/:sellerId" element={<VerifikasiDetail />} />
+                    </Route>
 
                     {/* Protected Seller Routes */}
                     <Route path="/seller/dashboard" element={
