@@ -6,11 +6,12 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Password;
 
 class AuthController extends Controller
 {
     /**
-     * Memproses permintaan login Admin.
+     * Memproses permintaan login Admin dan Seller.
      */
     public function login(Request $request)
     {
@@ -27,21 +28,25 @@ class AuthController extends Controller
         if (Auth::attempt($request->only('email', 'password'))) {
             $user = Auth::user();
             
-            // Periksa ROLE (Hanya Admin yang boleh login ke sini)
-            if ($user->role !== 'admin') {
+            // Untuk seller, cek apakah akun sudah teraktivasi
+            if ($user->role === 'seller') {
+                // Seller sudah bisa login jika User record exists dengan password yang benar
+                // Berarti sudah teraktivasi dari activation flow
+            } elseif ($user->role !== 'admin') {
+                // Role yang tidak dikenal
                 Auth::logout();
-                return response()->json(['message' => 'Akses ditolak. Anda bukan Admin.'], 403);
+                return response()->json(['message' => 'Akses ditolak.'], 403);
             }
 
             // Hapus token lama jika ada
             $user->tokens()->delete();
             
             // Generate token baru untuk SPA
-            $token = $user->createToken('admin-token')->plainTextToken;
+            $token = $user->createToken('auth-token')->plainTextToken;
             
             return response()->json([
                 'message' => 'Login berhasil!',
-                'user' => $user->only('id', 'name', 'email', 'role'),
+                'user' => $user->only('id', 'name', 'email', 'role', 'seller_id'),
                 'token' => $token
             ]);
         }
@@ -68,5 +73,32 @@ class AuthController extends Controller
         return response()->json([
             'user' => $request->user()->only('id', 'name', 'email', 'role')
         ]);
+    }
+
+    public function activateAccount(Request $request)
+    {
+    $request->validate([
+        'token' => 'required',
+        'email' => 'required|email',
+        'password' => 'required|min:8|confirmed', // password_confirmation wajib
+    ]);
+
+    // Gunakan broker password Laravel untuk reset password
+    $status = Password::reset(
+        $request->only('email', 'password', 'password_confirmation', 'token'),
+        function ($user, $password) {
+            $user->forceFill([
+                'password' => Hash::make($password)
+            ])->setRememberToken(Str::random(60));
+
+            $user->save();
+
+            event(new \Illuminate\Auth\Events\PasswordReset($user));
+        }
+    );
+
+    if ($status == Password::PASSWORD_RESET) {
+        return response()->json(['message' => 'Akun berhasil diaktifkan! Silakan login.']);
+    }
     }
 }

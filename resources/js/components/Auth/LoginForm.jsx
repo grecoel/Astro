@@ -31,6 +31,8 @@ function LoginForm() {
         try {
             // Login request (no CSRF needed for token auth)
             const response = await axios.post('/api/login', formData);
+            
+            console.log('Login response:', response.data);
 
             if (response.data.token) {
                 // Store token and user
@@ -40,10 +42,23 @@ function LoginForm() {
                 // Set token in axios header for future requests
                 axios.defaults.headers.common['Authorization'] = `Bearer ${response.data.token}`;
                 
-                // Redirect to admin dashboard
-                navigate('/admin/verifikasi');
+                console.log('User role:', response.data.user.role);
+                console.log('User data:', response.data.user);
+                
+                // Redirect based on role
+                if (response.data.user.role === 'admin') {
+                    console.log('Redirecting to admin dashboard');
+                    navigate('/admin/verifikasi');
+                } else if (response.data.user.role === 'seller') {
+                    console.log('Redirecting to seller dashboard');
+                    navigate('/seller/dashboard');
+                } else {
+                    console.log('Unknown role, redirecting to home');
+                    navigate('/');
+                }
             }
         } catch (err) {
+            console.error('Login error:', err);
             let errorMsg = 'Terjadi kesalahan. Silakan coba lagi.';
             
             if (err.response?.status === 422) {
@@ -51,7 +66,9 @@ function LoginForm() {
             } else if (err.response?.status === 401) {
                 errorMsg = 'Email atau password salah';
             } else if (err.response?.status === 403) {
-                errorMsg = 'Akses ditolak. Anda bukan admin.';
+                errorMsg = 'Akun Anda belum diaktivasi. Periksa email Anda untuk link aktivasi.';
+            } else {
+                console.error('Error details:', err.response?.data || err.message);
             }
             
             setModalType('error');
@@ -65,6 +82,9 @@ function LoginForm() {
 
     return (
         <div className={styles.authContainer}>
+            <button onClick={() => navigate('/')} className={styles.homeButton}>
+                Home &gt;
+            </button>
             <div className={styles.authBox}>
                 <h2 className={styles.authTitle}>Login</h2>
                 
@@ -86,7 +106,7 @@ function LoginForm() {
                             value={formData.email}
                             onChange={handleChange}
                             className={styles.input}
-                            placeholder="admin@astroecomm.com"
+                            placeholder="Email Anda"
                             required
                         />
                     </div>
@@ -115,6 +135,10 @@ function LoginForm() {
                         {isLoading ? 'Loading...' : 'Login'}
                     </button>
                 </form>
+
+                <div className={styles.authFooter}>
+                    <p>Belum punya akun? <a href="/registrasi" style={{color: '#7B923B'}}>Daftar di sini</a></p>
+                </div>
             </div>
 
             {/* Modal Popup untuk Error */}

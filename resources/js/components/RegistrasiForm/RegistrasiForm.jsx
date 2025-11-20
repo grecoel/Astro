@@ -1,11 +1,13 @@
 
 import React, { useState } from 'react';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 import styles from './RegistrasiForm.module.css';
 
 const API_URL = '/api/sellers';
 
 function RegistrasiForm() {
+    const navigate = useNavigate();
     // State untuk data teks
     const [formData, setFormData] = useState({
         store_name: '',
@@ -97,8 +99,11 @@ function RegistrasiForm() {
     // UI Form berdasarkan kebutuhan registrasi seller
     return (
         <div className={styles.container}>
+            <button onClick={() => navigate('/')} className={styles.homeButton}>
+                Home &gt;
+            </button>
             <h2>Formulir Registrasi Penjual (Toko)</h2>
-            <p>Implementasi SRS-01</p>
+            <p>Masukkan data toko & penjual dengan lengkap dan sesuai.</p>
 
             <form onSubmit={handleSubmit} className={styles.form}>
                 
@@ -259,7 +264,7 @@ function RegistrasiForm() {
                 <fieldset className={styles.formSection}>
                     <legend>Dokumen Identitas PIC</legend>
                     <div className={styles.formGroup}>
-                        <label htmlFor="pic_ktp_number">No. KTP PIC* (max 20 digit)</label>
+                        <label htmlFor="pic_ktp_number">No. KTP PIC* (max 16 digit)</label>
                         <input 
                             type="text" 
                             id="pic_ktp_number" 

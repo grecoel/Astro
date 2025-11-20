@@ -1,0 +1,268 @@
+.container {
+    min-height: 100vh;
+    background-color: var(--color-bg);
+    padding: 1rem 1rem;
+    font-family: 'Helvetica Neue', 'Inter', Arial, sans-serif;
+}
+
+.header {
+    max-width: 1200px;
+    margin: 0 auto 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--color-light);
+    padding: 1.5rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 16px rgba(23, 23, 25, 0.08);
+    border: 1px solid var(--color-border);
+}
+
+.header h1 {
+    margin: 0;
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--color-dark);
+}
+
+.welcome {
+    margin: 0.5rem 0 0;
+    color: #666;
+    font-size: 0.9rem;
+}
+
+.logoutBtn {
+    background: var(--color-error);
+    color: white;
+    border: 2px solid var(--color-error);
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    font-family: 'Helvetica Neue', 'Inter', Arial, sans-serif;
+    transition: all 0.3s ease;
+    letter-spacing: 0.5px;
+}
+
+.logoutBtn:hover {
+    background: transparent;
+    color: var(--color-error);
+}
+
+.mainContent {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.sellerCard {
+    background: var(--color-light);
+    padding: 1.5rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 16px rgba(23, 23, 25, 0.08);
+    border: 1px solid var(--color-border);
+    margin-bottom: 1.5rem;
+}
+
+.sellerCard h2 {
+    margin: 0 0 1rem;
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--color-dark);
+    border-bottom: 3px solid var(--color-primary);
+    padding-bottom: 0.5rem;
+}
+
+.sellerInfo {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1rem;
+}
+
+.infoRow {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.infoRow label {
+    font-size: 0.8rem;
+    color: #999;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.infoRow span {
+    font-size: 1rem;
+    color: var(--color-dark);
+    font-weight: 600;
+}
+
+.statusBadge {
+    display: inline-block;
+    background: var(--color-primary);
+    color: var(--color-dark);
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    width: fit-content;
+}
+
+.quickActionsGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.actionCard {
+    background: var(--color-light);
+    padding: 1.5rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 16px rgba(23, 23, 25, 0.08);
+    border: 2px solid var(--color-border);
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+.actionCard:hover {
+    border-color: var(--color-primary);
+    box-shadow: 0 2px 12px rgba(211, 242, 106, 0.1);
+}
+
+.actionCard h3 {
+    margin: 0 0 0.5rem;
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--color-dark);
+}
+
+.actionCard p {
+    margin: 0 0 1.25rem;
+    color: #999;
+    font-size: 0.9rem;
+}
+
+.actionCard button {
+    background-color: var(--color-primary);
+    color: var(--color-dark);
+    border: 2px solid var(--color-primary);
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 0.9rem;
+    font-family: 'Helvetica Neue', 'Inter', Arial, sans-serif;
+    width: 100%;
+    transition: all 0.3s ease;
+    letter-spacing: 0.5px;
+}
+
+.actionCard button:hover {
+    background-color: var(--color-dark);
+    color: var(--color-primary);
+    border-color: var(--color-dark);
+}
+
+.settingsCard {
+    background: var(--color-light);
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 16px rgba(23, 23, 25, 0.08);
+    border: 1px solid var(--color-border);
+}
+
+.settingsCard h2 {
+    margin: 0 0 1rem;
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--color-dark);
+    border-bottom: 3px solid var(--color-primary);
+    padding-bottom: 0.5rem;
+}
+
+.settingsMenu {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.settingItem {
+    background: #FAFAF9;
+    border: 2px solid var(--color-border);
+    padding: 1rem 1.25rem;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--color-dark);
+    font-family: 'Helvetica Neue', 'Inter', Arial, sans-serif;
+    transition: all 0.3s ease;
+    text-align: left;
+}
+
+.settingItem:hover {
+    background-color: var(--color-primary);
+    color: var(--color-dark);
+    border-color: var(--color-primary);
+    box-shadow: 0 4px 12px rgba(211, 242, 106, 0.2);
+}
+
+.loadingBox,
+.errorBox {
+    max-width: 600px;
+    margin: 6.25rem auto;
+    background: var(--color-light);
+    padding: 2.5rem;
+    border-radius: 12px;
+    text-align: center;
+    box-shadow: 0 4px 16px rgba(23, 23, 25, 0.08);
+    border: 1px solid var(--color-border);
+}
+
+.errorBox p {
+    color: var(--color-error);
+    margin-bottom: 1.5rem;
+    font-weight: 500;
+}
+
+.errorBox button {
+    background-color: var(--color-primary);
+    color: var(--color-dark);
+    border: 2px solid var(--color-primary);
+    padding: 0.85rem 2rem;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    font-family: 'Helvetica Neue', 'Inter', Arial, sans-serif;
+    transition: all 0.3s ease;
+    letter-spacing: 0.5px;
+}
+
+.errorBox button:hover {
+    background-color: var(--color-dark);
+    color: var(--color-primary);
+    border-color: var(--color-dark);
+}
+
+@media (max-width: 768px) {
+    .header {
+        flex-direction: column;
+        gap: 1rem;
+        text-align: center;
+    }
+
+    .header h1 {
+        font-size: 1.5rem;
+    }
+
+    .quickActionsGrid {
+        grid-template-columns: 1fr;
+    }
+
+    .sellerInfo {
+        grid-template-columns: 1fr;
+    }
+}

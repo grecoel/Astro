@@ -26,12 +26,12 @@ body {
 /* 3. Style Container Global */
 .page-container {
   max-width: 960px;
-  margin: 2rem auto;
-  padding: 1.5rem;
-  background-color: var(--color-light);
-  border-radius: 12px;
-  box-shadow: 0 4px 16px rgba(23, 23, 25, 0.08);
-  border: 1px solid var(--color-border);
+  margin: 0 auto;
+  padding: 0;
+  background-color: transparent;
+  border-radius: 0;
+  box-shadow: none;
+  border: none;
 }
 
 /* 4. Style Judul Global */
