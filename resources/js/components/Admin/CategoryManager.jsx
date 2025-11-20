@@ -5,13 +5,19 @@ import styles from './CategoryManager.module.css';
 const CategoryManager = () => {
     const [categories, setCategories] = useState([]);
     const [name, setName] = useState('');
+    const [icon, setIcon] = useState(null);
+    const [iconPreview, setIconPreview] = useState(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const [success, setSuccess] = useState(null);
     const [editingId, setEditingId] = useState(null);
     const [editName, setEditName] = useState('');
+    const [editIcon, setEditIcon] = useState(null);
+    const [editIconPreview, setEditIconPreview] = useState(null);
     const [pageLoading, setPageLoading] = useState(true);
     const [deleteConfirmId, setDeleteConfirmId] = useState(null);
+    const [showAddModal, setShowAddModal] = useState(false);
+    const [showEditModal, setShowEditModal] = useState(false);
 
     // Load Kategori
     const fetchCategories = async () => {
@@ -56,6 +62,30 @@ const CategoryManager = () => {
         fetchCategories();
     }, []);
 
+    const handleIconChange = (e) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            setIcon(file);
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setIconPreview(reader.result);
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+
+    const handleEditIconChange = (e) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            setEditIcon(file);
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setEditIconPreview(reader.result);
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+
     // Tambah Kategori
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -69,11 +99,20 @@ const CategoryManager = () => {
 
         try {
             const token = localStorage.getItem('token');
+            const formData = new FormData();
+            formData.append('name', name.trim());
+            if (icon) {
+                formData.append('icon', icon);
+            }
+
             await axios.post('/api/admin/categories', 
-                { name: name.trim() },
+                formData,
                 { headers: { 'Authorization': `Bearer ${token}` } }
             );
             setName('');
+            setIcon(null);
+            setIconPreview(null);
+            setShowAddModal(false);
             await fetchCategories();
             setSuccess('Kategori berhasil ditambah');
             setTimeout(() => setSuccess(null), 3000);
@@ -85,17 +124,43 @@ const CategoryManager = () => {
         }
     };
 
+    const openAddModal = () => {
+        setShowAddModal(true);
+        setError(null);
+        setName('');
+        setIcon(null);
+        setIconPreview(null);
+    };
+
+    const closeAddModal = () => {
+        setShowAddModal(false);
+        setName('');
+        setIcon(null);
+        setIconPreview(null);
+        setError(null);
+    };
+
     // Edit Kategori
     const startEdit = (category) => {
         setEditingId(category.id);
         setEditName(category.name);
+        setEditIcon(null);
+        setEditIconPreview(null);
+        setError(null);
+        setShowEditModal(true);
+    };
+
+    const closeEditModal = () => {
+        setShowEditModal(false);
+        setEditingId(null);
+        setEditName('');
+        setEditIcon(null);
+        setEditIconPreview(null);
         setError(null);
     };
 
     const cancelEdit = () => {
-        setEditingId(null);
-        setEditName('');
-        setError(null);
+        closeEditModal();
     };
 
     const handleEdit = async (id) => {
@@ -108,12 +173,17 @@ const CategoryManager = () => {
 
         try {
             const token = localStorage.getItem('token');
+            const formData = new FormData();
+            formData.append('name', editName.trim());
+            if (editIcon) {
+                formData.append('icon', editIcon);
+            }
+
             await axios.put(`/api/admin/categories/${id}`, 
-                { name: editName.trim() },
+                formData,
                 { headers: { 'Authorization': `Bearer ${token}` } }
             );
-            setEditingId(null);
-            setEditName('');
+            closeEditModal();
             await fetchCategories();
             setSuccess('Kategori berhasil diperbarui');
             setTimeout(() => setSuccess(null), 3000);
@@ -169,29 +239,14 @@ const CategoryManager = () => {
             {error && <div className={styles.alert + ' ' + styles.error}>{error}</div>}
             {success && <div className={styles.alert + ' ' + styles.success}>{success}</div>}
 
-            {/* Form Tambah */}
-            <div className={styles.formCard}>
-                <h2>Tambah Kategori Baru</h2>
-                <form onSubmit={handleSubmit} className={styles.form}>
-                    <div className={styles.formGroup}>
-                        <label>Nama Kategori</label>
-                        <input 
-                            type="text" 
-                            value={name} 
-                            onChange={e => setName(e.target.value)} 
-                            placeholder="Masukkan nama kategori (contoh: Elektronik, Fashion, dll)" 
-                            className={styles.input}
-                            disabled={loading}
-                        />
-                    </div>
-                    <button 
-                        type="submit"
-                        disabled={loading}
-                        className={styles.btnPrimary}
-                    >
-                        {loading ? 'Menyimpan...' : 'Tambah Kategori'}
-                    </button>
-                </form>
+            {/* Button Tambah Kategori */}
+            <div className={styles.actionBar}>
+                <button 
+                    onClick={openAddModal}
+                    className={styles.btnPrimary}
+                >
+                    + Tambah Kategori
+                </button>
             </div>
 
             {/* Tabel Kategori */}
@@ -205,6 +260,7 @@ const CategoryManager = () => {
                             <thead>
                                 <tr>
                                     <th>No</th>
+                                    <th>Icon</th>
                                     <th>Nama Kategori</th>
                                     <th>Aksi</th>
                                 </tr>
@@ -213,60 +269,35 @@ const CategoryManager = () => {
                                 {categories.map((cat, idx) => (
                                     <tr key={cat.id}>
                                         <td className={styles.colNo}>{idx + 1}</td>
-                                        <td className={styles.colName}>
-                                            {editingId === cat.id ? (
-                                                <input 
-                                                    type="text" 
-                                                    value={editName} 
-                                                    onChange={e => setEditName(e.target.value)}
-                                                    className={styles.editInput}
-                                                    disabled={loading}
-                                                    autoFocus
-                                                />
+                                        <td className={styles.colIcon}>
+                                            {cat.icon_url ? (
+                                                <img src={cat.icon_url} alt={cat.name} className={styles.categoryIcon} />
                                             ) : (
-                                                cat.name
+                                                <span className={styles.noIcon}>-</span>
                                             )}
                                         </td>
+                                        <td className={styles.colName}>
+                                            {cat.name}
+                                        </td>
                                         <td className={styles.colActions}>
-                                            {editingId === cat.id ? (
-                                                <div className={styles.actionButtons}>
-                                                    <button 
-                                                        onClick={() => handleEdit(cat.id)}
-                                                        disabled={loading}
-                                                        className={styles.btnSave}
-                                                        title="Simpan"
-                                                    >
-                                                        Simpan
-                                                    </button>
-                                                    <button 
-                                                        onClick={cancelEdit}
-                                                        disabled={loading}
-                                                        className={styles.btnCancel}
-                                                        title="Batal"
-                                                    >
-                                                        Batal
-                                                    </button>
-                                                </div>
-                                            ) : (
-                                                <div className={styles.actionButtons}>
-                                                    <button 
-                                                        onClick={() => startEdit(cat)}
-                                                        disabled={loading}
-                                                        className={styles.btnEdit}
-                                                        title="Edit kategori"
-                                                    >
-                                                        Edit
-                                                    </button>
-                                                    <button 
-                                                        onClick={() => setDeleteConfirmId(cat.id)}
-                                                        disabled={loading}
-                                                        className={styles.btnDelete}
-                                                        title="Hapus kategori"
-                                                    >
-                                                        Hapus
-                                                    </button>
-                                                </div>
-                                            )}
+                                            <div className={styles.actionButtons}>
+                                                <button 
+                                                    onClick={() => startEdit(cat)}
+                                                    disabled={loading}
+                                                    className={styles.btnEdit}
+                                                    title="Edit kategori"
+                                                >
+                                                    Edit
+                                                </button>
+                                                <button 
+                                                    onClick={() => setDeleteConfirmId(cat.id)}
+                                                    disabled={loading}
+                                                    className={styles.btnDelete}
+                                                    title="Hapus kategori"
+                                                >
+                                                    Hapus
+                                                </button>
+                                            </div>
                                         </td>
                                     </tr>
                                 ))}
@@ -275,6 +306,128 @@ const CategoryManager = () => {
                     </div>
                 )}
             </div>
+
+            {/* Modal Tambah Kategori */}
+            {showAddModal && (
+                <div className={styles.modalOverlay}>
+                    <div className={styles.modal}>
+                        <div className={styles.modalHeader}>
+                            <h3>Tambah Kategori Baru</h3>
+                        </div>
+                        <form onSubmit={handleSubmit}>
+                            <div className={styles.modalBody}>
+                                {error && <div className={styles.alert + ' ' + styles.error}>{error}</div>}
+                                <div className={styles.formGroup}>
+                                    <label>Nama Kategori</label>
+                                    <input 
+                                        type="text" 
+                                        value={name} 
+                                        onChange={e => setName(e.target.value)} 
+                                        placeholder="Masukkan nama kategori (contoh: Elektronik, Fashion, dll)" 
+                                        className={styles.input}
+                                        disabled={loading}
+                                        autoFocus
+                                    />
+                                </div>
+                                <div className={styles.formGroup}>
+                                    <label>Icon Kategori (Opsional)</label>
+                                    <input 
+                                        type="file"
+                                        accept="image/*"
+                                        onChange={handleIconChange}
+                                        className={styles.input}
+                                        disabled={loading}
+                                    />
+                                    {iconPreview && (
+                                        <div className={styles.iconPreview}>
+                                            <img src={iconPreview} alt="Icon Preview" />
+                                            <span>Preview Icon</span>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                            <div className={styles.modalFooter}>
+                                <button 
+                                    type="button"
+                                    onClick={closeAddModal}
+                                    disabled={loading}
+                                    className={styles.btnCancel}
+                                >
+                                    Batal
+                                </button>
+                                <button 
+                                    type="submit"
+                                    disabled={loading}
+                                    className={styles.btnPrimary}
+                                >
+                                    {loading ? 'Menyimpan...' : 'Tambah Kategori'}
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
+
+            {/* Modal Edit Kategori */}
+            {showEditModal && (
+                <div className={styles.modalOverlay}>
+                    <div className={styles.modal}>
+                        <div className={styles.modalHeader}>
+                            <h3>Edit Kategori</h3>
+                        </div>
+                        <form onSubmit={(e) => { e.preventDefault(); handleEdit(editingId); }}>
+                            <div className={styles.modalBody}>
+                                {error && <div className={styles.alert + ' ' + styles.error}>{error}</div>}
+                                <div className={styles.formGroup}>
+                                    <label>Nama Kategori</label>
+                                    <input 
+                                        type="text" 
+                                        value={editName} 
+                                        onChange={e => setEditName(e.target.value)} 
+                                        placeholder="Masukkan nama kategori" 
+                                        className={styles.input}
+                                        disabled={loading}
+                                        autoFocus
+                                    />
+                                </div>
+                                <div className={styles.formGroup}>
+                                    <label>Icon Kategori (Opsional)</label>
+                                    <input 
+                                        type="file"
+                                        accept="image/*"
+                                        onChange={handleEditIconChange}
+                                        className={styles.input}
+                                        disabled={loading}
+                                    />
+                                    {editIconPreview && (
+                                        <div className={styles.iconPreview}>
+                                            <img src={editIconPreview} alt="New Icon Preview" />
+                                            <span>Preview Icon Baru</span>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                            <div className={styles.modalFooter}>
+                                <button 
+                                    type="button"
+                                    onClick={cancelEdit}
+                                    disabled={loading}
+                                    className={styles.btnCancel}
+                                >
+                                    Batal
+                                </button>
+                                <button 
+                                    type="submit"
+                                    disabled={loading}
+                                    className={styles.btnPrimary}
+                                >
+                                    {loading ? 'Menyimpan...' : 'Simpan Kategori'}
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
 
             {/* Delete Confirmation Modal */}
             {deleteConfirmId && (
