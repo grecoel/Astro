@@ -10,7 +10,7 @@ return new class extends Migration
             $table->uuid('id')->primary();  
             $table->string('title');
             $table->string('image_url');
-            $table->string('link_url');
+            $table->string('link_url')->nullable();
             $table->string('condition');
             $table->boolean('is_active')->default(true);
 

@@ -103,6 +103,17 @@ return [
             'throw' => true,
         ],
 
+        'supabase_banners' => [
+            'driver' => 's3',
+            'key'    => env('SUPABASE_ACCESS_KEY_ID'), 
+            'secret' => env('SUPABASE_SECRET_ACCESS_KEY'),
+            'region' => 'ap-southeast-2',
+            'bucket' => 'banners', 
+            'endpoint' => env('SUPABASE_URL') . '/storage/v1/s3',
+            'url' => env('SUPABASE_URL') . '/storage/v1/object/public/banners',
+            'use_path_style_endpoint' => true,
+            'throw' => true,
+        ],
 
     ],
 
