@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\ActivationController;
 use App\Http\Controllers\Api\SellerProductController;
 use App\Http\Controllers\Api\Admin\SellerVerificationController;
 use App\Http\Controllers\Api\Admin\CategoryController;
+use App\Http\Controllers\Api\Admin\BannerController;
 
 
 // SRS-01: Registrasi Seller
@@ -42,6 +43,10 @@ Route::middleware('auth:sanctum')->group(function () {
         // 2. Category Management
         // 'apiResource' otomatis membuat rute: index, store, show, update, destroy
         Route::apiResource('categories', CategoryController::class);
+
+        //3. banner management
+        Route::apiResource('banners', BannerController::class);
+        Route::post('banners/{banner}/toggle', [BannerController::class, 'toggleActive']);
     });
 
 });

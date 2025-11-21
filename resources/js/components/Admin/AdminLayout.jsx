@@ -115,6 +115,30 @@ function AdminLayout() {
                         <span style={{ fontSize: '1.1rem' }}>◆</span> Kategori
                     </Link>
 
+                    <Link to="/admin/banners" style={{ 
+                        color: 'white', 
+                        textDecoration: 'none', 
+                        padding: '1rem 1.5rem', 
+                        borderRadius: '0',
+                        transition: 'all 0.3s ease',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '12px',
+                        borderLeft: '4px solid transparent',
+                        fontSize: '0.95rem',
+                        fontWeight: '500'
+                    }} 
+                    onMouseEnter={(e) => {
+                        e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)';
+                        e.currentTarget.style.borderLeftColor = '#3182ce';
+                    }} 
+                    onMouseLeave={(e) => {
+                        e.currentTarget.style.background = 'transparent';
+                        e.currentTarget.style.borderLeftColor = 'transparent';
+                    }}>
+                        <span style={{ fontSize: '1.1rem' }}>📌</span> Banner
+                    </Link>
+
                     <Link to="/admin/verifikasi" style={{ 
                         color: 'white', 
                         textDecoration: 'none', 

@@ -16,6 +16,7 @@ import UploadProduk from './components/Seller/UploadProduk';
 import AdminLayout from './components/Admin/AdminLayout';
 import CategoryManager from './components/Admin/CategoryManager';
 import AdminDashboard from './components/Admin/AdminDashboard';
+import BannerManager from './components/Admin/BannerManager';
 
 const container = document.getElementById('app');
 const root = createRoot(container);
@@ -48,6 +49,7 @@ root.render(
                 }>
                     <Route path="dashboard" element={<AdminDashboard />} />
                     <Route path="kategori" element={<CategoryManager />} />
+                    <Route path="banners" element={<BannerManager />} />
                     <Route path="verifikasi" element={<VerifikasiList />} />
                     <Route path="verifikasi/:sellerId" element={<VerifikasiDetail />} />
                 </Route>
