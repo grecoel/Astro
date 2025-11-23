@@ -51,7 +51,7 @@ const Navbar = ({ onSearch }) => {
                     <div className={styles.group17}>
                         <div className={styles.ellipse}></div>
                         <Link to="/login" className={styles.dashboardPenjual}>
-                            Dashboard<br/>Penjual
+                            Dashboard Penjual
                         </Link>
                     </div>
                 </div>

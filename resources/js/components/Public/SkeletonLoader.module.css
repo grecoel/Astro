@@ -1,0 +1,322 @@
+/* Banner Skeleton */
+.bannerSkeleton {
+    position: relative;
+    width: 100%;
+    max-width: 1217px;
+    margin: 133px auto 30px;
+    height: 297px;
+    border-radius: 12px;
+    background: #e0e0e0;
+    overflow: hidden;
+}
+
+/* Category Skeleton */
+.categorySkeleton {
+    background-color: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0px 1px 5px rgba(0, 0, 0, 0.25);
+    height: 125px;
+    width: 1210px;
+    margin: 0 auto 30px;
+    padding: 20px;
+    overflow: hidden;
+}
+
+.categoryTitle {
+    width: 120px;
+    height: 24px;
+    background: #e0e0e0;
+    border-radius: 4px;
+    margin-bottom: 20px;
+}
+
+.categoryItems {
+    display: flex;
+    gap: 15px;
+    overflow: hidden;
+}
+
+.categoryItem {
+    position: relative;
+    width: 140px;
+    height: 40px;
+    border-radius: 10px;
+    background: #e0e0e0;
+    flex-shrink: 0;
+    overflow: hidden;
+}
+
+/* Product Grid Skeleton */
+.productGridSkeleton {
+    max-width: 1210px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 20px;
+    padding: 0 0 40px;
+}
+
+.productCardSkeleton {
+    background: #fff;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0px 1px 5px rgba(0, 0, 0, 0.1);
+}
+
+.productImage {
+    position: relative;
+    width: 100%;
+    padding-top: 100%;
+    background: #e0e0e0;
+    overflow: hidden;
+}
+
+.productInfo {
+    padding: 12px;
+}
+
+.productTitle {
+    height: 16px;
+    background: #e0e0e0;
+    border-radius: 4px;
+    margin-bottom: 8px;
+    width: 90%;
+}
+
+.productPrice {
+    height: 20px;
+    background: #e0e0e0;
+    border-radius: 4px;
+    margin-bottom: 10px;
+    width: 60%;
+}
+
+.productMeta {
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.productRating {
+    height: 14px;
+    background: #e0e0e0;
+    border-radius: 4px;
+    width: 40%;
+}
+
+.productLocation {
+    height: 14px;
+    background: #e0e0e0;
+    border-radius: 4px;
+    width: 35%;
+}
+
+/* Shimmer Animation */
+@keyframes shimmer {
+    0% {
+        transform: translateX(-100%);
+    }
+    100% {
+        transform: translateX(100%);
+    }
+}
+
+.shimmer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+        90deg,
+        transparent 0%,
+        rgba(255, 255, 255, 0.4) 50%,
+        transparent 100%
+    );
+    animation: shimmer 1.5s infinite;
+}
+
+/* Responsive Styles */
+@media (min-width: 1920px) {
+    .bannerSkeleton {
+        max-width: 1600px;
+        height: 360px;
+        margin: 140px auto 40px;
+    }
+
+    .categorySkeleton {
+        width: 1600px;
+        max-width: 95%;
+        margin: 0 auto 40px;
+    }
+
+    .productGridSkeleton {
+        max-width: 1600px;
+        grid-template-columns: repeat(8, 1fr);
+        gap: 25px;
+        padding: 0 0 50px;
+    }
+}
+
+@media (min-width: 1680px) and (max-width: 1919px) {
+    .bannerSkeleton {
+        max-width: 1450px;
+        height: 340px;
+        margin: 135px auto 35px;
+    }
+
+    .categorySkeleton {
+        width: 1450px;
+        max-width: 95%;
+        margin: 0 auto 35px;
+    }
+
+    .productGridSkeleton {
+        max-width: 1450px;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 22px;
+        padding: 0 0 45px;
+    }
+}
+
+@media (min-width: 1440px) and (max-width: 1679px) {
+    .bannerSkeleton {
+        max-width: 1217px;
+        height: 297px;
+        margin: 133px auto 30px;
+    }
+
+    .productGridSkeleton {
+        max-width: 1210px;
+        grid-template-columns: repeat(6, 1fr);
+        gap: 20px;
+        padding: 0 0 40px;
+    }
+}
+
+@media (min-width: 1280px) and (max-width: 1439px) {
+    .bannerSkeleton {
+        max-width: 95%;
+        height: 280px;
+        margin: 130px auto 30px;
+    }
+
+    .categorySkeleton {
+        width: 95%;
+        max-width: 95%;
+        margin: 0 auto 30px;
+    }
+
+    .productGridSkeleton {
+        max-width: 1150px;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 18px;
+        padding: 0 0 40px;
+    }
+}
+
+@media (min-width: 1024px) and (max-width: 1279px) {
+    .bannerSkeleton {
+        max-width: 90%;
+        height: 240px;
+        margin: 120px auto 25px;
+    }
+
+    .categorySkeleton {
+        width: 90%;
+        max-width: 90%;
+        margin: 0 auto 25px;
+        height: 115px;
+    }
+
+    .productGridSkeleton {
+        max-width: 90%;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 16px;
+        padding: 0 0 35px;
+    }
+}
+
+@media (min-width: 768px) and (max-width: 1023px) {
+    .bannerSkeleton {
+        max-width: 90%;
+        height: 200px;
+        margin: 110px auto 20px;
+    }
+
+    .categorySkeleton {
+        width: 90%;
+        max-width: 90%;
+        margin: 0 auto 20px;
+        height: 110px;
+        padding: 15px;
+    }
+
+    .productGridSkeleton {
+        max-width: 90%;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 15px;
+        padding: 0 0 30px;
+    }
+}
+
+@media (min-width: 480px) and (max-width: 767px) {
+    .bannerSkeleton {
+        max-width: 92%;
+        height: 180px;
+        margin: 100px auto 18px;
+    }
+
+    .categorySkeleton {
+        width: 92%;
+        max-width: 92%;
+        margin: 0 auto 18px;
+        height: 100px;
+        padding: 12px;
+    }
+
+    .productGridSkeleton {
+        max-width: 92%;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+        padding: 0 0 25px;
+    }
+}
+
+@media (max-width: 479px) {
+    .bannerSkeleton {
+        max-width: 94%;
+        height: 160px;
+        margin: 90px auto 15px;
+    }
+
+    .categorySkeleton {
+        width: 94%;
+        max-width: 94%;
+        margin: 0 auto 15px;
+        height: auto;
+        padding: 10px;
+    }
+
+    .categoryTitle {
+        height: 20px;
+        width: 100px;
+        margin-bottom: 15px;
+    }
+
+    .categoryItems {
+        gap: 8px;
+    }
+
+    .categoryItem {
+        width: 110px;
+        height: 36px;
+    }
+
+    .productGridSkeleton {
+        max-width: 94%;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+        padding: 0 0 20px;
+    }
+}

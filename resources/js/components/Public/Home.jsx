@@ -3,6 +3,8 @@ import axios from 'axios';
 import { useSearchParams } from 'react-router-dom';
 import Navbar from './Navbar';
 import ProductCard from './ProductCard';
+import Footer from './Footer';
+import { BannerSkeleton, CategorySkeleton, ProductGridSkeleton } from './SkeletonLoader';
 import styles from './Home.module.css';
 
 const Home = () => {
@@ -151,8 +153,11 @@ const Home = () => {
             <Navbar onSearch={handleSearch} />
 
             {/* BANNER */}
-            {banners.length > 0 && (
-                <div className={styles.bannerContainer}>
+            {loading ? (
+                <BannerSkeleton />
+            ) : (
+                banners.length > 0 && (
+                    <div className={styles.bannerContainer}>
                     <div 
                         className={styles.bannerTrack}
                         style={{ 
@@ -181,11 +186,15 @@ const Home = () => {
                             ))}
                         </div>
                     )}
-                </div>
+                    </div>
+                )
             )}
 
             {/* KATEGORI */}
-            <div className={styles.rectangle24}>
+            {loading ? (
+                <CategorySkeleton />
+            ) : (
+                <div className={styles.rectangle24}>
                 <div className={styles.textWrapper55}>Kategori</div>
                 
                 <div 
@@ -237,17 +246,12 @@ const Home = () => {
                         </div>
                     ))}
                 </div>
-            </div>
+                </div>
+            )}
 
             {/* PRODUCTS GRID */}
             {loading ? (
-                <div style={{
-                    textAlign: 'center',
-                    padding: '3rem',
-                    color: '#999'
-                }}>
-                    Memuat produk...
-                </div>
+                <ProductGridSkeleton count={24} />
             ) : products.length > 0 ? (
                 <>
                     <div className={styles.productGrid}>
@@ -256,22 +260,7 @@ const Home = () => {
                         ))}
                     </div>
                     {loadingMore && (
-                        <div style={{
-                            textAlign: 'center',
-                            padding: '2rem',
-                            color: '#999'
-                        }}>
-                            <div style={{ marginBottom: '1rem' }}>Memuat lebih banyak produk...</div>
-                            <div style={{
-                                display: 'inline-block',
-                                width: '30px',
-                                height: '30px',
-                                border: '3px solid #f3f3f3',
-                                borderTop: '3px solid #AD7BFF',
-                                borderRadius: '50%',
-                                animation: 'spin 1s linear infinite'
-                            }} />
-                        </div>
+                        <ProductGridSkeleton count={12} />
                     )}
                 </>
             ) : (
@@ -290,63 +279,7 @@ const Home = () => {
                 <div className={styles.textWrapper57}>?</div>
             </div>
 
-            {/* FOOTER */}
-            <footer className={styles.footerSection}>
-                <div className={styles.footerGrid}>
-                    <div>
-                        <h3 style={{fontWeight: 'bold', marginBottom: '1rem'}}>AstroEcomm.</h3>
-                        <p>Tentang Astro</p>
-                        <p>IF Undip</p>
-                        <p>Kebijakan</p>
-                        <p>Kontak Media</p>
-                        <p>Astro Seller Club</p>
-                    </div>
-                    <div>
-                        <h3 style={{fontWeight: 'bold', marginBottom: '1rem'}}>Customer Service</h3>
-                        <p>Bantuan</p>
-                        <p>Metode Pembayaran</p>
-                        <p>Daftar (Sudah Dari Sebelah)</p>
-                        <p>Pengembalian Produk & Dana</p>
-                        <p>Pengajuan Komplain</p>
-                        <p>Hubungi Kami</p>
-                    </div>
-                    <div>
-                        <h3 style={{fontWeight: 'bold', marginBottom: '1rem'}}>Follow Us</h3>
-                        <p>astro.com</p>
-                        <p>astroecomm.twt</p>
-                        <p>astroecomm.tiktok</p>
-                        <p>astroecomm.threads</p>
-                        <p>astroecomm.fb</p>
-                    </div>
-                    <div>
-                        <h3 style={{fontWeight: 'bold', marginBottom: '1rem'}}>Contact Us</h3>
-                        <p>Email: astro.ecomm01@gmail.com</p>
-                        <p>Call Center: 0298-1236-6969</p>
-                        <p>Whatsapp: 0893-8569-1269</p>
-                        <div style={{marginTop: '1rem'}}>
-                            <h3 style={{fontWeight: 'bold', marginBottom: '0.5rem'}}>Support Us</h3>
-                            <div style={{
-                                width: '100px',
-                                height: '100px',
-                                background: '#000',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                color: '#fff'
-                            }}>QR</div>
-                        </div>
-                    </div>
-                </div>
-                <div style={{
-                    borderTop: '1px solid rgba(0,0,0,0.1)',
-                    marginTop: '2rem',
-                    paddingTop: '1rem',
-                    textAlign: 'center',
-                    fontSize: '14px'
-                }}>
-                    © AstroEcomm. 2025. All Rights Reserved.
-                </div>
-            </footer>
+            <Footer />
         </div>
     );
 };

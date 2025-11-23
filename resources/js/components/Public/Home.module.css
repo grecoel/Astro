@@ -289,16 +289,16 @@
   width: 47px;
   position: fixed;
   z-index: 100;
+  right: 60px;
+  bottom: 10px;
 }
 
 .group9First {
-  right: 95px;
-  bottom: 399px;
+  bottom: 70px;
 }
 
 .group9Second {
-  right: 95px;
-  bottom: 340px;
+  bottom: 70px;
 }
 
 .rectangle26 {
@@ -329,35 +329,6 @@
   cursor: pointer;
 }
 
-/* FOOTER */
-.footerSection {
-  background: #d3f26a;
-  padding: 3rem 2rem 2rem;
-  color: #000;
-  margin-top: 60px;
-}
-
-.footerGrid {
-  max-width: 1210px;
-  margin: 0 auto;
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 2rem;
-  font-size: 14px;
-  line-height: 1.8;
-}
-
-.footerGrid h3 {
-  font-size: 14px;
-  text-transform: uppercase;
-  margin-bottom: 1rem;
-}
-
-.footerGrid p {
-  margin: 0.25rem 0;
-  color: rgba(0, 0, 0, 0.8);
-}
-
 /* RESPONSIVE - Large screens (1920px+) */
 @media (min-width: 1920px) {
   .bannerContainer {
@@ -381,10 +352,6 @@
     grid-template-columns: repeat(8, 1fr);
     gap: 25px;
     padding: 0 0 50px;
-  }
-  
-  .footerGrid {
-    max-width: 1600px;
   }
   
   .textWrapper55 {
@@ -415,10 +382,6 @@
     grid-template-columns: repeat(7, 1fr);
     gap: 22px;
     padding: 0 0 45px;
-  }
-  
-  .footerGrid {
-    max-width: 1450px;
   }
 }
 
@@ -463,10 +426,6 @@
     padding: 0 0 40px;
   }
   
-  .footerGrid {
-    max-width: 1150px;
-  }
-  
   .textWrapper55 {
     font-size: 18px;
   }
@@ -496,12 +455,6 @@
     grid-template-columns: repeat(4, 1fr);
     gap: 16px;
     padding: 0 0 35px;
-  }
-  
-  .footerGrid {
-    max-width: 90%;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 1.5rem;
   }
   
   .categoryContainer {
@@ -563,12 +516,6 @@
     grid-template-columns: repeat(3, 1fr);
     gap: 15px;
     padding: 0 0 30px;
-  }
-  
-  .footerGrid {
-    max-width: 90%;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 1.5rem;
   }
   
   .group9First,
@@ -638,13 +585,6 @@
     grid-template-columns: repeat(2, 1fr);
     gap: 12px;
     padding: 0 0 25px;
-  }
-  
-  .footerGrid {
-    max-width: 92%;
-    grid-template-columns: 1fr;
-    gap: 1.2rem;
-    font-size: 13px;
   }
   
   .group9First,
@@ -733,13 +673,6 @@
     grid-template-columns: repeat(2, 1fr);
     gap: 10px;
     padding: 0 0 20px;
-  }
-  
-  .footerGrid {
-    max-width: 94%;
-    grid-template-columns: 1fr;
-    gap: 1rem;
-    font-size: 12px;
   }
   
   .group9First,
