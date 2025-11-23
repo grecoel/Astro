@@ -18,6 +18,8 @@ import CategoryManager from './components/Admin/CategoryManager';
 import AdminDashboard from './components/Admin/AdminDashboard';
 import BannerManager from './components/Admin/BannerManager';
 
+import Home from './components/Public/Home';
+
 const container = document.getElementById('app');
 const root = createRoot(container);
 
@@ -66,12 +68,7 @@ root.render(
                     </ProtectedRoute>
                 } />
 
-                <Route path="/" element={
-                    <div style={{textAlign: 'center', marginTop: '50px'}}>
-                        <h3>Selamat Datang di Project Marketplace</h3>
-                        <p>Silakan pilih menu di atas untuk mulai.</p>
-                    </div>
-                } />
+                <Route path="/" element={<Home />} />
             </Routes>
         </BrowserRouter>
     </React.StrictMode>
