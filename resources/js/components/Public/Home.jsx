@@ -13,9 +13,7 @@ const Home = () => {
     const [loadingMore, setLoadingMore] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
     const [hasMore, setHasMore] = useState(true);
-    const [currentBannerIndex, setCurrentBannerIndex] = useState(0);
-    const [previousBannerIndex, setPreviousBannerIndex] = useState(0);
-    const [isTransitioning, setIsTransitioning] = useState(false);
+    const [bannerTranslate, setBannerTranslate] = useState(0);
     const [selectedCategoryId, setSelectedCategoryId] = useState('');
     const [categoryFade, setCategoryFade] = useState({ left: false, right: true });
     
@@ -37,7 +35,6 @@ const Home = () => {
                 setBanners(res.data.banners || []);
                 setCategories(res.data.categories || []);
                 setProducts(res.data.products?.data || []);
-                setCurrentBannerIndex(0);
                 setCurrentPage(1);
             } else {
                 setProducts(prev => [...prev, ...(res.data.products?.data || [])]);
@@ -62,6 +59,7 @@ const Home = () => {
         setSelectedCategoryId(categoryQuery);
         setCurrentPage(1);
         setHasMore(true);
+        setBannerTranslate(0);
     }, [searchQuery, categoryQuery]);
 
     const handleScroll = (e) => {
@@ -79,13 +77,29 @@ const Home = () => {
     useEffect(() => {
         if (banners.length <= 1) return;
         const timer = setInterval(() => {
-            setPreviousBannerIndex((prev) => currentBannerIndex);
-            setCurrentBannerIndex((prev) => (prev + 1) % banners.length);
-            setIsTransitioning(true);
-            setTimeout(() => setIsTransitioning(false), 700);
-        }, 5000);
+            setBannerTranslate((prev) => {
+                const nextTranslate = prev - 100;
+                // Reset to 0 instantly when reaching the last position (without transition)
+                if (nextTranslate === -banners.length * 100) {
+                    // Remove transition temporarily and reset to 0
+                    setTimeout(() => {
+                        const track = document.querySelector(`.${styles.bannerTrack}`);
+                        if (track) {
+                            track.style.transition = 'none';
+                            setBannerTranslate(0);
+                            // Re-enable transition after reset
+                            setTimeout(() => {
+                                track.style.transition = 'transform 0.7s ease-in-out';
+                            }, 50);
+                        }
+                    }, 700);
+                    return nextTranslate;
+                }
+                return nextTranslate;
+            });
+        }, 5500);
         return () => clearInterval(timer);
-    }, [banners.length, currentBannerIndex]);
+    }, [banners.length]);
 
     const handleSearch = (keyword) => {
         if (keyword.trim()) {
@@ -132,8 +146,6 @@ const Home = () => {
         setCategoryFade({ left: showLeftFade, right: showRightFade });
     };
 
-    const currentBanner = banners.length > 0 ? banners[currentBannerIndex] : null;
-
     return (
         <div className={styles.uiDesktopKatalog}>
             <Navbar onSearch={handleSearch} />
@@ -141,18 +153,30 @@ const Home = () => {
             {/* BANNER */}
             {banners.length > 0 && (
                 <div className={styles.bannerContainer}>
-                    <img 
-                        src={currentBanner?.image_full_url} 
-                        alt={currentBanner?.title}
-                        className={`${styles.bannerMasked} ${!isTransitioning ? '' : ''}`}
-                    />
+                    <div 
+                        className={styles.bannerTrack}
+                        style={{ 
+                            transform: `translateX(${bannerTranslate}%)`,
+                            transition: 'transform 0.7s ease-in-out'
+                        }}
+                    >
+                        {/* Render all banners + first banner at end for loop */}
+                        {[...banners, banners[0]].map((banner, idx) => (
+                            <img 
+                                key={idx}
+                                src={banner?.image_full_url} 
+                                alt={banner?.title}
+                                className={styles.bannerMaskedItem}
+                            />
+                        ))}
+                    </div>
                     {banners.length > 1 && (
                         <div className={styles.carouselDots}>
                             {banners.map((_, idx) => (
                                 <div
                                     key={idx}
-                                    className={`${styles.ellipseDot} ${idx === currentBannerIndex ? styles.activeDot : ''}`}
-                                    onClick={() => setCurrentBannerIndex(idx)}
+                                    className={`${styles.ellipseDot} ${Math.floor(-bannerTranslate / 100) % banners.length === idx ? styles.activeDot : ''}`}
+                                    onClick={() => setBannerTranslate(-idx * 100)}
                                 />
                             ))}
                         </div>
