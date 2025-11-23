@@ -1,8 +1,9 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import styles from './RegistrasiForm.module.css';
+import { locations } from '../../Data/locations';
 
 const API_URL = '/api/sellers';
 
@@ -24,6 +25,9 @@ function RegistrasiForm() {
         pic_ktp_number: '',
     });
 
+    // State untuk dropdown lokasi
+    const [availableCities, setAvailableCities] = useState([]);
+
     // State untuk file
     const [picPhoto, setPicPhoto] = useState(null);
     const [picKtpFile, setPicKtpFile] = useState(null);
@@ -39,6 +43,32 @@ function RegistrasiForm() {
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData(prev => ({ ...prev, [name]: value }));
+    };
+
+    // Handler khusus untuk perubahan provinsi
+    const handleProvinceChange = (e) => {
+        const selectedProvince = e.target.value;
+        setFormData(prev => ({ 
+            ...prev, 
+            pic_province: selectedProvince,
+            pic_city: '' // Reset city ketika provinsi berubah
+        }));
+        
+        // Update daftar kota/kabupaten berdasarkan provinsi yang dipilih
+        if (selectedProvince && locations[selectedProvince]) {
+            setAvailableCities(locations[selectedProvince]);
+        } else {
+            setAvailableCities([]);
+        }
+    };
+
+    // Handler khusus untuk perubahan kota/kabupaten
+    const handleCityChange = (e) => {
+        const selectedCity = e.target.value;
+        setFormData(prev => ({ 
+            ...prev, 
+            pic_city: selectedCity 
+        }));
     };
 
     // Handler untuk kirim form
@@ -236,28 +266,47 @@ function RegistrasiForm() {
                         {getError('pic_district')}
                     </div>
                     <div className={styles.formGroup}>
-                        <label htmlFor="pic_city">Kota/Kabupaten*</label>
-                        <input 
-                            type="text" 
-                            id="pic_city" 
-                            name="pic_city" 
-                            value={formData.pic_city}
-                            onChange={handleChange} 
-                            required 
-                        />
-                        {getError('pic_city')}
-                    </div>
-                    <div className={styles.formGroup}>
                         <label htmlFor="pic_province">Provinsi*</label>
-                        <input 
-                            type="text" 
+                        <select 
                             id="pic_province" 
                             name="pic_province" 
                             value={formData.pic_province}
-                            onChange={handleChange} 
+                            onChange={handleProvinceChange} 
                             required 
-                        />
+                            className={styles.selectInput}
+                        >
+                            <option value="">-- Pilih Provinsi --</option>
+                            {Object.keys(locations).map((province) => (
+                                <option key={province} value={province}>
+                                    {province}
+                                </option>
+                            ))}
+                        </select>
                         {getError('pic_province')}
+                    </div>
+                    <div className={styles.formGroup}>
+                        <label htmlFor="pic_city">Kota/Kabupaten*</label>
+                        <select 
+                            id="pic_city" 
+                            name="pic_city" 
+                            value={formData.pic_city}
+                            onChange={handleCityChange} 
+                            required 
+                            disabled={!formData.pic_province}
+                            className={styles.selectInput}
+                        >
+                            <option value="">
+                                {formData.pic_province 
+                                    ? "-- Pilih Kota/Kabupaten --" 
+                                    : "-- Pilih Provinsi Terlebih Dahulu --"}
+                            </option>
+                            {availableCities.map((city) => (
+                                <option key={city} value={city}>
+                                    {city}
+                                </option>
+                            ))}
+                        </select>
+                        {getError('pic_city')}
                     </div>
                 </fieldset>
 
