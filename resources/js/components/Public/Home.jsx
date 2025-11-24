@@ -103,12 +103,6 @@ const Home = () => {
         return () => clearInterval(timer);
     }, [banners.length]);
 
-    const handleSearch = (keyword) => {
-        if (keyword.trim()) {
-            setSearchParams({ search: keyword });
-        }
-    };
-
     const handleCategoryClick = (id) => {
         // Toggle: jika kategori yang sama diklik, hapus filter
         if (selectedCategoryId === id) {
@@ -150,7 +144,7 @@ const Home = () => {
 
     return (
         <div className={styles.uiDesktopKatalog}>
-            <Navbar onSearch={handleSearch} />
+            <Navbar />
 
             {/* BANNER */}
             {loading ? (

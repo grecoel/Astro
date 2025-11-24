@@ -2,18 +2,15 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import styles from './Navbar.module.css';
 
-const Navbar = ({ onSearch }) => {
+const Navbar = () => {
     const [keyword, setKeyword] = useState('');
     const navigate = useNavigate();
 
     const handleSearch = (e) => {
         e.preventDefault();
         if (keyword.trim()) {
-            if (onSearch) {
-                onSearch(keyword);
-            } else {
-                navigate(`/?search=${keyword}`);
-            }
+            // Navigate to search results page
+            navigate(`/search?search=${encodeURIComponent(keyword)}`);
         }
     };
 
@@ -22,8 +19,8 @@ const Navbar = ({ onSearch }) => {
             <div className={styles.navContent}>
                 {/* Logo Section */}
                 <div className={styles.logoSection}>
-                    <div className={styles.ellipse2}></div>
-                    <Link to="/" className={styles.textWrapper61}>Astro</Link>
+                    <img src="/logo.png" alt="Astro" style={{width: '50px', height: '50px'}} />
+                    <Link to="/" className={styles.textWrapper61}>AstroEcomm.</Link>
                 </div>
                 
                 {/* Search Bar */}

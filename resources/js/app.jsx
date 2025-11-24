@@ -19,6 +19,7 @@ import AdminDashboard from './components/Admin/AdminDashboard';
 import BannerManager from './components/Admin/BannerManager';
 
 import Home from './components/Public/Home';
+import SearchResults from './components/Public/SearchResult';
 
 const container = document.getElementById('app');
 const root = createRoot(container);
@@ -68,7 +69,9 @@ root.render(
                     </ProtectedRoute>
                 } />
 
+                {/* Public Routes */}
                 <Route path="/" element={<Home />} />
+                <Route path="/search" element={<SearchResults />} />
             </Routes>
         </BrowserRouter>
     </React.StrictMode>
