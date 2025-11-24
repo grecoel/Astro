@@ -15,6 +15,28 @@ class Category extends Model
         'icon_url', 
     ];
 
+    protected $appends = ['icon_full_url'];
+
+    public function getIconFullUrlAttribute()
+    {
+        // Jika icon_url kosong, kembalikan null
+        if (!$this->icon_url) return null;
+
+        // Jika sudah URL lengkap (http...), kembalikan apa adanya
+        if (str_starts_with($this->icon_url, 'http')) {
+            return $this->icon_url;
+        }
+
+        // Jika isinya cuma path, lengkapi dengan Supabase URL
+        $projectUrl = config('services.supabase.url');
+        $bucketName = 'categories'; 
+
+        $projectUrl = rtrim($projectUrl, '/');
+        $path = ltrim($this->icon_url, '/');
+
+        return "{$projectUrl}/storage/v1/object/public/{$bucketName}/{$path}";
+    }
+
     public function getIconUrlAttribute($value)
     {
         // Jika database kosong, kembalikan null

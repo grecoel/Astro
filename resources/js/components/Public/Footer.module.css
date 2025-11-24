@@ -1,0 +1,164 @@
+/* Footer Component Styles */
+.footerSection {
+  background: #d3f26a;
+  color: #000;
+  margin-top: 60px;
+}
+
+.footerContent {
+  padding: 2rem 2rem 1.5rem;
+}
+
+.footerGrid {
+  max-width: 1210px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 2.5rem;
+  font-size: 13px;
+  line-height: 1.8;
+}
+
+.footerTitle {
+  font-size: 14px;
+  font-weight: 700;
+  margin-bottom: 0.75rem;
+  margin-top: 0;
+}
+
+.footerGrid p {
+  margin: 0.35rem 0;
+  color: rgba(0, 0, 0, 0.85);
+  font-size: 13px;
+}
+
+.socialLinks {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.socialLinks p {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.socialIcon {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+
+.supportSection {
+  margin-top: 1.25rem;
+}
+
+.qrCode {
+  margin-top: 0.5rem;
+}
+
+.qrPlaceholder {
+  width: 100px;
+  height: 100px;
+  background: #000;
+  border-radius: 4px;
+}
+
+.footerBottom {
+  background: #000;
+  color: #fff;
+  padding: 1rem 2rem;
+  text-align: left;
+  font-size: 13px;
+}
+
+/* RESPONSIVE */
+@media (min-width: 1920px) {
+  .footerGrid {
+    max-width: 1600px;
+  }
+}
+
+@media (min-width: 1680px) and (max-width: 1919px) {
+  .footerGrid {
+    max-width: 1450px;
+  }
+}
+
+@media (min-width: 1280px) and (max-width: 1439px) {
+  .footerGrid {
+    max-width: 1150px;
+  }
+}
+
+@media (min-width: 1024px) and (max-width: 1279px) {
+  .footerContent {
+    padding: 1.75rem 2rem 1.25rem;
+  }
+
+  .footerGrid {
+    max-width: 90%;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.75rem;
+  }
+}
+
+@media (min-width: 768px) and (max-width: 1023px) {
+  .footerContent {
+    padding: 1.5rem 1.5rem 1rem;
+  }
+
+  .footerGrid {
+    max-width: 90%;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+    font-size: 12px;
+  }
+
+  .footerTitle {
+    font-size: 13px;
+  }
+
+  .footerGrid p {
+    font-size: 12px;
+  }
+
+  .footerBottom {
+    font-size: 12px;
+    padding: 0.9rem 1.5rem;
+  }
+}
+
+@media (max-width: 767px) {
+  .footerContent {
+    padding: 1.25rem 1rem 0.75rem;
+  }
+
+  .footerGrid {
+    max-width: 94%;
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
+    font-size: 11px;
+  }
+
+  .footerTitle {
+    font-size: 12px;
+    margin-bottom: 0.5rem;
+  }
+
+  .footerGrid p {
+    font-size: 11px;
+    margin: 0.25rem 0;
+  }
+
+  .qrPlaceholder {
+    width: 80px;
+    height: 80px;
+  }
+
+  .footerBottom {
+    font-size: 11px;
+    padding: 0.75rem 1rem;
+  }
+}
