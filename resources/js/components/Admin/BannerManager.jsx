@@ -14,6 +14,7 @@ const BannerManager = () => {
     const [success, setSuccess] = useState(null);
     const [showAddModal, setShowAddModal] = useState(false);
     const [deleteConfirmId, setDeleteConfirmId] = useState(null);
+    const [dragOver, setDragOver] = useState(false);
 
     // Load Banners saat halaman dibuka
     const fetchBanners = async () => {
@@ -71,6 +72,41 @@ const BannerManager = () => {
             };
             reader.readAsDataURL(file);
             setError(null);
+        }
+    };
+
+    const handleDragOver = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setDragOver(true);
+    };
+
+    const handleDragLeave = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setDragOver(false);
+    };
+
+    const handleDrop = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setDragOver(false);
+        const files = e.dataTransfer.files;
+        if (files.length > 0) {
+            const file = files[0];
+            if (file.type.startsWith('image/')) {
+                if (file.size > 5 * 1024 * 1024) {
+                    setError('File terlalu besar (max 5MB)');
+                    return;
+                }
+                setImageFile(file);
+                const reader = new FileReader();
+                reader.onloadend = () => {
+                    setImagePreview(reader.result);
+                };
+                reader.readAsDataURL(file);
+                setError(null);
+            }
         }
     };
 
@@ -194,7 +230,7 @@ const BannerManager = () => {
         <div className={styles.container}>
             <div className={styles.header}>
                 <h1>Manajemen Banner Promo</h1>
-                <p className={styles.subtitle}>Kelola semua banner promosi di marketplace</p>
+                <p className={styles.subtitle}>Kelola semua banner promosi di Astro E-Commerce</p>
             </div>
 
             {/* Alert Messages */}
@@ -316,19 +352,37 @@ const BannerManager = () => {
 
                                 <div className={styles.formGroup}>
                                     <label>Gambar Banner (Max 5MB)</label>
-                                    <input 
-                                        type="file"
-                                        accept="image/*"
-                                        onChange={handleImageChange}
-                                        className={styles.input}
-                                        disabled={loading}
-                                    />
-                                    {imagePreview && (
-                                        <div className={styles.imagePreview}>
-                                            <img src={imagePreview} alt="Banner Preview" />
-                                            <span>Preview Banner</span>
-                                        </div>
-                                    )}
+                                    <div 
+                                        className={`${styles.dragDropZone} ${dragOver ? styles.dragOver : ''}`}
+                                        onDragOver={handleDragOver}
+                                        onDragLeave={handleDragLeave}
+                                        onDrop={handleDrop}
+                                    >
+                                        <input 
+                                            type="file"
+                                            id="bannerImageInput"
+                                            accept="image/*"
+                                            onChange={handleImageChange}
+                                            className={styles.fileInput}
+                                            disabled={loading}
+                                        />
+                                        <label htmlFor="bannerImageInput" className={styles.dragDropLabel}>
+                                            {imagePreview ? (
+                                                <>
+                                                    <img src={imagePreview} alt="Banner Preview" className={styles.dragDropPreview} />
+                                                    <p>Ubah Gambar</p>
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <svg className={styles.uploadIcon} viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                                    </svg>
+                                                    <p className={styles.dragDropTitle}>Klik untuk upload gambar</p>
+                                                    <p className={styles.dragDropSubtitle}>atau drag & drop di sini</p>
+                                                </>
+                                            )}
+                                        </label>
+                                    </div>
                                 </div>
                             </div>
 

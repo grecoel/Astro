@@ -45,10 +45,16 @@ function VerifikasiList() {
         <div className={styles.container}>
             <div className={styles.header}>
                 <h1>Verifikasi Penjual</h1>
-                <p className={styles.subtitle}>Kelola permohonan pendaftaran penjual baru</p>
+                <p className={styles.subtitle}>Kelola permohonan pendaftaran penjual baru di Astro E-Commerce</p>
             </div>
 
             {error && <div className={styles.error}>{error}</div>}
+
+            {pendingSellers.length > 0 && (
+                <div className={styles.statsCard}>
+                    <p>Total penjual menunggu verifikasi: <strong>{pendingSellers.length}</strong></p>
+                </div>
+            )}
 
             {pendingSellers.length === 0 ? (
                 <div className={styles.empty}>
@@ -56,17 +62,15 @@ function VerifikasiList() {
                 </div>
             ) : (
                 <div className={styles.tableCard}>
-                    <div className={styles.tableInfo}>
-                        <p>Total penjual menunggu verifikasi: <strong>{pendingSellers.length}</strong></p>
-                    </div>
+                    <h2>Daftar Permohonan Verifikasi</h2>
                     <div className={styles.tableWrapper}>
                         <table className={styles.table}>
                             <thead>
                                 <tr>
                                     <th>No</th>
                                     <th>Nama Toko</th>
+                                    <th>Nama PIC</th>
                                     <th>Email PIC</th>
-                                    <th>No. KTP</th>
                                     <th>Tanggal Daftar</th>
                                     <th>Aksi</th>
                                 </tr>
@@ -76,8 +80,8 @@ function VerifikasiList() {
                                     <tr key={seller.id}>
                                         <td className={styles.colNo}>{idx + 1}</td>
                                         <td className={styles.colStore}>{seller.store_name}</td>
+                                        <td className={styles.colPic}>{seller.pic_name}</td>
                                         <td className={styles.colEmail}>{seller.pic_email}</td>
-                                        <td className={styles.colKtp}>{seller.pic_ktp_number}</td>
                                         <td className={styles.colDate}>
                                             {new Date(seller.created_at).toLocaleDateString('id-ID', { 
                                                 year: 'numeric', 
