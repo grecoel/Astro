@@ -18,6 +18,8 @@ const CategoryManager = () => {
     const [deleteConfirmId, setDeleteConfirmId] = useState(null);
     const [showAddModal, setShowAddModal] = useState(false);
     const [showEditModal, setShowEditModal] = useState(false);
+    const [dragOverAdd, setDragOverAdd] = useState(false);
+    const [dragOverEdit, setDragOverEdit] = useState(false);
 
     // Load Kategori
     const fetchCategories = async () => {
@@ -71,6 +73,56 @@ const CategoryManager = () => {
                 setIconPreview(reader.result);
             };
             reader.readAsDataURL(file);
+        }
+    };
+
+    const handleDragOver = (e, type) => {
+        e.preventDefault();
+        e.stopPropagation();
+        if (type === 'add') setDragOverAdd(true);
+        else setDragOverEdit(true);
+    };
+
+    const handleDragLeave = (e, type) => {
+        e.preventDefault();
+        e.stopPropagation();
+        if (type === 'add') setDragOverAdd(false);
+        else setDragOverEdit(false);
+    };
+
+    const handleDropAdd = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setDragOverAdd(false);
+        const files = e.dataTransfer.files;
+        if (files.length > 0) {
+            const file = files[0];
+            if (file.type.startsWith('image/')) {
+                setIcon(file);
+                const reader = new FileReader();
+                reader.onloadend = () => {
+                    setIconPreview(reader.result);
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+    };
+
+    const handleDropEdit = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setDragOverEdit(false);
+        const files = e.dataTransfer.files;
+        if (files.length > 0) {
+            const file = files[0];
+            if (file.type.startsWith('image/')) {
+                setEditIcon(file);
+                const reader = new FileReader();
+                reader.onloadend = () => {
+                    setEditIconPreview(reader.result);
+                };
+                reader.readAsDataURL(file);
+            }
         }
     };
 
@@ -145,7 +197,7 @@ const CategoryManager = () => {
         setEditingId(category.id);
         setEditName(category.name);
         setEditIcon(null);
-        setEditIconPreview(null);
+        setEditIconPreview(category.icon_url || null);
         setError(null);
         setShowEditModal(true);
     };
@@ -232,7 +284,7 @@ const CategoryManager = () => {
         <div className={styles.container}>
             <div className={styles.header}>
                 <h1>Manajemen Kategori Produk</h1>
-                <p className={styles.subtitle}>Kelola semua kategori produk di marketplace</p>
+                <p className={styles.subtitle}>Kelola semua kategori produk di Astro E-Commerce</p>
             </div>
 
             {/* Alert Messages */}
@@ -331,19 +383,37 @@ const CategoryManager = () => {
                                 </div>
                                 <div className={styles.formGroup}>
                                     <label>Icon Kategori (Opsional)</label>
-                                    <input 
-                                        type="file"
-                                        accept="image/*"
-                                        onChange={handleIconChange}
-                                        className={styles.input}
-                                        disabled={loading}
-                                    />
-                                    {iconPreview && (
-                                        <div className={styles.iconPreview}>
-                                            <img src={iconPreview} alt="Icon Preview" />
-                                            <span>Preview Icon</span>
-                                        </div>
-                                    )}
+                                    <div 
+                                        className={`${styles.dragDropZone} ${dragOverAdd ? styles.dragOver : ''}`}
+                                        onDragOver={(e) => handleDragOver(e, 'add')}
+                                        onDragLeave={(e) => handleDragLeave(e, 'add')}
+                                        onDrop={handleDropAdd}
+                                    >
+                                        <input 
+                                            type="file"
+                                            id="iconInput"
+                                            accept="image/*"
+                                            onChange={handleIconChange}
+                                            className={styles.fileInput}
+                                            disabled={loading}
+                                        />
+                                        <label htmlFor="iconInput" className={styles.dragDropLabel}>
+                                            {iconPreview ? (
+                                                <>
+                                                    <img src={iconPreview} alt="Icon Preview" className={styles.dragDropPreview} />
+                                                    <p>Ubah Icon</p>
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <svg className={styles.uploadIcon} viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                                    </svg>
+                                                    <p className={styles.dragDropTitle}>Klik untuk upload icon</p>
+                                                    <p className={styles.dragDropSubtitle}>atau drag & drop di sini</p>
+                                                </>
+                                            )}
+                                        </label>
+                                    </div>
                                 </div>
                             </div>
                             <div className={styles.modalFooter}>
@@ -392,19 +462,37 @@ const CategoryManager = () => {
                                 </div>
                                 <div className={styles.formGroup}>
                                     <label>Icon Kategori (Opsional)</label>
-                                    <input 
-                                        type="file"
-                                        accept="image/*"
-                                        onChange={handleEditIconChange}
-                                        className={styles.input}
-                                        disabled={loading}
-                                    />
-                                    {editIconPreview && (
-                                        <div className={styles.iconPreview}>
-                                            <img src={editIconPreview} alt="New Icon Preview" />
-                                            <span>Preview Icon Baru</span>
-                                        </div>
-                                    )}
+                                    <div 
+                                        className={`${styles.dragDropZone} ${dragOverEdit ? styles.dragOver : ''}`}
+                                        onDragOver={(e) => handleDragOver(e, 'edit')}
+                                        onDragLeave={(e) => handleDragLeave(e, 'edit')}
+                                        onDrop={handleDropEdit}
+                                    >
+                                        <input 
+                                            type="file"
+                                            id="editIconInput"
+                                            accept="image/*"
+                                            onChange={handleEditIconChange}
+                                            className={styles.fileInput}
+                                            disabled={loading}
+                                        />
+                                        <label htmlFor="editIconInput" className={styles.dragDropLabel}>
+                                            {editIconPreview ? (
+                                                <>
+                                                    <img src={editIconPreview} alt="New Icon Preview" className={styles.dragDropPreview} />
+                                                    <p>Ubah Icon</p>
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <svg className={styles.uploadIcon} viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                                    </svg>
+                                                    <p className={styles.dragDropTitle}>Klik untuk upload icon</p>
+                                                    <p className={styles.dragDropSubtitle}>atau drag & drop di sini</p>
+                                                </>
+                                            )}
+                                        </label>
+                                    </div>
                                 </div>
                             </div>
                             <div className={styles.modalFooter}>

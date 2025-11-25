@@ -75,14 +75,12 @@ export default function AdminDashboard() {
 
             <div className={styles.statsGrid}>
                 <div className={styles.statCard} onClick={() => navigate('/admin/kategori')}>
-                    <div className={styles.statIcon}>◆</div>
                     <h3>Kategori Produk</h3>
                     <p className={styles.statNumber}>{stats.totalCategories}</p>
                     <span className={styles.statAction}>Kelola Kategori →</span>
                 </div>
 
                 <div className={styles.statCard + ' ' + styles.pending} onClick={() => navigate('/admin/verifikasi')}>
-                    <div className={styles.statIcon}>✓</div>
                     <h3>Menunggu Verifikasi</h3>
                     <p className={styles.statNumber}>{stats.pendingSellers}</p>
                     <span className={styles.statAction}>Verifikasi Penjual →</span>
@@ -104,11 +102,9 @@ export default function AdminDashboard() {
                     <h2>Akses Cepat</h2>
                     <div className={styles.quickLinks}>
                         <a href="/admin/kategori" className={styles.quickLink}>
-                            <span className={styles.linkIcon}>→</span>
                             <span>Manajemen Kategori</span>
                         </a>
                         <a href="/admin/verifikasi" className={styles.quickLink}>
-                            <span className={styles.linkIcon}>→</span>
                             <span>Verifikasi Penjual</span>
                         </a>
                     </div>
