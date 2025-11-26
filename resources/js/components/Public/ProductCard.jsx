@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { Link } from 'react-router-dom';
 import styles from './ProductCard.module.css';
 
 const ProductCard = ({ product }) => {
@@ -51,7 +52,7 @@ const ProductCard = ({ product }) => {
     };
 
     return (
-        <div className={styles.productCard}>
+        <Link to={`/product/${product.id}`} className={styles.productCard}>
             {/* Product Image */}
             <div 
                 className={styles.productImageContainer}
@@ -114,7 +115,7 @@ const ProductCard = ({ product }) => {
                     </div>
                 </div>
             </div>
-        </div>
+        </Link>
     );
 };
 

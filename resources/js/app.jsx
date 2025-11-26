@@ -20,6 +20,7 @@ import BannerManager from './components/Admin/BannerManager';
 
 import Home from './components/Public/Home';
 import SearchResults from './components/Public/SearchResult';
+import ProductDetail from './components/Public/ProductDetail';
 
 const container = document.getElementById('app');
 const root = createRoot(container);
@@ -72,6 +73,7 @@ root.render(
                 {/* Public Routes */}
                 <Route path="/" element={<Home />} />
                 <Route path="/search" element={<SearchResults />} />
+                <Route path="/product/:id" element={<ProductDetail />} />
             </Routes>
         </BrowserRouter>
     </React.StrictMode>

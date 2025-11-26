@@ -19,6 +19,7 @@ Route::post('/login', [AuthController::class, 'login']);
 Route::post('/validate-token', [ActivationController::class, 'validateToken']);
 Route::post('/aktivasi-akun', [ActivationController::class, 'activate']);
 Route::get('/catalog', [CatalogController::class, 'index']);
+Route::get('/catalog/{id}', [CatalogController::class, 'show']);
 
 Route::middleware('auth:sanctum')->group(function () {
     
