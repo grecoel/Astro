@@ -94,6 +94,56 @@
   border-radius: 5px;
 }
 
+/* Banner Navigation Buttons */
+.bannerNavButton {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.9);
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #000;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  transition: all 0.3s ease;
+  z-index: 11;
+  animation: fadeInNav 0.3s ease;
+}
+
+@keyframes fadeInNav {
+  from {
+    opacity: 0;
+    transform: translateY(-50%) scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(-50%) scale(1);
+  }
+}
+
+.bannerNavButton:hover {
+  background: rgba(255, 255, 255, 1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  transform: translateY(-50%) scale(1.1);
+}
+
+.bannerNavButton:active {
+  transform: translateY(-50%) scale(0.95);
+}
+
+.bannerNavLeft {
+  left: 20px;
+}
+
+.bannerNavRight {
+  right: 20px;
+}
+
 /* KATEGORI SECTION */
 .rectangle24 {
   background-color: #ffffff;
@@ -214,9 +264,7 @@
   border-color: #8B63CC;
 }
 
-.categorySelected .categoryCard .categoryIcon {
-  filter: invert(1);
-}
+/* Logo kategori yang terpilih tidak di-invert */
 
 .categorySelected .categoryCard .categoryName {
   color: #ffffff;
@@ -443,6 +491,19 @@
     height: 280px;    /* Match container height */
   }
   
+  .bannerNavButton {
+    width: 42px;
+    height: 42px;
+  }
+  
+  .bannerNavLeft {
+    left: 15px;
+  }
+  
+  .bannerNavRight {
+    right: 15px;
+  }
+  
   .rectangle24 {
     width: 90%;
     max-width: 90%;
@@ -494,6 +555,24 @@
     height: 200px;
   }
   
+  .bannerNavButton {
+    width: 38px;
+    height: 38px;
+  }
+  
+  .bannerNavButton svg {
+    width: 20px;
+    height: 20px;
+  }
+  
+  .bannerNavLeft {
+    left: 12px;
+  }
+  
+  .bannerNavRight {
+    right: 12px;
+  }
+  
   .rectangle24 {
     width: 90%;
     max-width: 90%;
@@ -542,6 +621,24 @@
   
   .bannerMaskedItem {
     height: 180px;
+  }
+  
+  .bannerNavButton {
+    width: 35px;
+    height: 35px;
+  }
+  
+  .bannerNavButton svg {
+    width: 18px;
+    height: 18px;
+  }
+  
+  .bannerNavLeft {
+    left: 10px;
+  }
+  
+  .bannerNavRight {
+    right: 10px;
   }
   
   .rectangle24 {
@@ -611,6 +708,24 @@
   
   .bannerMaskedItem {
     height: 160px;
+  }
+  
+  .bannerNavButton {
+    width: 32px;
+    height: 32px;
+  }
+  
+  .bannerNavButton svg {
+    width: 16px;
+    height: 16px;
+  }
+  
+  .bannerNavLeft {
+    left: 8px;
+  }
+  
+  .bannerNavRight {
+    right: 8px;
   }
   
   .rectangle24 {

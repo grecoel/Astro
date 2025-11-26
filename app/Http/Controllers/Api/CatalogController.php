@@ -50,9 +50,13 @@ class CatalogController extends Controller
 
         // B. FILTER KATEGORI (Menerima Array atau Single)
         // Contoh URL: ?categories[]=uuid-1&categories[]=uuid-2
+        // ATAU single: ?category_id=uuid-1
         if ($request->has('categories')) {
             $cats = is_array($request->categories) ? $request->categories : explode(',', $request->categories);
             $query->whereIn('category_id', $cats);
+        } elseif ($request->has('category_id') && $request->category_id != '') {
+            // Support single category_id dari Home page filter
+            $query->where('category_id', $request->category_id);
         }
 
         // C. FILTER LOKASI (Provinsi & Kota)
@@ -77,6 +81,74 @@ class CatalogController extends Controller
             'banners' => $banners,
             'categories' => $categories,
             'products' => $products
+        ]);
+    }
+
+    public function show($id)
+    {
+        // 1. Ambil produk dengan semua relasi penting
+        $product = Product::with(['seller', 'category', 'images', 'reviews'])
+            ->where('status', 'ACTIVE')
+            ->findOrFail($id);
+
+        // 2. Hitung Statistik Rating untuk UI
+        // Contoh output: [5 => 10, 4 => 2, 3 => 0, ...]
+        $ratingCounts = [
+            5 => $product->reviews->where('rating', 5)->count(),
+            4 => $product->reviews->where('rating', 4)->count(),
+            3 => $product->reviews->where('rating', 3)->count(),
+            2 => $product->reviews->where('rating', 2)->count(),
+            1 => $product->reviews->where('rating', 1)->count(),
+        ];
+
+        $totalReviews = $product->reviews->count();
+        
+        // Hitung rata-rata rating produk
+        $ratingAvg = $totalReviews > 0 
+            ? round($product->reviews->avg('rating'), 1) 
+            : 0.0;
+        
+        // Tambahkan rating_avg ke product object
+        $product->rating_avg = $ratingAvg;
+
+        // 3. Hitung rata-rata rating seller dari semua produknya
+        $sellerAvgRating = 0;
+        $sellerTotalReviews = 0;
+        
+        try {
+            if ($product->seller && $product->seller_id) {
+                $sellerProducts = Product::where('seller_id', $product->seller_id)
+                    ->where('status', 'ACTIVE')
+                    ->withAvg('reviews', 'rating')
+                    ->withCount('reviews')
+                    ->get();
+                
+                $totalRating = 0;
+                $totalReviews = 0;
+                
+                foreach ($sellerProducts as $prod) {
+                    if ($prod->reviews_count > 0 && $prod->reviews_avg_rating) {
+                        $totalRating += ($prod->reviews_avg_rating * $prod->reviews_count);
+                        $totalReviews += $prod->reviews_count;
+                    }
+                }
+                
+                if ($totalReviews > 0) {
+                    $sellerAvgRating = round($totalRating / $totalReviews, 1);
+                }
+                $sellerTotalReviews = $totalReviews;
+            }
+        } catch (\Exception $e) {
+            // Jika error, biarkan default 0
+            \Log::warning('Error calculating seller rating: ' . $e->getMessage());
+        }
+
+        return response()->json([
+            'product' => $product,
+            'rating_counts' => $ratingCounts,
+            'total_reviews' => $totalReviews,
+            'seller_avg_rating' => $sellerAvgRating,
+            'seller_total_reviews' => $sellerTotalReviews,
         ]);
     }
 }
