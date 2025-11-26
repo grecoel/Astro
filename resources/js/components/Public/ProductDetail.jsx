@@ -3,6 +3,8 @@ import { useParams, Link } from 'react-router-dom';
 import axios from 'axios';
 import Navbar from './Navbar';
 import Footer from './Footer';
+import ReviewModal from './ReviewModal';
+import AllReviewsModal from './AllReviewsModal';
 import styles from './ProductDetail.module.css';
 
 const ProductDetail = () => {
@@ -16,25 +18,49 @@ const ProductDetail = () => {
     const [selectedImage, setSelectedImage] = useState('');
     const [qty, setQty] = useState(1);
     const [showFullDesc, setShowFullDesc] = useState(false);
+    const [showReviewModal, setShowReviewModal] = useState(false);
+    const [showAllReviewsModal, setShowAllReviewsModal] = useState(false);
+    const [reviewModalType, setReviewModalType] = useState('all');
 
     useEffect(() => {
-        axios.get(`/api/catalog/${id}`)
-            .then(res => {
-                setProduct(res.data.product);
-                setStats(res.data.rating_counts);
-                setSellerRating({
-                    avg: res.data.seller_avg_rating || 0,
-                    total: res.data.seller_total_reviews || 0
-                });
-                // Set gambar default (gambar pertama atau placeholder)
-                const firstImg = res.data.product.images.find(i => i.is_primary)?.image_url 
-                                || res.data.product.images[0]?.image_url
-                                || 'https://placehold.co/400';
-                setSelectedImage(firstImg);
-                setLoading(false);
-            })
-            .catch(err => console.error(err));
+        fetchProductData();
     }, [id]);
+
+    // Fungsi untuk fetch data produk (bisa dipanggil ulang tanpa reload)
+    const fetchProductData = async () => {
+        try {
+            const res = await axios.get(`/api/catalog/${id}`);
+            setProduct(res.data.product);
+            setStats(res.data.rating_counts);
+            setSellerRating({
+                avg: res.data.seller_avg_rating || 0,
+                total: res.data.seller_total_reviews || 0
+            });
+            // Set gambar default (gambar pertama atau placeholder)
+            const firstImg = res.data.product.images.find(i => i.is_primary)?.image_url 
+                            || res.data.product.images[0]?.image_url
+                            || 'https://placehold.co/400';
+            setSelectedImage(firstImg);
+            setLoading(false);
+        } catch (err) {
+            console.error('Error fetching product data:', err);
+        }
+    };
+
+    // Fungsi untuk refresh data setelah submit review
+    const refreshProductData = async () => {
+        try {
+            const res = await axios.get(`/api/catalog/${id}`);
+            setProduct(res.data.product);
+            setStats(res.data.rating_counts);
+            setSellerRating({
+                avg: res.data.seller_avg_rating || 0,
+                total: res.data.seller_total_reviews || 0
+            });
+        } catch (err) {
+            console.error('Error refreshing product data:', err);
+        }
+    };
 
     // Star Icon Component untuk konsistensi
     const StarIcon = ({ size = 15, fill = "#FDB813" }) => (
@@ -89,6 +115,33 @@ const ProductDetail = () => {
         const count = stats[star] || 0;
         const total = product.reviews.length || 1; // avoid division by zero
         return `${(count / total) * 100}%`;
+    };
+
+    // Helper: Hitung persentase kepuasan (rating 4 dan 5)
+    const getSatisfactionRate = () => {
+        const total = product.reviews.length || 0;
+        if (total === 0) return 0;
+        const satisfied = (stats[5] || 0) + (stats[4] || 0);
+        return Math.round((satisfied / total) * 100);
+    };
+
+    // Helper: Get rating average dengan fallback
+    const getRatingAvg = () => {
+        if (!product || !product.rating_avg) {
+            return '0.0';
+        }
+        
+        // Convert to number jika string
+        const ratingNum = typeof product.rating_avg === 'string' 
+            ? parseFloat(product.rating_avg) 
+            : product.rating_avg;
+        
+        // Check if valid number
+        if (isNaN(ratingNum) || ratingNum === 0) {
+            return '0.0';
+        }
+        
+        return ratingNum.toFixed(1);
     };
 
     return (
@@ -193,7 +246,12 @@ const ProductDetail = () => {
                     </div>
 
                     {/* Tombol sesuai gambar */}
-                    <button className={styles.btnBlack}>Beri Rating & Komentar</button>
+                    <button 
+                        className={styles.btnBlack}
+                        onClick={() => setShowReviewModal(true)}
+                    >
+                        Beri Rating & Komentar
+                    </button>
                     <button className={styles.btnOutline}>Bagikan Produk</button>
                 </div>
             </div>
@@ -202,28 +260,55 @@ const ProductDetail = () => {
             <div className={styles.sectionBox}>
                 <div className={styles.sectionHeader}>
                     <h3>Rating Produk</h3>
-                    <a href="#" className={styles.seeMore}>Lihat Semua</a>
                 </div>
                 
                 <div className={styles.ratingContainer}>
                     <div className={styles.ratingBig}>
-                        <div className={styles.ratingScore}><StarIcon size={48} /> {product.rating_avg} <span style={{fontSize:'1rem', color:'#555'}}>dari 5.0</span></div>
-                        <div style={{fontSize:'0.9rem', marginTop:'10px'}}>
-                            99% pembeli merasa puas<br/>
-                            {product.reviews.length} rating • {product.reviews.length} komentar
+                        <div className={styles.ratingScore}>
+                            <StarIcon size={48} /> 
+                            <span className={styles.scoreNumber}>{getRatingAvg()}</span>
+                            <span className={styles.scoreMax}>dari 5.0</span>
+                        </div>
+                        <div style={{fontSize:'0.9rem', marginTop:'10px', color: '#555'}}>
+                            {product.reviews.length > 0 ? (
+                                <>
+                                    {getSatisfactionRate()}% pembeli merasa puas<br/>
+                                    {product.reviews.length} rating • {product.reviews.length} ulasan
+                                </>
+                            ) : (
+                                <>
+                                    Belum ada penilaian<br/>
+                                    Jadilah yang pertama memberi ulasan
+                                </>
+                            )}
                         </div>
                     </div>
 
-                    {/* Progress Bars (Ungu) */}
-                    <div className={styles.ratingBars}>
-                        {[5, 4, 3, 2, 1].map(star => (
-                            <div key={star} className={styles.barRow}>
-                                <span style={{display:'flex', alignItems:'center', gap:'4px', width:'40px'}}><StarIcon size={12} />{star}</span>
-                                <div className={styles.progressBg}>
-                                    <div className={styles.progressFill} style={{width: getBarWidth(star)}}></div>
+                    {/* Progress Bars Split - Kiri (3,4,5) & Kanan (1,2) */}
+                    <div className={styles.ratingBarsWrapper}>
+                        {/* Bagian Kiri - Rating 5, 4, 3 */}
+                        <div className={styles.ratingBarsLeft}>
+                            {[5, 4, 3].map(star => (
+                                <div key={star} className={styles.barRow}>
+                                    <span className={styles.barLabel}><StarIcon size={12} />{star}</span>
+                                    <div className={styles.progressBg}>
+                                        <div className={styles.progressFill} style={{width: getBarWidth(star)}}></div>
+                                    </div>
                                 </div>
-                            </div>
-                        ))}
+                            ))}
+                        </div>
+
+                        {/* Bagian Kanan - Rating 2, 1 */}
+                        <div className={styles.ratingBarsRight}>
+                            {[2, 1].map(star => (
+                                <div key={star} className={styles.barRow}>
+                                    <span className={styles.barLabel}><StarIcon size={12} />{star}</span>
+                                    <div className={styles.progressBg}>
+                                        <div className={styles.progressFill} style={{width: getBarWidth(star)}}></div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
                     </div>
                 </div>
             </div>
@@ -232,7 +317,17 @@ const ProductDetail = () => {
             <div className={styles.sectionBox}>
                 <div className={styles.sectionHeader}>
                     <h3>Komentar Produk</h3>
-                    <a href="#" className={styles.seeMore}>Lihat Semua</a>
+                    <a 
+                        href="#" 
+                        className={styles.seeMore}
+                        onClick={(e) => {
+                            e.preventDefault();
+                            setReviewModalType('comments');
+                            setShowAllReviewsModal(true);
+                        }}
+                    >
+                        Lihat Semua
+                    </a>
                 </div>
 
                 <div className={styles.reviewScroll}>
@@ -253,6 +348,23 @@ const ProductDetail = () => {
                     <div className={styles.helpCircle}>?</div>
                 </div>
             </div>
+            
+            {/* Review Modal */}
+            <ReviewModal 
+                isOpen={showReviewModal}
+                onClose={() => setShowReviewModal(false)}
+                product={product}
+                onReviewSubmitted={refreshProductData}
+            />
+
+            {/* All Reviews Modal */}
+            <AllReviewsModal 
+                isOpen={showAllReviewsModal}
+                onClose={() => setShowAllReviewsModal(false)}
+                product={product}
+                stats={stats}
+                type={reviewModalType}
+            />
             
             <Footer />
         </>

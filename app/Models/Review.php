@@ -10,11 +10,14 @@ class Review extends Model
     use HasUuids;
 
     protected $fillable = [
-        'name',
-        'numHP',
-        'email',
+        'product_id',
+        'reviewer_name',
+        'reviewer_phone',   
+        'reviewer_email',   
+        'reviewer_province',
+        'reviewer_city',     
         'rating',
-        'comment',
+        'comment'
     ];
 
     protected $casts = [

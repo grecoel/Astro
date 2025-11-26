@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\ActivationController;
 use App\Http\Controllers\Api\SellerProductController;
 use App\Http\Controllers\Api\CatalogController;
+use App\Http\Controllers\Api\ReviewController;
 use App\Http\Controllers\Api\Admin\SellerVerificationController;
 use App\Http\Controllers\Api\Admin\CategoryController;
 use App\Http\Controllers\Api\Admin\BannerController;
@@ -20,6 +21,9 @@ Route::post('/validate-token', [ActivationController::class, 'validateToken']);
 Route::post('/aktivasi-akun', [ActivationController::class, 'activate']);
 Route::get('/catalog', [CatalogController::class, 'index']);
 Route::get('/catalog/{id}', [CatalogController::class, 'show']);
+
+// Review Routes
+Route::post('/reviews', [ReviewController::class, 'store']);
 
 Route::middleware('auth:sanctum')->group(function () {
     

@@ -380,22 +380,37 @@
 }
 
 .ratingScore {
-    font-size: 48px;
-    font-weight: 700;
-    color: #FDB813;
     display: flex;
     align-items: center;
     gap: 12px;
     margin-bottom: 15px;
 }
 
-.ratingScore span {
+.scoreNumber {
+    font-size: 48px;
+    font-weight: 700;
+    color: #000000;
+}
+
+.scoreMax {
     font-size: 20px;
     color: #6B7280;
     font-weight: 400;
 }
 
-.ratingBars {
+.ratingBarsWrapper {
+    flex: 1;
+    display: flex;
+    gap: 40px;
+    justify-content: space-between;
+}
+
+.ratingBarsLeft {
+    flex: 1;
+    max-width: 500px;
+}
+
+.ratingBarsRight {
     flex: 1;
     max-width: 500px;
 }
@@ -408,8 +423,11 @@
     font-size: 14px;
 }
 
-.barRow span {
-    min-width: 35px;
+.barLabel {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    min-width: 40px;
     font-weight: 500;
     color: #374151;
 }
@@ -715,6 +733,17 @@
     .ratingContainer {
         flex-direction: column;
         gap: 30px;
+    }
+
+    .ratingBarsWrapper {
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .ratingBarsLeft,
+    .ratingBarsRight {
+        flex: 1;
+        max-width: 100%;
     }
     
     .helpButton {

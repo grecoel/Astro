@@ -98,6 +98,14 @@ class CatalogController extends Controller
         ];
 
         $totalReviews = $product->reviews->count();
+        
+        // Hitung rata-rata rating produk
+        $ratingAvg = $totalReviews > 0 
+            ? round($product->reviews->avg('rating'), 1) 
+            : 0.0;
+        
+        // Tambahkan rating_avg ke product object
+        $product->rating_avg = $ratingAvg;
 
         // 3. Hitung rata-rata rating seller dari semua produknya
         $sellerAvgRating = 0;
