@@ -19,6 +19,7 @@ const Home = () => {
     const [bannerTranslate, setBannerTranslate] = useState(0);
     const [selectedCategoryId, setSelectedCategoryId] = useState('');
     const [categoryFade, setCategoryFade] = useState({ left: false, right: true });
+    const [bannerHovered, setBannerHovered] = useState(false);
     
     const [searchParams, setSearchParams] = useSearchParams();
     const searchQuery = searchParams.get('search') || '';
@@ -172,6 +173,23 @@ const Home = () => {
         setCategoryFade({ left: showLeftFade, right: showRightFade });
     };
 
+    // Handle banner navigation
+    const handleBannerPrev = () => {
+        setBannerTranslate((prev) => {
+            const currentIndex = Math.floor(-prev / 100) % banners.length;
+            const newIndex = currentIndex === 0 ? banners.length - 1 : currentIndex - 1;
+            return -newIndex * 100;
+        });
+    };
+
+    const handleBannerNext = () => {
+        setBannerTranslate((prev) => {
+            const currentIndex = Math.floor(-prev / 100) % banners.length;
+            const newIndex = (currentIndex + 1) % banners.length;
+            return -newIndex * 100;
+        });
+    };
+
     return (
         <div className={styles.uiDesktopKatalog}>
             <Navbar />
@@ -181,7 +199,11 @@ const Home = () => {
                 <BannerSkeleton />
             ) : (
                 banners.length > 0 && (
-                    <div className={styles.bannerContainer}>
+                    <div 
+                        className={styles.bannerContainer}
+                        onMouseEnter={() => setBannerHovered(true)}
+                        onMouseLeave={() => setBannerHovered(false)}
+                    >
                     <div 
                         className={styles.bannerTrack}
                         style={{ 
@@ -199,6 +221,31 @@ const Home = () => {
                             />
                         ))}
                     </div>
+                    
+                    {/* Navigation Buttons - Show on hover */}
+                    {banners.length > 1 && bannerHovered && (
+                        <>
+                            <button 
+                                className={`${styles.bannerNavButton} ${styles.bannerNavLeft}`}
+                                onClick={handleBannerPrev}
+                                aria-label="Previous banner"
+                            >
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                                    <path d="M15 18L9 12L15 6" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+                                </svg>
+                            </button>
+                            <button 
+                                className={`${styles.bannerNavButton} ${styles.bannerNavRight}`}
+                                onClick={handleBannerNext}
+                                aria-label="Next banner"
+                            >
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                                    <path d="M9 18L15 12L9 6" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+                                </svg>
+                            </button>
+                        </>
+                    )}
+                    
                     {banners.length > 1 && (
                         <div className={styles.carouselDots}>
                             {banners.map((_, idx) => (
