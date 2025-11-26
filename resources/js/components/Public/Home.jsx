@@ -11,7 +11,8 @@ const Home = () => {
     const [banners, setBanners] = useState([]);
     const [categories, setCategories] = useState([]);
     const [products, setProducts] = useState([]);
-    const [loading, setLoading] = useState(true);
+    const [initialLoading, setInitialLoading] = useState(true);
+    const [productsLoading, setProductsLoading] = useState(false);
     const [loadingMore, setLoadingMore] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
     const [hasMore, setHasMore] = useState(true);
@@ -23,9 +24,16 @@ const Home = () => {
     const searchQuery = searchParams.get('search') || '';
     const categoryQuery = searchParams.get('category_id') || '';
 
-    const fetchData = async (search = '', categoryId = '', page = 1) => {
+    const fetchData = async (search = '', categoryId = '', page = 1, isInitial = false) => {
         try {
-            page === 1 ? setLoading(true) : setLoadingMore(true);
+            if (isInitial) {
+                setInitialLoading(true);
+            } else if (page === 1) {
+                setProductsLoading(true);
+            } else {
+                setLoadingMore(true);
+            }
+            
             const params = new URLSearchParams();
             if (search) params.append('search', search);
             if (categoryId) params.append('category_id', categoryId);
@@ -34,8 +42,11 @@ const Home = () => {
             const res = await axios.get(`/api/catalog?${params.toString()}`);
             
             if (page === 1) {
-                setBanners(res.data.banners || []);
-                setCategories(res.data.categories || []);
+                // Hanya set banners dan categories pada initial load
+                if (isInitial) {
+                    setBanners(res.data.banners || []);
+                    setCategories(res.data.categories || []);
+                }
                 setProducts(res.data.products?.data || []);
                 setCurrentPage(1);
             } else {
@@ -47,34 +58,53 @@ const Home = () => {
         } catch (err) {
             console.error('Error fetching catalog:', err);
             if (page === 1) {
-                setBanners([]);
-                setCategories([]);
+                if (isInitial) {
+                    setBanners([]);
+                    setCategories([]);
+                }
                 setProducts([]);
             }
         } finally {
-            page === 1 ? setLoading(false) : setLoadingMore(false);
+            if (isInitial) {
+                setInitialLoading(false);
+            } else if (page === 1) {
+                setProductsLoading(false);
+            } else {
+                setLoadingMore(false);
+            }
         }
     };
 
     useEffect(() => {
-        fetchData(searchQuery, categoryQuery, 1);
+        // Initial load dengan banners dan categories
+        fetchData(searchQuery, categoryQuery, 1, true);
         setSelectedCategoryId(categoryQuery);
         setCurrentPage(1);
         setHasMore(true);
         setBannerTranslate(0);
+    }, []);
+
+    useEffect(() => {
+        // Filter kategori atau search (tanpa reload banners/categories)
+        if (!initialLoading) {
+            fetchData(searchQuery, categoryQuery, 1, false);
+            setSelectedCategoryId(categoryQuery);
+            setCurrentPage(1);
+            setHasMore(true);
+        }
     }, [searchQuery, categoryQuery]);
 
     const handleScroll = (e) => {
         const { scrollTop, clientHeight, scrollHeight } = e.target.documentElement;
-        if (scrollHeight - (scrollTop + clientHeight) < 300 && hasMore && !loadingMore && !loading) {
-            fetchData(searchQuery, categoryQuery, currentPage + 1);
+        if (scrollHeight - (scrollTop + clientHeight) < 300 && hasMore && !loadingMore && !productsLoading && !initialLoading) {
+            fetchData(searchQuery, categoryQuery, currentPage + 1, false);
         }
     };
 
     useEffect(() => {
         window.addEventListener('scroll', handleScroll);
         return () => window.removeEventListener('scroll', handleScroll);
-    }, [currentPage, hasMore, loadingMore, loading, searchQuery, categoryQuery]);
+    }, [currentPage, hasMore, loadingMore, productsLoading, initialLoading, searchQuery, categoryQuery]);
 
     useEffect(() => {
         if (banners.length <= 1) return;
@@ -147,7 +177,7 @@ const Home = () => {
             <Navbar />
 
             {/* BANNER */}
-            {loading ? (
+            {initialLoading ? (
                 <BannerSkeleton />
             ) : (
                 banners.length > 0 && (
@@ -185,7 +215,7 @@ const Home = () => {
             )}
 
             {/* KATEGORI */}
-            {loading ? (
+            {initialLoading ? (
                 <CategorySkeleton />
             ) : (
                 <div className={styles.rectangle24}>
@@ -244,27 +274,33 @@ const Home = () => {
             )}
 
             {/* PRODUCTS GRID */}
-            {loading ? (
+            {initialLoading ? (
                 <ProductGridSkeleton count={24} />
-            ) : products.length > 0 ? (
+            ) : (
                 <>
-                    <div className={styles.productGrid}>
-                        {products.map(product => (
-                            <ProductCard key={product.id} product={product} />
-                        ))}
-                    </div>
-                    {loadingMore && (
-                        <ProductGridSkeleton count={12} />
+                    {productsLoading ? (
+                        <ProductGridSkeleton count={24} />
+                    ) : products.length > 0 ? (
+                        <>
+                            <div className={styles.productGrid}>
+                                {products.map(product => (
+                                    <ProductCard key={product.id} product={product} />
+                                ))}
+                            </div>
+                            {loadingMore && (
+                                <ProductGridSkeleton count={12} />
+                            )}
+                        </>
+                    ) : (
+                        <div style={{
+                            textAlign: 'center',
+                            padding: '3rem',
+                            color: '#666'
+                        }}>
+                            Tidak ada produk ditemukan.
+                        </div>
                     )}
                 </>
-            ) : (
-                <div style={{
-                    textAlign: 'center',
-                    padding: '3rem',
-                    color: '#666'
-                }}>
-                    Tidak ada produk ditemukan.
-                </div>
             )}
 
             {/* HELP BUTTONS */}

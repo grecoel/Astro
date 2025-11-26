@@ -50,9 +50,13 @@ class CatalogController extends Controller
 
         // B. FILTER KATEGORI (Menerima Array atau Single)
         // Contoh URL: ?categories[]=uuid-1&categories[]=uuid-2
+        // ATAU single: ?category_id=uuid-1
         if ($request->has('categories')) {
             $cats = is_array($request->categories) ? $request->categories : explode(',', $request->categories);
             $query->whereIn('category_id', $cats);
+        } elseif ($request->has('category_id') && $request->category_id != '') {
+            // Support single category_id dari Home page filter
+            $query->where('category_id', $request->category_id);
         }
 
         // C. FILTER LOKASI (Provinsi & Kota)

@@ -214,9 +214,7 @@
   border-color: #8B63CC;
 }
 
-.categorySelected .categoryCard .categoryIcon {
-  filter: invert(1);
-}
+/* Logo kategori yang terpilih tidak di-invert */
 
 .categorySelected .categoryCard .categoryName {
   color: #ffffff;
