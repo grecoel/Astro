@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Seller;
+use App\Models\Product;
+use App\Models\Review;
 use Illuminate\Support\Facades\Validator;
 use App\Services\SupabaseStorageService;
 
@@ -143,6 +145,108 @@ class SellerController extends Controller
                 'pic_email' => $seller->pic_email,
                 'status' => $seller->status
             ]
+        ]);
+    }
+
+    /**
+     * Get seller's products for dashboard
+     */
+    public function getProducts(Request $request)
+    {
+        $user = $request->user();
+        
+        if ($user->role !== 'seller') {
+            return response()->json([
+                'message' => 'Akses ditolak. Hanya seller yang bisa mengakses.'
+            ], 403);
+        }
+
+        $seller = Seller::find($user->seller_id);
+        
+        if (!$seller) {
+            return response()->json(['message' => 'Seller not found'], 404);
+        }
+        
+        $products = Product::where('seller_id', $seller->id)
+            ->select('id', 'name', 'stock', 'price', 'created_at')
+            ->orderBy('name', 'asc')
+            ->get();
+        
+        return response()->json([
+            'products' => $products
+        ]);
+    }
+    
+    /**
+     * Get all reviews for seller's products
+     */
+    public function getReviews(Request $request)
+    {
+        $user = $request->user();
+        
+        if ($user->role !== 'seller') {
+            return response()->json([
+                'message' => 'Akses ditolak. Hanya seller yang bisa mengakses.'
+            ], 403);
+        }
+
+        $seller = Seller::find($user->seller_id);
+        
+        if (!$seller) {
+            return response()->json(['message' => 'Seller not found'], 404);
+        }
+        
+        // Get all reviews for seller's products
+        $reviews = Review::whereHas('product', function($query) use ($seller) {
+            $query->where('seller_id', $seller->id);
+        })
+        ->select('id', 'product_id', 'rating', 'comment', 'reviewer_name', 'created_at')
+        ->with('product:id,name')
+        ->get();
+        
+        return response()->json([
+            'reviews' => $reviews
+        ]);
+    }
+
+    /**
+     * Get dashboard statistics
+     */
+    public function getStats(Request $request)
+    {
+        $user = $request->user();
+        
+        if ($user->role !== 'seller') {
+            return response()->json([
+                'message' => 'Akses ditolak. Hanya seller yang bisa mengakses.'
+            ], 403);
+        }
+
+        $seller = Seller::find($user->seller_id);
+        
+        if (!$seller) {
+            return response()->json(['message' => 'Seller not found'], 404);
+        }
+        
+        // Get total products
+        $totalProducts = Product::where('seller_id', $seller->id)->count();
+        
+        // Get reviews and calculate stats
+        $reviews = Review::whereHas('product', function($query) use ($seller) {
+            $query->where('seller_id', $seller->id);
+        })->get();
+        
+        $averageRating = $reviews->count() > 0 
+            ? round($reviews->avg('rating'), 1) 
+            : 0;
+        
+        // Count unique reviewers by email
+        $totalReviewers = $reviews->unique('reviewer_email')->count();
+        
+        return response()->json([
+            'totalProducts' => $totalProducts,
+            'averageRating' => $averageRating,
+            'totalReviewers' => $totalReviewers
         ]);
     }
 }
