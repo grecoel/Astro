@@ -129,7 +129,7 @@ function VerifikasiDetail() {
             <div className={styles.container}>
                 <div className={styles.successSection}>
                     <div className={styles.successMessage}>
-                        <div className={styles.successCheckmark}>✓</div>
+                        <div className={styles.successCheckmark}></div>
                         <p>{successMessage}</p>
                         <p style={{ fontSize: '0.9rem', color: '#718096', marginTop: '1rem' }}>
                             Anda akan dialihkan dalam 2 detik...
@@ -152,14 +152,14 @@ function VerifikasiDetail() {
 
             {successMessage && (
                 <div className={styles.successNotification}>
-                    <div className={styles.checkmark}>✓</div>
+                    <div className={styles.checkmark}></div>
                     <p>{successMessage}</p>
                 </div>
             )}
             
             <div className={styles.card}>
                 <div className={styles.sectionHeader}>
-                    <h2 className={styles.sectionTitle}>▧ Data Toko</h2>
+                    <h2 className={styles.sectionTitle}>Data Toko</h2>
                 </div>
                 <div className={styles.sectionContent}>
                     <div className={styles.row}>
@@ -177,7 +177,7 @@ function VerifikasiDetail() {
             
             <div className={styles.card}>
                 <div className={styles.sectionHeader}>
-                    <h2 className={styles.sectionTitle}>◆ Data PIC (Penanggung Jawab)</h2>
+                    <h2 className={styles.sectionTitle}>Data PIC (Penanggung Jawab)</h2>
                 </div>
                 <div className={styles.sectionContent}>
                     <div className={styles.row}>
@@ -201,7 +201,7 @@ function VerifikasiDetail() {
             
             <div className={styles.card}>
                 <div className={styles.sectionHeader}>
-                    <h2 className={styles.sectionTitle}>◉ Alamat Lengkap</h2>
+                    <h2 className={styles.sectionTitle}>Alamat Lengkap</h2>
                 </div>
                 <div className={styles.sectionContent}>
                     <div className={styles.row}>
@@ -225,7 +225,7 @@ function VerifikasiDetail() {
 
             <div className={styles.card}>
                 <div className={styles.sectionHeader}>
-                    <h2 className={styles.sectionTitle}>✓ Dokumen & Identitas</h2>
+                    <h2 className={styles.sectionTitle}>Dokumen & Identitas</h2>
                 </div>
                 <div className={styles.sectionContent}>
                     <div className={styles.row}>
@@ -237,7 +237,7 @@ function VerifikasiDetail() {
                             <span className={styles.label}>File KTP</span>
                             {seller.ktp_url ? (
                                 <a href={seller.ktp_url} target="_blank" rel="noreferrer" className={styles.fileLink}>
-                                    ⬈ Buka File KTP
+                                    Buka File KTP
                                 </a>
                             ) : (
                                 <span className={styles.value}>—</span>
@@ -268,7 +268,7 @@ function VerifikasiDetail() {
                     className={styles.btnApprove}
                     disabled={processing}
                 >
-                    {processing ? 'Memproses...' : '✓ SETUJUI PENDAFTARAN'}
+                    {processing ? 'Memproses...' : 'SETUJUI PENDAFTARAN'}
                 </button>
                 
                 <button 
@@ -276,7 +276,7 @@ function VerifikasiDetail() {
                     className={styles.btnReject}
                     disabled={processing}
                 >
-                    {processing ? 'Memproses...' : '✕ TOLAK PENDAFTARAN'}
+                    {processing ? 'Memproses...' : 'TOLAK PENDAFTARAN'}
                 </button>
             </div>
 
