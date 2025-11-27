@@ -23,8 +23,15 @@ function SellerDashboard() {
     }, []);
 
     const fetchDashboardData = async () => {
+        setLoading(true); // Tambahkan ini
         try {
             const token = localStorage.getItem('token');
+            
+            if (!token) {
+                navigate('/login');
+                return;
+            }
+
             const headers = { 'Authorization': `Bearer ${token}` };
 
             // Get user info
@@ -43,11 +50,23 @@ function SellerDashboard() {
                 console.log('Product Stocks:', dashResponse.data.productStocks);
                 console.log('Product Ratings:', dashResponse.data.productRatings);
                 setDashboardData(dashResponse.data);
+            } else {
+                // Jika seller belum diaktivasi
+                setError('Akun seller Anda belum diaktivasi');
             }
         } catch (err) {
             console.error('Error fetching dashboard data:', err);
+            
+            if (err.response?.status === 401) {
+                // Unauthorized - redirect to login
+                localStorage.removeItem('token');
+                navigate('/login');
+                return;
+            }
+            
             setError(err.response?.data?.message || 'Gagal memuat data dashboard');
         } finally {
+            // Set loading false setelah semua selesai
             setLoading(false);
         }
     };
@@ -66,6 +85,7 @@ function SellerDashboard() {
         }
     };
 
+    // Loading State - Tetap tampil saat loading
     if (loading) {
         return (
             <div className={styles.loadingContainer}>
@@ -75,13 +95,17 @@ function SellerDashboard() {
         );
     }
 
+    // Error State
     if (error) {
         return (
             <div className={styles.errorContainer}>
                 <div className={styles.errorBox}>
-                    <h3>Error</h3>
+                    <svg width="64" height="64" viewBox="0 0 24 24" fill="#dc2626">
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
+                    </svg>
+                    <h3>Terjadi Kesalahan</h3>
                     <p>{error}</p>
-                    <button onClick={() => navigate('/login')} className={styles.btnPrimary}>
+                    <button onClick={() => navigate('/login')} className={styles.btnError}>
                         Kembali ke Login
                     </button>
                 </div>
@@ -89,8 +113,14 @@ function SellerDashboard() {
         );
     }
 
+    // No Data State
     if (!dashboardData) {
-        return null;
+        return (
+            <div className={styles.loadingContainer}>
+                <div className={styles.spinner}></div>
+                <p>Memuat data...</p>
+            </div>
+        );
     }
 
     // Safely destructure dashboard data
@@ -135,11 +165,11 @@ function SellerDashboard() {
                         </svg>
                         Dashboard
                     </button>
-                    <button className={styles.navItem} onClick={() => navigate('/seller/detail')}>
+                    <button className={styles.navItem} onClick={() => navigate('/seller/management')}>
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                            <path d="M19 3h-4.18C14.4 1.84 13.3 1 12 1c-1.3 0-2.4.84-2.82 2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 0c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zm2 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/>
                         </svg>
-                        Detail Toko
+                        Managemen Toko
                     </button>
                     <button className={styles.navItem} onClick={() => navigate('/seller/upload-produk')}>
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
@@ -162,7 +192,7 @@ function SellerDashboard() {
                     <div className={styles.headerRight}>
                         <button 
                             className={styles.btnCatalog}
-                            onClick={() => navigate('/products')}
+                            onClick={() => navigate('/')}
                         >
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
                                 <path d="M12 2L2 7v10c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-10-5z"/>
@@ -203,6 +233,7 @@ function SellerDashboard() {
                     <button 
                         className={`${styles.statCard} ${styles.statCardPurple} ${activeView === 'products' ? styles.statCardActive : ''}`}
                         onClick={() => setActiveView(activeView === 'products' ? 'all' : 'products')}
+                        aria-label="Total Produk"
                     >
                         <div className={styles.statIcon}>
                             <svg width="32" height="32" viewBox="0 0 24 24" fill="white">
@@ -211,8 +242,8 @@ function SellerDashboard() {
                         </div>
                         <div className={styles.statContent}>
                             <div className={styles.statLabel}>Total Produk</div>
-                            <div className={styles.statValue}>{summary.totalProducts}</div>
-                            <div className={styles.statSubtext}>{summary.totalStock} unit total stok</div>
+                            <div className={styles.statValue}>{summary.totalProducts || 0}</div>
+                            <div className={styles.statSubtext}>{summary.totalStock || 0} unit total stok</div>
                         </div>
                         {activeView === 'products' && <div className={styles.activeIndicator}></div>}
                     </button>
@@ -220,6 +251,7 @@ function SellerDashboard() {
                     <button 
                         className={`${styles.statCard} ${activeView === 'ratings' ? styles.statCardActive : ''}`}
                         onClick={() => setActiveView(activeView === 'ratings' ? 'all' : 'ratings')}
+                        aria-label="Rating Rata-rata"
                     >
                         <div className={styles.statIcon}>
                             <svg width="32" height="32" viewBox="0 0 24 24" fill="#7A57B3">
@@ -228,8 +260,8 @@ function SellerDashboard() {
                         </div>
                         <div className={styles.statContent}>
                             <div className={styles.statLabel}>Rating Rata-rata</div>
-                            <div className={styles.statValue}>{summary.averageRating}/5.0</div>
-                            <div className={styles.statSubtext}>Dari {summary.totalReviews} ulasan</div>
+                            <div className={styles.statValue}>{summary.averageRating || '0.0'}/5.0</div>
+                            <div className={styles.statSubtext}>Dari {summary.totalReviews || 0} ulasan</div>
                         </div>
                         {activeView === 'ratings' && <div className={styles.activeIndicator}></div>}
                     </button>
@@ -237,6 +269,7 @@ function SellerDashboard() {
                     <button 
                         className={`${styles.statCard} ${activeView === 'reviewers' ? styles.statCardActive : ''}`}
                         onClick={() => setActiveView(activeView === 'reviewers' ? 'all' : 'reviewers')}
+                        aria-label="Total Reviewer"
                     >
                         <div className={styles.statIcon}>
                             <svg width="32" height="32" viewBox="0 0 24 24" fill="#7A57B3">
@@ -245,7 +278,7 @@ function SellerDashboard() {
                         </div>
                         <div className={styles.statContent}>
                             <div className={styles.statLabel}>Total Reviewer</div>
-                            <div className={styles.statValue}>{summary.totalReviewers}</div>
+                            <div className={styles.statValue}>{summary.totalReviewers || 0}</div>
                             <div className={styles.statSubtext}>Reviewer unik</div>
                         </div>
                         {activeView === 'reviewers' && <div className={styles.activeIndicator}></div>}
@@ -290,7 +323,7 @@ function SellerDashboard() {
                                             ))}
                                         </div>
                                         
-                                        {/* Bars */}
+                                        {/* Bars Container - ONLY BARS */}
                                         <div className={styles.barsContainer}>
                                             {productStocks.map((product, index) => (
                                                 <div 
@@ -307,35 +340,68 @@ function SellerDashboard() {
                                                         </div>
                                                     )}
                                                     
+                                                    {/* Bar Only */}
                                                     <div className={styles.barWrapper}>
                                                         <div 
                                                             className={`${styles.bar} ${hoveredProduct === index ? styles.barHovered : ''}`}
-                                                            style={{ height: `${(product.stock / yAxisLabels[0]) * 100}%` }}
+                                                            style={{ height: `${Math.min((product.stock / yAxisLabels[0]) * 100, 100)}%` }}
                                                         >
                                                             <span className={styles.barValueLabel}>{product.stock}</span>
                                                         </div>
                                                     </div>
-                                                    
-                                                    {/* Product Image/Label */}
-                                                    <div className={styles.barLabel}>
-                                                        <div className={styles.productThumbWrapper}>
-                                                            {product.image ? (
-                                                                <img 
-                                                                    src={product.image} 
-                                                                    alt={product.name}
-                                                                    className={styles.productThumb}
-                                                                    onError={(e) => {
-                                                                        e.target.style.display = 'none';
-                                                                        e.target.nextElementSibling.style.display = 'flex';
-                                                                    }}
-                                                                />
-                                                            ) : null}
-                                                            <div 
-                                                                className={styles.productThumbPlaceholder} 
-                                                                style={{ display: product.image ? 'none' : 'flex' }}
-                                                            >
-                                                                {product.name?.charAt(0) || '?'}
-                                                            </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                        
+                                        {/* X-Axis Labels - SEPARATE from bars */}
+                                        <div 
+                                            className={styles.xAxisLabels}
+                                            ref={(el) => {
+                                                if (el) {
+                                                    const barsContainer = el.previousElementSibling;
+                                                    if (barsContainer) {
+                                                        // Sync scroll between bars and labels
+                                                        const handleBarsScroll = () => {
+                                                            el.scrollLeft = barsContainer.scrollLeft;
+                                                        };
+                                                        const handleLabelsScroll = () => {
+                                                            barsContainer.scrollLeft = el.scrollLeft;
+                                                        };
+                                                        
+
+                                                        barsContainer.removeEventListener('scroll', handleBarsScroll);
+                                                        el.removeEventListener('scroll', handleLabelsScroll);
+                                                        
+                                                        barsContainer.addEventListener('scroll', handleBarsScroll);
+                                                        el.addEventListener('scroll', handleLabelsScroll);
+                                                    }
+                                                }
+                                            }}
+                                        >
+                                            {productStocks.map((product, index) => (
+                                                <div 
+                                                    key={index} 
+                                                    className={styles.barLabel}
+                                                    onMouseEnter={() => setHoveredProduct(index)}
+                                                    onMouseLeave={() => setHoveredProduct(null)}
+                                                >
+                                                    <div className={styles.productThumbWrapper}>
+                                                        {product.image ? (
+                                                            <img 
+                                                                src={product.image} 
+                                                                alt={product.name}
+                                                                className={styles.productThumb}
+                                                                onError={(e) => {
+                                                                    e.target.style.display = 'none';
+                                                                    e.target.nextElementSibling.style.display = 'flex';
+                                                                }}
+                                                            />
+                                                        ) : null}
+                                                        <div 
+                                                            className={styles.productThumbPlaceholder} 
+                                                            style={{ display: product.image ? 'none' : 'flex' }}
+                                                        >
+                                                            {product.name?.charAt(0) || '?'}
                                                         </div>
                                                     </div>
                                                 </div>
@@ -420,7 +486,7 @@ function SellerDashboard() {
                     </div>
                     )}
 
-                    {/* Chart 3: Sebaran Reviewer by Provinsi dengan Peta - Show when 'all' or 'reviewers' */}
+                    {/* Chart 3: Sebaran Reviewer by Provinsi - Show when 'all' or 'reviewers' */}
                     {(activeView === 'all' || activeView === 'reviewers') && (
                     <div className={styles.chartCard}>
                         <div className={styles.chartHeader}>
@@ -436,42 +502,62 @@ function SellerDashboard() {
                         </div>
                         <div className={styles.chartBody}>
                             {reviewersByProvince.length > 0 ? (
-                                <div className={styles.mapContainer}>
-                                    {/* Real Indonesia Map with Leaflet */}
-                                    <div className={styles.indonesiaMap}>
-                                        <IndonesiaMap 
-                                            data={reviewersByProvince}
-                                            maxValue={maxReviewers}
-                                            hoveredIndex={hoveredProvince}
-                                            onHover={setHoveredProvince}
-                                        />
-                                    </div>
+                                <>
+                                    {/* Tampilkan Peta HANYA saat activeView === 'reviewers' */}
+                                    {activeView === 'reviewers' && (
+                                        <div className={styles.indonesiaMap}>
+                                            <IndonesiaMap 
+                                                data={reviewersByProvince}
+                                                maxValue={maxReviewers}
+                                                hoveredIndex={hoveredProvince}
+                                                onHover={setHoveredProvince}
+                                            />
+                                        </div>
+                                    )}
                                     
-                                    {/* Legend / List */}
-                                    <div className={styles.mapLegend}>
-                                        <div className={styles.legendTitle}>Top Provinsi</div>
-                                        {reviewersByProvince.map((item, index) => (
-                                            <div 
-                                                key={index} 
-                                                className={`${styles.legendItem} ${hoveredProvince === index ? styles.legendItemHovered : ''}`}
-                                                onMouseEnter={() => setHoveredProvince(index)}
-                                                onMouseLeave={() => setHoveredProvince(null)}
-                                            >
-                                                <div className={styles.legendRank}>#{index + 1}</div>
-                                                <div className={styles.legendInfo}>
-                                                    <div className={styles.legendName}>{item.province}</div>
-                                                    <div className={styles.legendBar}>
-                                                        <div 
-                                                            className={styles.legendBarFill}
-                                                            style={{ width: `${(item.total / maxReviewers) * 100}%` }}
-                                                        ></div>
+                                    {/* Bar Chart dengan Scroll - baik saat 'all' atau 'reviewers' */}
+                                    <div className={styles.provinceBarChartWrapper}>
+                                        {/* Header dengan Total Reviewer */}
+                                        <div className={styles.provinceChartHeader}>
+                                            <h4 className={styles.provinceChartTitle}>Top 10 Provinsi</h4>
+                                            <div className={styles.totalReviewerBadge}>
+                                                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                                    <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/>
+                                                </svg>
+                                                <span>{summary.totalReviewers} Reviewer</span>
+                                            </div>
+                                        </div>
+                                        
+                                        <div className={styles.provinceBarChart}>
+                                            {reviewersByProvince.slice(0, 10).map((item, index) => (
+                                                <div 
+                                                    key={index} 
+                                                    className={styles.provinceBarItem}
+                                                    onMouseEnter={() => setHoveredProvince(index)}
+                                                    onMouseLeave={() => setHoveredProvince(null)}
+                                                >
+                                                    <div className={styles.provinceBarLeft}>
+                                                        <div className={styles.provinceRank}>#{index + 1}</div>
+                                                        <div className={styles.provinceName}>{item.province}</div>
+                                                    </div>
+                                                    <div className={styles.provinceBarRight}>
+                                                        <div className={styles.provinceBarTrack}>
+                                                            <div 
+                                                                className={`${styles.provinceBarFill} ${hoveredProvince === index ? styles.provinceBarFillHovered : ''}`}
+                                                                style={{ width: `${(item.total / maxReviewers) * 100}%` }}
+                                                            >
+                                                                <span className={styles.provinceBarValue}>{item.total}</span>
+                                                            </div>
+                                                        </div>
+                                                        <div className={styles.provinceCount}>
+                                                            {item.total} reviewer{item.total > 1 ? 's' : ''}
+                                                        </div>
                                                     </div>
                                                 </div>
-                                                <div className={styles.legendCount}>{item.total}</div>
-                                            </div>
-                                        ))}
+                                            ))}
+                                        </div>
                                     </div>
-                                </div>
+                                </>
                             ) : (
                                 <div className={styles.emptyState}>
                                     <p>Belum ada data reviewer</p>
