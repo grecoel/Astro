@@ -23,6 +23,7 @@ function SellerDashboard() {
     }, []);
 
     const fetchDashboardData = async () => {
+        setLoading(true); // Tambahkan ini
         try {
             const token = localStorage.getItem('token');
             
@@ -60,6 +61,7 @@ function SellerDashboard() {
             
             setError(err.response?.data?.message || 'Gagal memuat data dashboard');
         } finally {
+            // Set loading false setelah semua selesai
             setLoading(false);
         }
     };
