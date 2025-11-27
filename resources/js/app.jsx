@@ -3,7 +3,8 @@ import React from 'react';
 import { createRoot } from 'react-dom/client';
 import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
 
-import '../css/app.css'; 
+import '../css/app.css';
+import { ToastProvider } from './components/Common/ToastContext'; 
 
 import RegistrasiForm from './components/RegistrasiForm/RegistrasiForm';
 import VerifikasiList from './components/Admin/VerifikasiList'; 
@@ -27,8 +28,9 @@ const root = createRoot(container);
 
 root.render(
     <React.StrictMode>
-        <BrowserRouter>
-            <Routes>
+        <ToastProvider>
+            <BrowserRouter>
+                <Routes>
                 <Route path="/login" element={
                     <div className="page-container">
                         <LoginForm />
@@ -74,7 +76,8 @@ root.render(
                 <Route path="/" element={<Home />} />
                 <Route path="/search" element={<SearchResults />} />
                 <Route path="/product/:id" element={<ProductDetail />} />
-            </Routes>
-        </BrowserRouter>
+                </Routes>
+            </BrowserRouter>
+        </ToastProvider>
     </React.StrictMode>
 );
