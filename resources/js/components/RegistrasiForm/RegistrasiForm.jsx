@@ -4,6 +4,7 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import styles from './RegistrasiForm.module.css';
 import { locations } from '../../Data/locations';
+import CustomSelect from '../Common/CustomSelect';
 
 const API_URL = '/api/sellers';
 
@@ -267,45 +268,36 @@ function RegistrasiForm() {
                     </div>
                     <div className={styles.formGroup}>
                         <label htmlFor="pic_province">Provinsi*</label>
-                        <select 
-                            id="pic_province" 
-                            name="pic_province" 
+                        <CustomSelect
                             value={formData.pic_province}
-                            onChange={handleProvinceChange} 
-                            required 
-                            className={styles.selectInput}
-                        >
-                            <option value="">-- Pilih Provinsi --</option>
-                            {Object.keys(locations).map((province) => (
-                                <option key={province} value={province}>
-                                    {province}
-                                </option>
-                            ))}
-                        </select>
+                            onChange={(value) => {
+                                setFormData(prev => ({ 
+                                    ...prev, 
+                                    pic_province: value,
+                                    pic_city: '' 
+                                }));
+                                setAvailableCities(locations[value] || []);
+                            }}
+                            options={Object.keys(locations)}
+                            placeholder="-- Pilih Provinsi --"
+                            required
+                        />
                         {getError('pic_province')}
                     </div>
                     <div className={styles.formGroup}>
                         <label htmlFor="pic_city">Kota/Kabupaten*</label>
-                        <select 
-                            id="pic_city" 
-                            name="pic_city" 
+                        <CustomSelect
                             value={formData.pic_city}
-                            onChange={handleCityChange} 
-                            required 
+                            onChange={(value) => {
+                                setFormData(prev => ({ ...prev, pic_city: value }));
+                            }}
+                            options={availableCities}
+                            placeholder={formData.pic_province 
+                                ? "-- Pilih Kota/Kabupaten --" 
+                                : "-- Pilih Provinsi Terlebih Dahulu --"}
                             disabled={!formData.pic_province}
-                            className={styles.selectInput}
-                        >
-                            <option value="">
-                                {formData.pic_province 
-                                    ? "-- Pilih Kota/Kabupaten --" 
-                                    : "-- Pilih Provinsi Terlebih Dahulu --"}
-                            </option>
-                            {availableCities.map((city) => (
-                                <option key={city} value={city}>
-                                    {city}
-                                </option>
-                            ))}
-                        </select>
+                            required
+                        />
                         {getError('pic_city')}
                     </div>
                 </fieldset>
