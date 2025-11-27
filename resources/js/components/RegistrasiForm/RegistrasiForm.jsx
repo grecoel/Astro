@@ -4,7 +4,6 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import styles from './RegistrasiForm.module.css';
 import { locations } from '../../Data/locations';
-import CustomSelect from '../Common/CustomSelect';
 
 const API_URL = '/api/sellers';
 
@@ -414,53 +413,6 @@ function RegistrasiForm() {
                             </div>
                         </div>
                     </div>
-                    <div className={styles.formGroup}>
-                        <label htmlFor="pic_district">Kecamatan*</label>
-                        <input 
-                            type="text" 
-                            id="pic_district" 
-                            name="pic_district" 
-                            value={formData.pic_district}
-                            onChange={handleChange} 
-                            required 
-                        />
-                        {getError('pic_district')}
-                    </div>
-                    <div className={styles.formGroup}>
-                        <label htmlFor="pic_province">Provinsi*</label>
-                        <CustomSelect
-                            value={formData.pic_province}
-                            onChange={(value) => {
-                                setFormData(prev => ({ 
-                                    ...prev, 
-                                    pic_province: value,
-                                    pic_city: '' 
-                                }));
-                                setAvailableCities(locations[value] || []);
-                            }}
-                            options={Object.keys(locations)}
-                            placeholder="-- Pilih Provinsi --"
-                            required
-                        />
-                        {getError('pic_province')}
-                    </div>
-                    <div className={styles.formGroup}>
-                        <label htmlFor="pic_city">Kota/Kabupaten*</label>
-                        <CustomSelect
-                            value={formData.pic_city}
-                            onChange={(value) => {
-                                setFormData(prev => ({ ...prev, pic_city: value }));
-                            }}
-                            options={availableCities}
-                            placeholder={formData.pic_province 
-                                ? "-- Pilih Kota/Kabupaten --" 
-                                : "-- Pilih Provinsi Terlebih Dahulu --"}
-                            disabled={!formData.pic_province}
-                            required
-                        />
-                        {getError('pic_city')}
-                    </div>
-                </fieldset>
 
                     {/* Dokumen Identitas */}
                     <div className={styles.section}>
