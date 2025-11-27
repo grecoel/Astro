@@ -1,0 +1,209 @@
+/* Indonesia Map Component Styles */
+.mapWrapper {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    min-height: 350px;
+    border-radius: 12px;
+    overflow: hidden;
+    background: #f9fafb;
+}
+
+.mapContainer {
+    width: 100%;
+    height: 100%;
+    min-height: 350px;
+    z-index: 1;
+}
+
+.mapOverlay {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    z-index: 1000;
+    pointer-events: none;
+}
+
+.mapTitle {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: white;
+    padding: 0.5rem 0.875rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: #171719;
+}
+
+/* Custom Marker Styles */
+.customMarker {
+    background: transparent !important;
+    border: none !important;
+}
+
+.markerOuter {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #7A57B3;
+    border-radius: 50%;
+    border: 3px solid white;
+    box-shadow: 0 2px 12px rgba(122, 87, 179, 0.5);
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.markerOuter:hover,
+.markerHovered {
+    transform: scale(1.2);
+    box-shadow: 0 4px 20px rgba(122, 87, 179, 0.6);
+    z-index: 1000 !important;
+}
+
+.markerInner {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+}
+
+.markerValue {
+    color: white;
+    font-size: 0.6875rem;
+    font-weight: 700;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.markerPulse {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background: #7A57B3;
+    opacity: 0;
+    animation: pulse 2s ease-out infinite;
+    pointer-events: none;
+}
+
+@keyframes pulse {
+    0% {
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 0.5;
+    }
+    100% {
+        transform: translate(-50%, -50%) scale(2.5);
+        opacity: 0;
+    }
+}
+
+/* Custom Popup */
+.customPopup .leaflet-popup-content-wrapper {
+    background: #171719;
+    color: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+}
+
+.customPopup .leaflet-popup-tip {
+    background: #171719;
+}
+
+.markerPopup {
+    padding: 0.25rem;
+    text-align: center;
+    font-size: 0.8125rem;
+    line-height: 1.4;
+}
+
+.markerPopup strong {
+    display: block;
+    margin-bottom: 0.25rem;
+}
+
+/* Province Tooltip */
+.provinceTooltip {
+    background: white !important;
+    border: 1px solid #e5e7eb !important;
+    border-radius: 6px !important;
+    padding: 0.375rem 0.75rem !important;
+    font-size: 0.75rem !important;
+    font-weight: 500 !important;
+    color: #374151 !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+}
+
+.provinceTooltip::before {
+    display: none !important;
+}
+
+/* Leaflet overrides for clean look */
+:global(.leaflet-container) {
+    font-family: 'Helvetica Neue', 'Inter', Arial, sans-serif;
+    background: #f0f4f8;
+}
+
+:global(.leaflet-control-zoom) {
+    border: none !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12) !important;
+    border-radius: 8px !important;
+    overflow: hidden;
+}
+
+:global(.leaflet-control-zoom a) {
+    background: white !important;
+    color: #374151 !important;
+    width: 32px !important;
+    height: 32px !important;
+    line-height: 32px !important;
+    font-size: 16px !important;
+    border: none !important;
+    transition: all 0.2s ease !important;
+}
+
+:global(.leaflet-control-zoom a:hover) {
+    background: #f3f4f6 !important;
+    color: #7A57B3 !important;
+}
+
+:global(.leaflet-control-zoom-in) {
+    border-bottom: 1px solid #e5e7eb !important;
+}
+
+:global(.leaflet-control-attribution) {
+    background: rgba(255, 255, 255, 0.8) !important;
+    padding: 2px 8px !important;
+    font-size: 10px !important;
+    border-radius: 4px 0 0 0 !important;
+}
+
+:global(.leaflet-popup-content-wrapper) {
+    background: #171719 !important;
+    color: white !important;
+    border-radius: 8px !important;
+    padding: 0 !important;
+}
+
+:global(.leaflet-popup-content) {
+    margin: 0.75rem 1rem !important;
+    font-size: 0.8125rem !important;
+    line-height: 1.4 !important;
+}
+
+:global(.leaflet-popup-tip-container) {
+    margin-top: -1px;
+}
+
+:global(.leaflet-popup-tip) {
+    background: #171719 !important;
+}
+
+:global(.leaflet-popup-close-button) {
+    display: none !important;
+}

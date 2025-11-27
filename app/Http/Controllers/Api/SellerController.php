@@ -249,4 +249,115 @@ class SellerController extends Controller
             'totalReviewers' => $totalReviewers
         ]);
     }
+
+    /**
+     * Get comprehensive dashboard data (SRS-MartPlace-08)
+     * - Sebaran jumlah stok per produk
+     * - Sebaran nilai rating per produk
+     * - Sebaran pemberi rating berdasarkan lokasi provinsi
+     */
+    public function getDashboardData(Request $request)
+    {
+        $user = $request->user();
+        
+        if ($user->role !== 'seller') {
+            return response()->json([
+                'message' => 'Akses ditolak. Hanya seller yang bisa mengakses.'
+            ], 403);
+        }
+
+        $seller = Seller::find($user->seller_id);
+        
+        if (!$seller) {
+            return response()->json(['message' => 'Seller not found'], 404);
+        }
+
+        // 1. Sebaran Stok Per Produk
+        $productStocks = Product::where('seller_id', $seller->id)
+            ->with(['images' => function($query) {
+                $query->where('is_primary', true)->orWhere(function($q) {
+                    $q->orderBy('created_at', 'asc');
+                });
+            }])
+            ->select('id', 'name', 'stock')
+            ->orderBy('stock', 'desc')
+            ->get()
+            ->map(function($product) {
+                $firstImage = $product->images->first();
+                return [
+                    'id' => $product->id,
+                    'name' => $product->name,
+                    'stock' => $product->stock,
+                    'image' => $firstImage ? $firstImage->image_url : null
+                ];
+            });
+
+        // 2. Sebaran Rating Per Produk (rata-rata rating tiap produk)
+        $productRatings = Product::where('seller_id', $seller->id)
+            ->with(['images' => function($query) {
+                $query->where('is_primary', true)->orWhere(function($q) {
+                    $q->orderBy('created_at', 'asc');
+                });
+            }])
+            ->withCount('reviews')
+            ->withAvg('reviews', 'rating')
+            ->get()
+            ->filter(function($product) {
+                return $product->reviews_count > 0;
+            })
+            ->sortByDesc('reviews_avg_rating')
+            ->values()
+            ->map(function($product) {
+                $firstImage = $product->images->first();
+                return [
+                    'id' => $product->id,
+                    'name' => $product->name,
+                    'rating' => round($product->reviews_avg_rating, 1),
+                    'review_count' => $product->reviews_count,
+                    'image' => $firstImage ? $firstImage->image_url : null
+                ];
+            });
+
+        // 3. Sebaran Reviewer Berdasarkan Provinsi
+        $reviewersByProvince = Review::whereHas('product', function($query) use ($seller) {
+                $query->where('seller_id', $seller->id);
+            })
+            ->select('reviewer_province')
+            ->selectRaw('COUNT(DISTINCT reviewer_email) as total_reviewers')
+            ->groupBy('reviewer_province')
+            ->orderBy('total_reviewers', 'desc')
+            ->limit(10) // Top 10 provinsi
+            ->get()
+            ->map(function($item) {
+                return [
+                    'province' => $item->reviewer_province,
+                    'total' => $item->total_reviewers
+                ];
+            });
+
+        // Summary Stats
+        $totalProducts = Product::where('seller_id', $seller->id)->count();
+        $totalStock = Product::where('seller_id', $seller->id)->sum('stock');
+        
+        $reviews = Review::whereHas('product', function($query) use ($seller) {
+            $query->where('seller_id', $seller->id);
+        })->get();
+        
+        $averageRating = $reviews->count() > 0 ? round($reviews->avg('rating'), 1) : 0;
+        $totalReviewers = $reviews->unique('reviewer_email')->count();
+        $totalReviews = $reviews->count();
+
+        return response()->json([
+            'summary' => [
+                'totalProducts' => $totalProducts,
+                'totalStock' => $totalStock,
+                'averageRating' => $averageRating,
+                'totalReviewers' => $totalReviewers,
+                'totalReviews' => $totalReviews
+            ],
+            'productStocks' => $productStocks,
+            'productRatings' => $productRatings,
+            'reviewersByProvince' => $reviewersByProvince
+        ]);
+    }
 }
