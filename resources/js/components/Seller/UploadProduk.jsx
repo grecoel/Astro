@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import styles from './UploadProduk.module.css';
+import CustomSelect from '../Common/CustomSelect';
 
 function UploadProduk() {
     const navigate = useNavigate();
@@ -160,19 +161,26 @@ function UploadProduk() {
                 <div className={styles.row}>
                     <div className={styles.formGroup}>
                         <label>Kategori</label>
-                        <select name="category_id" onChange={handleChange}>
-                            <option value="">-- Pilih Kategori --</option>
-                            {categories.map(c => (
-                                <option key={c.id} value={c.id}>{c.name}</option>
-                            ))}
-                        </select>
+                        <CustomSelect
+                            value={categories.find(c => c.id === formData.category_id)?.name || ''}
+                            onChange={(value) => {
+                                const category = categories.find(c => c.name === value);
+                                if (category) {
+                                    setFormData(prev => ({ ...prev, category_id: category.id }));
+                                }
+                            }}
+                            options={categories.map(c => c.name)}
+                            placeholder="-- Pilih Kategori --"
+                        />
                     </div>
                     <div className={styles.formGroup}>
                         <label>Kondisi</label>
-                        <select name="condition" onChange={handleChange}>
-                            <option value="Baru">Baru</option>
-                            <option value="Bekas">Bekas</option>
-                        </select>
+                        <CustomSelect
+                            value={formData.condition}
+                            onChange={(value) => setFormData(prev => ({ ...prev, condition: value }))}
+                            options={['Baru', 'Bekas']}
+                            placeholder="Pilih Kondisi"
+                        />
                     </div>
                 </div>
 

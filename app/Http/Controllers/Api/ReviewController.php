@@ -32,7 +32,18 @@ class ReviewController extends Controller
             return response()->json(['errors' => $validator->errors()], 422);
         }
 
-        // 2. Simpan
+        // 2. Cek apakah email sudah pernah review produk ini
+        $existingReview = Review::where('product_id', $request->product_id)
+            ->where('reviewer_email', $request->reviewer_email)
+            ->first();
+
+        if ($existingReview) {
+            return response()->json([
+                'message' => 'Email Anda sudah pernah memberikan review untuk produk ini. Setiap email hanya dapat memberikan satu review per produk.'
+            ], 422);
+        }
+
+        // 3. Simpan
         $review = Review::create([
             'product_id' => $request->product_id,
             'rating' => $request->rating,
@@ -44,10 +55,10 @@ class ReviewController extends Controller
             'reviewer_city' => $request->reviewer_city,
         ]);
 
-        // 3. Ambil data produk untuk email
+        // 4. Ambil data produk untuk email
         $product = Product::find($request->product_id);
 
-        // 4. Kirim email ucapan terima kasih
+        // 5. Kirim email ucapan terima kasih
         try {
             Mail::send('emails.review-thankyou', [
                 'reviewerName' => $review->reviewer_name,

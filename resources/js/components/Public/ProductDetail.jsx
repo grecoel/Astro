@@ -21,10 +21,22 @@ const ProductDetail = () => {
     const [showReviewModal, setShowReviewModal] = useState(false);
     const [showAllReviewsModal, setShowAllReviewsModal] = useState(false);
     const [reviewModalType, setReviewModalType] = useState('all');
+    const [reviewFade, setReviewFade] = useState({ left: false, right: true });
 
     useEffect(() => {
         fetchProductData();
     }, [id]);
+
+    // Check fade effect saat data reviews berubah
+    useEffect(() => {
+        if (product && product.reviews.length > 0) {
+            const container = document.querySelector(`.${styles.reviewScroll}`);
+            if (container) {
+                const isScrolling = container.scrollWidth > container.clientWidth;
+                setReviewFade({ left: false, right: isScrolling });
+            }
+        }
+    }, [product]);
 
     // Fungsi untuk fetch data produk (bisa dipanggil ulang tanpa reload)
     const fetchProductData = async () => {
@@ -115,6 +127,29 @@ const ProductDetail = () => {
         const count = stats[star] || 0;
         const total = product.reviews.length || 1; // avoid division by zero
         return `${(count / total) * 100}%`;
+    };
+
+    // Handle scroll untuk fade effect pada review cards
+    const handleReviewScroll = (e) => {
+        const container = e.target;
+        const isScrolling = container.scrollWidth > container.clientWidth;
+        
+        if (!isScrolling) {
+            setReviewFade({ left: false, right: false });
+            return;
+        }
+
+        const scrollLeft = container.scrollLeft;
+        const scrollWidth = container.scrollWidth;
+        const clientWidth = container.clientWidth;
+        const maxScroll = scrollWidth - clientWidth;
+
+        // Fade kiri muncul ketika scroll > 0
+        const showLeftFade = scrollLeft > 0;
+        // Fade kanan muncul ketika belum mencapai end
+        const showRightFade = scrollLeft < maxScroll - 10;
+
+        setReviewFade({ left: showLeftFade, right: showRightFade });
     };
 
     // Helper: Hitung persentase kepuasan (rating 4 dan 5)
@@ -330,7 +365,10 @@ const ProductDetail = () => {
                     </a>
                 </div>
 
-                <div className={styles.reviewScroll}>
+                <div 
+                    className={`${styles.reviewScroll} ${reviewFade.left ? styles.fadeLeft : ''} ${reviewFade.right ? styles.fadeRight : ''}`}
+                    onScroll={handleReviewScroll}
+                >
                     {product.reviews.length > 0 ? product.reviews.map(review => (
                         <div key={review.id} className={styles.reviewCard}>
                             <div className={styles.reviewerName}>{review.reviewer_name}</div>
