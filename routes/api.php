@@ -41,6 +41,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/dashboard/products', [SellerController::class, 'getProducts']);
         Route::get('/dashboard/reviews', [SellerController::class, 'getReviews']);
         Route::get('/dashboard/stats', [SellerController::class, 'getStats']);
+        Route::get('/dashboard/data', [SellerController::class, 'getDashboardData']); // Comprehensive dashboard data
         
         // Product management (existing)
         Route::get('/products', [SellerProductController::class, 'index']);
