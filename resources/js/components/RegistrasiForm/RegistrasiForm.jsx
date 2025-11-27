@@ -369,9 +369,9 @@ function RegistrasiForm() {
                     <div className={`${styles.modal} ${styles[`modal-${modalType}`]}`} onClick={(e) => e.stopPropagation()}>
                         <div className={styles.modalHeader}>
                             {modalType === 'success' ? (
-                                <div className={styles.modalIcon + ' ' + styles.iconSuccess}>✓</div>
+                                <div className={styles.modalIcon + ' ' + styles.iconSuccess}></div>
                             ) : (
-                                <div className={styles.modalIcon + ' ' + styles.iconError}>✕</div>
+                                <div className={styles.modalIcon + ' ' + styles.iconError}></div>
                             )}
                         </div>
                         <div className={styles.modalContent}>

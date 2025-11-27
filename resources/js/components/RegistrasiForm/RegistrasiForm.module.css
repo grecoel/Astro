@@ -2,90 +2,114 @@
 /* Style ini HANYA berlaku untuk RegistrasiForm.jsx */
 
 .container {
-  padding: 2rem 1rem;
+  padding: 2rem 2rem 3rem 2rem;
   font-family: 'Helvetica Neue', 'Inter', Arial, sans-serif;
   position: relative;
-  max-width: 800px;
+  max-width: 1000px;
   margin: 0 auto;
   width: 100%;
+  background: var(--color-bg);
 }
 
 .homeButton {
   position: absolute;
-  top: 1rem;
-  left: 1rem;
+  top: 1.5rem;
+  left: 2rem;
   background: transparent;
   border: none;
-  color: var(--color-dark);
+  color: var(--color-secondary);
   font-size: 0.85rem;
-  font-weight: 400;
+  font-weight: 700;
   cursor: pointer;
   font-family: 'Helvetica Neue', 'Inter', Arial, sans-serif;
-  transition: color 0.3s ease;
+  transition: all 0.3s ease;
   padding: 0;
   letter-spacing: 0.3px;
 }
 
 .homeButton:hover {
-  color: #7B923B;
+  color: #694B99;
+  transform: translateX(-2px);
 }
 
 .container h2 {
   color: var(--color-dark);
-  font-size: 1.75rem;
+  font-size: 2rem;
   font-weight: 700;
-  margin-bottom: 0.5rem;
-  margin-top: 2rem;
+  margin: 0 0 0.75rem 0;
+  padding-top: 1rem;
+  text-align: center;
+  letter-spacing: -0.5px;
 }
 
 .container > p {
-  color: #666;
-  margin-top: 0;
-  margin-bottom: 1.25rem;
+  color: var(--color-dark);
+  margin: 0 0 2.5rem 0;
   font-size: 0.95rem;
+  text-align: center;
+  opacity: 0.75;
+  font-weight: 500;
 }
 
 .form {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 2rem;
 }
 
 .formSection {
   border: 2px solid var(--color-border);
-  padding: 1.25rem;
+  padding: 0;
   border-radius: 12px;
-  background-color: #FAFAF9;
+  background-color: var(--color-light);
   transition: all 0.3s ease;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
 }
 
 .formSection:hover {
   border-color: var(--color-primary);
-  box-shadow: 0 2px 12px rgba(211, 242, 106, 0.1);
+  box-shadow: 0 4px 12px rgba(211, 242, 106, 0.08);
 }
 
 .formSection legend {
   font-weight: 700;
-  font-size: 1.1rem;
+  font-size: 1.15rem;
   color: var(--color-dark);
-  padding: 0 0.75rem;
-  display: inline-block;
-  margin-bottom: 0.5rem;
-  border-bottom: 3px solid var(--color-primary);
+  padding: 1.5rem 1.75rem;
+  display: block;
+  width: 100%;
+  margin: 0;
+  border-bottom: 2px solid var(--color-primary);
+  background-color: rgba(211, 242, 106, 0.1);
+  letter-spacing: 0.3px;
+  box-sizing: border-box;
 }
 
 .formGroup {
   display: flex;
   flex-direction: column;
-  margin-bottom: 0.9rem;
+  margin-bottom: 1.25rem;
+  padding: 0 1.75rem;
+}
+
+.formSection > .formGroup:first-of-type {
+  padding-top: 1.75rem;
+}
+
+.formSection > .formGroup:last-of-type {
+  margin-bottom: 0;
+  padding-bottom: 1.75rem;
 }
 
 .formGroup label {
-  font-weight: 600;
-  margin-bottom: 0.5rem;
-  font-size: 0.95rem;
+  font-weight: 700;
+  margin-bottom: 0.6rem;
+  font-size: 0.85rem;
   color: var(--color-dark);
   letter-spacing: 0.3px;
+  text-transform: uppercase;
+  opacity: 0.85;
 }
 
 .formGroup input[type="text"],
@@ -95,10 +119,10 @@
 .formGroup input[type="file"],
 .formGroup select,
 .selectInput {
-  padding: 0.85rem;
+  padding: 0.75rem;
   border: 2px solid var(--color-border);
   border-radius: 8px;
-  font-size: 0.8125rem;
+  font-size: 0.95rem;
   font-family: 'Helvetica Neue', 'Inter', Arial, sans-serif;
   background-color: var(--color-light);
   color: var(--color-dark);
@@ -144,7 +168,8 @@
 .formRow {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 0.75rem;
+  gap: 1rem;
+  padding: 0 1.75rem;
 }
 
 @media (max-width: 640px) {
@@ -164,17 +189,17 @@
 .buttonGroup {
   display: flex;
   gap: 0.75rem;
-  margin-top: 1.25rem;
-  justify-content: flex-end;
+  margin-top: 1.5rem;
+  justify-content: center;
 }
 
 .submitButton,
 .cancelButton {
-  padding: 0.9rem 2rem;
-  border: none;
-  border-radius: 8px;
+  padding: 0.75rem 1.75rem;
+  border: 2px solid;
+  border-radius: 12px;
   font-size: 1rem;
-  font-weight: 600;
+  font-weight: 700;
   cursor: pointer;
   font-family: 'Helvetica Neue', 'Inter', Arial, sans-serif;
   transition: all 0.3s ease;
@@ -184,15 +209,16 @@
 .submitButton {
   background-color: var(--color-primary);
   color: var(--color-dark);
-  border: 2px solid var(--color-primary);
+  border-color: var(--color-primary);
 }
+
 .submitButton:hover:not(:disabled) {
   background-color: var(--color-dark);
   color: var(--color-primary);
   border-color: var(--color-dark);
-  box-shadow: 0 4px 12px rgba(23, 23, 25, 0.2);
-  transform: translateY(-2px);
+  box-shadow: 0 2px 8px rgba(211, 242, 106, 0.3);
 }
+
 .submitButton:disabled {
   background-color: var(--color-border);
   border-color: var(--color-border);
@@ -204,14 +230,16 @@
 .cancelButton {
   background-color: var(--color-light);
   color: var(--color-dark);
-  border: 2px solid var(--color-border-dark);
+  border-color: var(--color-border);
 }
+
 .cancelButton:hover:not(:disabled) {
-  background-color: #FAFAF9;
-  border-color: var(--color-secondary);
-  color: var(--color-secondary);
-  box-shadow: 0 2px 8px rgba(173, 123, 255, 0.15);
+  background-color: var(--color-dark);
+  color: white;
+  border-color: var(--color-dark);
+  box-shadow: 0 2px 8px rgba(23, 23, 25, 0.15);
 }
+
 .cancelButton:disabled {
   opacity: 0.6;
   cursor: not-allowed;
@@ -220,8 +248,8 @@
 .errorText {
   color: var(--color-error);
   font-size: 0.8rem;
-  margin-top: 0.5rem;
-  font-weight: 500;
+  margin-top: 0.4rem;
+  font-weight: 600;
 }
 
 /* Modal Styling */
@@ -250,13 +278,14 @@
 
 .modal {
   background-color: var(--color-light);
-  border-radius: 16px;
+  border-radius: 12px;
   box-shadow: 0 10px 40px rgba(23, 23, 25, 0.15);
   width: 90%;
-  max-width: 350px;
+  max-width: 380px;
   padding: 0;
   overflow: hidden;
   animation: slideUp 0.3s ease;
+  border: 2px solid var(--color-border);
 }
 
 @keyframes slideUp {
@@ -279,18 +308,19 @@
 }
 
 .modalHeader {
-  padding: 1.25rem 1.25rem 0.5rem 1.25rem;
+  padding: 1.5rem 1.5rem 0.75rem 1.5rem;
   text-align: center;
+  background-color: rgba(211, 242, 106, 0.05);
 }
 
 .modalIcon {
-  width: 60px;
-  height: 60px;
+  width: 70px;
+  height: 70px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.75rem;
+  font-size: 2rem;
   font-weight: bold;
   margin: 0 auto;
 }
@@ -306,7 +336,7 @@
 }
 
 .modalContent {
-  padding: 1rem 1.25rem;
+  padding: 1.5rem 1.5rem;
   text-align: center;
 }
 
@@ -320,24 +350,25 @@
 .modalContent p {
   margin: 0;
   font-size: 0.95rem;
-  color: #666;
+  color: var(--color-dark);
   line-height: 1.5;
+  opacity: 0.8;
 }
 
 .modalFooter {
-  padding: 1rem 1.25rem 1.25rem 1.25rem;
+  padding: 1.25rem 1.5rem 1.5rem 1.5rem;
   display: flex;
   justify-content: center;
 }
 
 .modalButton {
-  padding: 0.85rem 2rem;
+  padding: 0.75rem 1.75rem;
   background-color: var(--color-primary);
   color: var(--color-dark);
   border: 2px solid var(--color-primary);
-  border-radius: 8px;
+  border-radius: 12px;
   font-size: 1rem;
-  font-weight: 600;
+  font-weight: 700;
   cursor: pointer;
   font-family: 'Helvetica Neue', 'Inter', Arial, sans-serif;
   transition: all 0.3s ease;
@@ -348,69 +379,47 @@
   background-color: var(--color-dark);
   color: var(--color-primary);
   border-color: var(--color-dark);
-  box-shadow: 0 4px 12px rgba(23, 23, 25, 0.2);
-  transform: translateY(-2px);
-}
-
-.modalButton:active {
-  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(211, 242, 106, 0.3);
 }
 
 /* RESPONSIVE - Large Desktop (min 1440px) */
 @media (min-width: 1440px) {
   .container {
-    max-width: 900px;
-    padding: 2.5rem 2rem;
+    max-width: 1050px;
+    padding: 2.5rem 2.5rem;
+  }
+
+  .container h2 {
+    font-size: 1.85rem;
   }
 }
 
 /* RESPONSIVE - Laptop 15" (1280px - 1439px) */
 @media (min-width: 1280px) and (max-width: 1439px) {
   .container {
-    max-width: 850px;
-    padding: 2rem 2rem;
+    max-width: 950px;
+    padding: 2rem 2.25rem;
   }
 
   .container h2 {
-    font-size: 1.65rem;
-  }
-
-  .container > p {
-    font-size: 0.9rem;
-  }
-
-  .formSection {
-    padding: 1.15rem;
-  }
-
-  .formSection legend {
-    font-size: 1.05rem;
-  }
-
-  .formGroup label {
-    font-size: 0.9rem;
-  }
-
-  .formGroup input[type="text"],
-  .formGroup input[type="email"],
-  .formGroup input[type="tel"],
-  .formGroup textarea,
-  .formGroup input[type="file"],
-  .formGroup select,
-  .selectInput {
-    padding: 0.8rem;
-    font-size: 0.8rem;
-  }
-
-  .submitButton,
-  .cancelButton {
-    padding: 0.85rem 1.85rem;
-    font-size: 0.95rem;
+    font-size: 1.75rem;
   }
 }
 
 /* RESPONSIVE - Desktop Medium (1024px - 1279px) */
 @media (min-width: 1024px) and (max-width: 1279px) {
+  .container {
+    max-width: 900px;
+    padding: 1.75rem 2rem;
+  }
+
+  .container h2 {
+    font-size: 1.65rem;
+  }
+}
+
+/* RESPONSIVE - Tablet (768px - 1023px) */
+@media (min-width: 768px) and (max-width: 1023px) {
   .container {
     max-width: 750px;
     padding: 1.5rem 1.5rem;
@@ -418,72 +427,16 @@
 
   .container h2 {
     font-size: 1.55rem;
-  }
-
-  .container > p {
-    font-size: 0.88rem;
-  }
-
-  .formSection {
-    padding: 1.1rem;
-  }
-
-  .formSection legend {
-    font-size: 1rem;
-  }
-
-  .formGroup label {
-    font-size: 0.88rem;
-  }
-
-  .formGroup input[type="text"],
-  .formGroup input[type="email"],
-  .formGroup input[type="tel"],
-  .formGroup textarea,
-  .formGroup input[type="file"],
-  .formGroup select,
-  .selectInput {
-    padding: 0.75rem;
-    font-size: 0.78rem;
-  }
-
-  .submitButton,
-  .cancelButton {
-    padding: 0.8rem 1.75rem;
-    font-size: 0.92rem;
-  }
-}
-
-/* RESPONSIVE - Tablet (768px - 1023px) */
-@media (min-width: 768px) and (max-width: 1023px) {
-  .container {
-    max-width: 650px;
-    padding: 1.25rem 1.25rem;
-  }
-
-  .container h2 {
-    font-size: 1.45rem;
     margin-top: 1.5rem;
   }
 
   .container > p {
-    font-size: 0.85rem;
-  }
-
-  .formSection {
-    padding: 1rem;
-  }
-
-  .formSection legend {
-    font-size: 0.95rem;
-  }
-
-  .formGroup {
-    margin-bottom: 0.8rem;
+    font-size: 0.9rem;
+    margin-bottom: 1.25rem;
   }
 
   .formGroup label {
-    font-size: 0.85rem;
+    font-size: 0.82rem;
   }
 
   .formGroup input[type="text"],
@@ -494,21 +447,13 @@
   .formGroup select,
   .selectInput {
     padding: 0.7rem;
-    font-size: 0.75rem;
-  }
-
-  .formRow {
-    gap: 0.65rem;
+    font-size: 0.9rem;
   }
 
   .submitButton,
   .cancelButton {
-    padding: 0.75rem 1.5rem;
-    font-size: 0.9rem;
-  }
-
-  .buttonGroup {
-    gap: 0.65rem;
+    padding: 0.7rem 1.5rem;
+    font-size: 0.95rem;
   }
 }
 
@@ -516,6 +461,7 @@
 @media (max-width: 767px) {
   .container {
     padding: 1rem 0.75rem;
+    min-height: auto;
   }
 
   .homeButton {
@@ -525,30 +471,39 @@
   }
 
   .container h2 {
-    font-size: 1.35rem;
+    font-size: 1.45rem;
     margin-top: 2.5rem;
   }
 
   .container > p {
-    font-size: 0.82rem;
+    font-size: 0.88rem;
     margin-bottom: 1rem;
   }
 
   .formSection {
-    padding: 0.9rem;
+    border-radius: 8px;
   }
 
   .formSection legend {
-    font-size: 0.9rem;
-    padding: 0 0.5rem;
+    font-size: 1rem;
+    padding: 1rem 1rem 0.75rem 1rem;
   }
 
   .formGroup {
-    margin-bottom: 0.75rem;
+    padding: 0 1rem;
+    margin-bottom: 0.8rem;
+  }
+
+  .formSection > .formGroup:first-of-type {
+    padding-top: 1rem;
+  }
+
+  .formSection > .formGroup:last-of-type {
+    padding-bottom: 1rem;
   }
 
   .formGroup label {
-    font-size: 0.82rem;
+    font-size: 0.8rem;
     margin-bottom: 0.4rem;
   }
 
@@ -560,33 +515,51 @@
   .formGroup select,
   .selectInput {
     padding: 0.65rem;
-    font-size: 0.75rem;
+    font-size: 0.88rem;
   }
 
   .formRow {
     grid-template-columns: 1fr;
     gap: 0;
+    padding: 0 1rem;
   }
 
   .helpText {
     font-size: 0.75rem;
+    margin-top: 0.4rem;
   }
 
   .buttonGroup {
     flex-direction: column;
     gap: 0.6rem;
+    margin-top: 1.25rem;
   }
 
   .submitButton,
   .cancelButton {
     width: 100%;
-    padding: 0.75rem 1.25rem;
-    font-size: 0.88rem;
+    padding: 0.7rem 1rem;
+    font-size: 0.9rem;
   }
 
   .modal {
     width: 95%;
     max-width: 320px;
+    border-radius: 8px;
+  }
+
+  .modalHeader {
+    padding: 1rem 1rem 0.5rem 1rem;
+  }
+
+  .modalIcon {
+    width: 60px;
+    height: 60px;
+    font-size: 1.75rem;
+  }
+
+  .modalContent {
+    padding: 1rem 1rem;
   }
 
   .modalContent h3 {
@@ -595,5 +568,14 @@
 
   .modalContent p {
     font-size: 0.88rem;
+  }
+
+  .modalFooter {
+    padding: 1rem 1rem 1.25rem 1rem;
+  }
+
+  .modalButton {
+    padding: 0.7rem 1.5rem;
+    font-size: 0.9rem;
   }
 }
