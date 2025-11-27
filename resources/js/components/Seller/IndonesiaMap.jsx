@@ -139,10 +139,7 @@ function IndonesiaMap({ data = [], maxValue = 1, hoveredIndex, onHover }) {
             maxZoom: 10,
             zoomControl: true,
             scrollWheelZoom: true,
-            attributionControl: false,
-            zoomAnimation: false, // Disable zoom animation
-            fadeAnimation: false, // Disable fade animation
-            markerZoomAnimation: false // Disable marker zoom animation
+            attributionControl: false
         });
 
         // Add tile layer (CartoDB light for clean look)
@@ -238,6 +235,7 @@ function IndonesiaMap({ data = [], maxValue = 1, hoveredIndex, onHover }) {
                         <div class="${styles.markerInner}">
                             <span class="${styles.markerValue}">${item.total}</span>
                         </div>
+                        <div class="${styles.markerPulse}"></div>
                     </div>
                 `,
                 iconSize: [size, size],
