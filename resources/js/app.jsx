@@ -31,11 +31,7 @@ root.render(
         <ToastProvider>
             <BrowserRouter>
                 <Routes>
-                <Route path="/login" element={
-                    <div className="page-container">
-                        <LoginForm />
-                    </div>
-                } />
+                <Route path="/login" element={<LoginForm />} />
                 <Route path="/registrasi" element={
                     <div className="page-container">
                         <RegistrasiForm />
