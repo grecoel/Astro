@@ -1,40 +1,143 @@
-.whiteBackground {
-  background-color: #ffffff;
-  height: 100vh;
-  left: 0;
+/* Login Container */
+.loginContainer {
+  width: 100%;
+  min-height: 100vh;
+  position: relative;
+}
+
+/* Background - 3/5 White (60%) */
+.bgWhite {
   position: fixed;
   top: 0;
-  width: 55%;
+  left: 0;
+  width: 60%;
+  height: 100vh;
+  background-color: #ffffff;
   z-index: 1;
 }
 
+/* Background - 2/5 F4FADF (40%) */
 .bgGreen {
   position: fixed;
   top: 0;
-  left: 0;
-  width: 100%;
+  right: 0;
+  width: 40%;
   height: 100vh;
   background-color: #f4fadf;
-  z-index: 0;
+  z-index: 1;
+}
+
+/* Illustration Wrapper */
+.illustrationWrapper {
+  position: fixed;
+  bottom: 8vh;
+  left: 60%;
+  transform: translateX(-35%);
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  width: clamp(300px, 35vw, 600px);
   pointer-events: none;
 }
 
+/* Illustration Image */
+.illustration {
+  width: 100%;
+  height: auto;
+  max-width: 100%;
+  max-height: clamp(600px, 40vh, 500px);
+  display: block;
+  object-fit: contain;
+}
+
+/* Floor Line */
+.floorLine {
+  position: fixed;
+  bottom: 8vh;
+  left: 0;
+  width: 100vw;
+  height: clamp(2px, 0.3vh, 4px);
+  background-color: #667a30;
+  z-index: 9999;
+  margin: 0;
+  padding: 0;
+  box-shadow: 0 -2px 4px rgba(102, 122, 48, 0.3);
+}
+
+/* Responsive adjustments for smaller screens */
+@media (max-width: 1024px) {
+  .illustrationWrapper {
+    width: clamp(250px, 40vw, 450px);
+    bottom: 6vh;
+  }
+  
+  .illustration {
+    max-height: clamp(200px, 35vh, 400px);
+  }
+  
+  .floorLine {
+    bottom: 6vh;
+  }
+}
+
+@media (max-width: 768px) {
+  .illustrationWrapper {
+    width: clamp(200px, 50vw, 350px);
+    bottom: 5vh;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+  
+  .illustration {
+    max-height: clamp(150px, 30vh, 300px);
+  }
+  
+  .floorLine {
+    bottom: 5vh;
+  }
+  
+  .bgWhite {
+    width: 100%;
+  }
+  
+  .bgGreen {
+    display: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .illustrationWrapper {
+    width: clamp(150px, 60vw, 250px);
+    bottom: 4vh;
+  }
+  
+  .illustration {
+    max-height: clamp(120px, 25vh, 200px);
+  }
+  
+  .floorLine {
+    bottom: 4vh;
+  }
+}
+
+/* Login Card - Positioned in center of white area */
 .card {
   background-color: #ffffff;
   border-radius: 20px;
   box-shadow: 0px 19px 40px rgba(0, 0, 0, 0.05);
   height: auto;
   min-height: auto;
-  position: relative;
+  position: fixed;
   width: 90%;
   max-width: 380px;
   padding: 2rem 1.5rem;
-  z-index: 2;
+  z-index: 10;
   display: flex;
   flex-direction: column;
-  position: fixed;
   top: 50%;
-  left: 50%;
+  left: 30%;
   transform: translate(-50%, -50%);
 }
 

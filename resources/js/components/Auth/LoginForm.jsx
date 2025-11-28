@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import styles from './Auth.module.css';
+import loginIllustration from '../Public/images/login-illustration.png';
 
 function LoginForm() {
     const navigate = useNavigate();
@@ -79,10 +80,21 @@ function LoginForm() {
 
     return (
         <>
-            <div className={styles.bgGreen} />
-            <div className={styles.whiteBackground} />
+            <div className={styles.floorLine}></div>
             
-            <div className={styles.card}>
+            <div className={styles.loginContainer}>
+                <div className={styles.bgWhite} />
+                <div className={styles.bgGreen} />
+                
+                <div className={styles.illustrationWrapper}>
+                    <img 
+                        src={loginIllustration} 
+                        alt="Shopping Illustration" 
+                        className={styles.illustration}
+                    />
+                </div>
+                
+                <div className={styles.card}>
                 <div className={styles.logoContainer}>
                     <h1 className={styles.logo}>AstroEcomm.</h1>
                 </div>
@@ -163,6 +175,7 @@ function LoginForm() {
                     </div>
                 </div>
             )}
+            </div>
         </>
     );
 }
