@@ -24,6 +24,8 @@ function UploadProduk() {
     // State Gambar (Array)
     const [images, setImages] = useState([]); 
     const [previews, setPreviews] = useState([]);
+    const [isDragging, setIsDragging] = useState(false);
+    const [draggedIndex, setDraggedIndex] = useState(null);
 
     // 1. Load Kategori saat halaman dibuka
     useEffect(() => {
@@ -48,7 +50,11 @@ function UploadProduk() {
     // 3. Handle File Upload (Multiple + Preview)
     const handleImageChange = (e) => {
         const files = Array.from(e.target.files);
-        
+        processFiles(files);
+    };
+
+    // Process files (untuk upload dan drag & drop)
+    const processFiles = (files) => {
         // Validasi Maksimal 5 Foto
         if (images.length + files.length > 5) {
             alert("Maksimal 5 foto produk!");
@@ -61,6 +67,12 @@ function UploadProduk() {
                 alert(`File ${file.name} terlalu besar (max 2MB)`);
                 return;
             }
+            
+            // Validasi tipe file
+            if (!file.type.startsWith('image/')) {
+                alert(`File ${file.name} bukan gambar!`);
+                return;
+            }
         }
 
         // Simpan File Asli ke State
@@ -71,6 +83,33 @@ function UploadProduk() {
         setPreviews([...previews, ...newPreviews]);
     };
 
+    // 4. Handle Drag & Drop
+    const handleDragEnter = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setIsDragging(true);
+    };
+
+    const handleDragLeave = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setIsDragging(false);
+    };
+
+    const handleDragOver = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+    };
+
+    const handleDrop = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setIsDragging(false);
+
+        const files = Array.from(e.dataTransfer.files);
+        processFiles(files);
+    };
+
     // Remove photo from list
     const removeImage = (index) => {
         const newImages = images.filter((_, i) => i !== index);
@@ -79,7 +118,43 @@ function UploadProduk() {
         setPreviews(newPreviews);
     };
 
-    // 4. Submit Form
+    // Handle drag start for reordering
+    const handleImageDragStart = (e, index) => {
+        setDraggedIndex(index);
+        e.dataTransfer.effectAllowed = 'move';
+    };
+
+    // Handle drag over for reordering
+    const handleImageDragOver = (e, index) => {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+        
+        if (draggedIndex === null || draggedIndex === index) return;
+        
+        // Reorder images
+        const newImages = [...images];
+        const newPreviews = [...previews];
+        
+        const draggedImage = newImages[draggedIndex];
+        const draggedPreview = newPreviews[draggedIndex];
+        
+        newImages.splice(draggedIndex, 1);
+        newPreviews.splice(draggedIndex, 1);
+        
+        newImages.splice(index, 0, draggedImage);
+        newPreviews.splice(index, 0, draggedPreview);
+        
+        setImages(newImages);
+        setPreviews(newPreviews);
+        setDraggedIndex(index);
+    };
+
+    // Handle drag end for reordering
+    const handleImageDragEnd = () => {
+        setDraggedIndex(null);
+    };
+
+    // 5. Submit Form
     const handleSubmit = async (status) => {
         // Validasi Sederhana di Frontend
         if (!formData.category_id) return alert("Pilih kategori dulu!");
@@ -214,7 +289,13 @@ function UploadProduk() {
                 <div className={styles.uploadSection}>
                     <label className={styles.uploadLabel}>Foto Produk (Max 5)</label>
                     
-                    <div className={styles.uploadArea}>
+                    <div 
+                        className={`${styles.uploadArea} ${isDragging ? styles.uploadAreaDragging : ''}`}
+                        onDragEnter={handleDragEnter}
+                        onDragOver={handleDragOver}
+                        onDragLeave={handleDragLeave}
+                        onDrop={handleDrop}
+                    >
                         <input 
                             type="file" 
                             multiple 
@@ -224,14 +305,26 @@ function UploadProduk() {
                             style={{display: 'none'}} 
                         />
                         <label htmlFor="fileInput" className={styles.uploadBtn}>
-                            📸 Klik untuk Upload Foto
+                            {isDragging ? (
+                                <>📥 Lepaskan Gambar di Sini</>
+                            ) : (
+                                <>📸 Klik atau Seret Gambar ke Sini</>
+                            )}
                         </label>
+                        <p className={styles.uploadHint}>Format: JPG, PNG, GIF (Max 2MB per file)</p>
                     </div>
 
                     {/* Preview Gallery */}
                     <div className={styles.previewGrid}>
                         {previews.map((src, i) => (
-                            <div key={i} className={styles.previewItem}>
+                            <div 
+                                key={i} 
+                                className={`${styles.previewItem} ${draggedIndex === i ? styles.previewItemDragging : ''}`}
+                                draggable
+                                onDragStart={(e) => handleImageDragStart(e, i)}
+                                onDragOver={(e) => handleImageDragOver(e, i)}
+                                onDragEnd={handleImageDragEnd}
+                            >
                                 <img src={src} alt={`Preview ${i}`} />
                                 {i === 0 && <span className={styles.mainBadge}>Utama</span>}
                                 <button 
@@ -242,6 +335,7 @@ function UploadProduk() {
                                 >
                                     ✕
                                 </button>
+                                <div className={styles.dragHint}>⋮⋮</div>
                             </div>
                         ))}
                     </div>
@@ -249,6 +343,13 @@ function UploadProduk() {
 
                 {/* --- BUTTONS --- */}
                 <div className={styles.actionButtons}>
+                    <button 
+                        onClick={() => navigate('/seller/management')} 
+                        className={styles.btnBack}
+                        type="button"
+                    >
+                        Kembali
+                    </button>
                     <button 
                         onClick={() => handleSubmit('DRAFT')} 
                         className={styles.btnDraft} 
