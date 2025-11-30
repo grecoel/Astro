@@ -16,7 +16,9 @@ function SellerManagement() {
     const [productRatings, setProductRatings] = useState([]);
     const [sortedProducts, setSortedProducts] = useState([]);
     const [lowStockProducts, setLowStockProducts] = useState([]);
-    const [generating, setGenerating] = useState(false);
+    const [generatingStock, setGeneratingStock] = useState(false);
+    const [generatingRating, setGeneratingRating] = useState(false);
+    const [generatingReorder, setGeneratingReorder] = useState(false);
 
     // Fetch user data
     useEffect(() => {
@@ -116,8 +118,8 @@ function SellerManagement() {
     };
 
     // Download PDF dari Backend
-    const downloadPDF = async (reportType) => {
-        setGenerating(true);
+    const downloadPDF = async (reportType, setLoadingState) => {
+        setLoadingState(true);
         try {
             console.log(`Downloading ${reportType} report...`);
             const response = await axios.get(`/api/seller/reports/${reportType}`, {
@@ -149,23 +151,23 @@ function SellerManagement() {
             console.error('Error response:', err.response);
             alert('Gagal mengunduh laporan PDF: ' + (err.response?.data?.message || err.message));
         } finally {
-            setGenerating(false);
+            setLoadingState(false);
         }
     };
 
     // Generate PDF - Laporan Stock (Descending)
     const generateStockReport = () => {
-        downloadPDF('stock');
+        downloadPDF('stock', setGeneratingStock);
     };
 
     // Generate PDF - Laporan Rating (Descending)
     const generateRatingReport = () => {
-        downloadPDF('rating');
+        downloadPDF('rating', setGeneratingRating);
     };
 
     // Generate PDF - Laporan Stok Habis (Reorder)
     const generateReorderReport = () => {
-        downloadPDF('reorder');
+        downloadPDF('reorder', setGeneratingReorder);
     };
 
     if (loading) {
@@ -371,12 +373,12 @@ function SellerManagement() {
                             <button 
                                 className={styles.btnDownload}
                                 onClick={generateStockReport}
-                                disabled={generating || products.length === 0}
+                                disabled={generatingStock || products.length === 0}
                             >
                                 <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
                                     <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
                                 </svg>
-                                {generating ? 'Mengunduh...' : 'Download PDF'}
+                                {generatingStock ? 'Mengunduh...' : 'Download PDF'}
                             </button>
                         </div>
                         <div className={styles.reportPreview}>
@@ -419,12 +421,12 @@ function SellerManagement() {
                             <button 
                                 className={styles.btnDownload}
                                 onClick={generateRatingReport}
-                                disabled={generating || products.length === 0}
+                                disabled={generatingRating || products.length === 0}
                             >
                                 <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
                                     <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
                                 </svg>
-                                {generating ? 'Mengunduh...' : 'Download PDF'}
+                                {generatingRating ? 'Mengunduh...' : 'Download PDF'}
                             </button>
                         </div>
                         <div className={styles.reportPreview}>
@@ -472,12 +474,12 @@ function SellerManagement() {
                             <button 
                                 className={`${styles.btnDownload} ${styles.btnDownloadWarning}`}
                                 onClick={generateReorderReport}
-                                disabled={generating || lowStockProducts.length === 0}
+                                disabled={generatingReorder || lowStockProducts.length === 0}
                             >
                                 <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
                                     <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
                                 </svg>
-                                {generating ? 'Mengunduh...' : 'Download PDF'}
+                                {generatingReorder ? 'Mengunduh...' : 'Download PDF'}
                             </button>
                         </div>
                         <div className={styles.reportPreview}>
