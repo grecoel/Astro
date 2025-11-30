@@ -10,7 +10,7 @@ use App\Models\Review;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Log;
 use App\Services\SupabaseStorageService;
-use Barryvdh\DomPDF\Facade\Pdf;
+use Mpdf\Mpdf;
 
 class SellerController extends Controller
 {
@@ -383,7 +383,8 @@ class SellerController extends Controller
 
         $data = [
             'seller' => $seller,
-            'generated_at' => now()->format('d F Y H:i'),
+            'user' => $user,
+            'generated_at' => now()->format('d-m-Y'),
             'type' => $type
         ];
 
@@ -391,52 +392,63 @@ class SellerController extends Controller
             switch($type) {
                 case 'stock':
                     $products = Product::where('seller_id', $seller->id)
+                        ->with('category:id,name')
+                        ->withAvg('reviews', 'rating')
                         ->orderBy('stock', 'desc')
-                        ->get(['name', 'stock', 'price']);
+                        ->get();
                     $data['products'] = $products;
-                    $data['title'] = 'Laporan Stok Produk';
-                    $data['subtitle'] = 'Daftar produk diurutkan berdasarkan stok (menurun)';
+                    $data['title'] = 'Laporan Daftar Produk Berdasarkan Stock';
                     break;
 
                 case 'rating':
                     $products = Product::where('seller_id', $seller->id)
+                        ->with('category:id,name')
                         ->withCount('reviews')
                         ->withAvg('reviews', 'rating')
                         ->get()
                         ->filter(fn($p) => $p->reviews_count > 0)
                         ->sortByDesc('reviews_avg_rating')
-                        ->values()
-                        ->map(fn($p) => [
-                            'name' => $p->name,
-                            'rating' => round($p->reviews_avg_rating, 1),
-                            'review_count' => $p->reviews_count,
-                            'price' => $p->price
-                        ]);
+                        ->values();
                     $data['products'] = $products;
-                    $data['title'] = 'Laporan Rating Produk';
-                    $data['subtitle'] = 'Daftar produk diurutkan berdasarkan rating (menurun)';
+                    $data['title'] = 'Laporan Daftar Produk Berdasarkan Rating';
                     break;
 
                 case 'reorder':
                     $products = Product::where('seller_id', $seller->id)
+                        ->with('category:id,name')
                         ->where('stock', '<', 2)
-                        ->orderBy('stock', 'asc')
-                        ->get(['name', 'stock', 'price']);
+                        ->orderBy('category_id', 'asc')
+                        ->orderBy('name', 'asc')
+                        ->get();
                     $data['products'] = $products;
-                    $data['title'] = 'Laporan Produk Segera Dipesan';
-                    $data['subtitle'] = 'Produk dengan stok < 2 yang perlu segera dipesan';
+                    $data['title'] = 'Laporan Daftar Produk Segera Dipesan';
                     break;
 
                 default:
                     return response()->json(['message' => 'Invalid report type'], 400);
             }
 
-            $pdf = Pdf::loadView('reports.seller-report', $data);
-            $pdf->setPaper('a4', 'portrait');
+            // Render view to HTML
+            $html = view('reports.seller_report', $data)->render();
+            
+            // Create mPDF instance
+            $mpdf = new Mpdf([
+                'mode' => 'utf-8',
+                'format' => 'A4',
+                'margin_top' => 15,
+                'margin_bottom' => 15,
+                'margin_left' => 15,
+                'margin_right' => 15,
+            ]);
+            
+            $mpdf->WriteHTML($html);
             
             $filename = 'Laporan_' . ucfirst($type) . '_' . str_replace(' ', '_', $seller->store_name) . '_' . now()->format('YmdHis') . '.pdf';
             
-            return $pdf->download($filename);
+            return response($mpdf->Output($filename, 'S'), 200, [
+                'Content-Type' => 'application/pdf',
+                'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+            ]);
 
         } catch (\Exception $e) {
             Log::error('PDF Generation Error: ' . $e->getMessage());
