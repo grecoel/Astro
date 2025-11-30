@@ -1,136 +1,243 @@
+/* ========================================
+   UPLOAD PRODUK - SELLER
+   ======================================== */
+
 /* Container Utama */
 .container {
-    padding: 0 1rem;
-    max-width: 800px; /* Batasi lebar agar enak dibaca */
-    margin: 0 auto;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 2rem 1rem;
+}
+
+/* Header Section */
+.header {
+    max-width: 800px;
+    margin: 0 auto 2rem;
 }
 
 .header h1 {
-    color: #333;
-    margin-bottom: 1.5rem;
-    font-size: 1.5rem;
+    color: white;
+    margin: 0;
+    font-size: 2rem;
+    font-weight: 700;
+    text-align: center;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-/* Kartu Putih Pembungkus Form */
+/* Card Container */
 .card {
+    max-width: 800px;
+    margin: 0 auto;
     background: white;
-    padding: 2rem;
-    border: 1px solid #e0e0e0;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    padding: 2.5rem;
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
 }
 
-/* Form Styles */
+/* ========================================
+   FORM ELEMENTS
+   ======================================== */
+
 .formGroup {
-    margin-bottom: 1.2rem;
+    margin-bottom: 1.5rem;
 }
 
-.formGroup label, .uploadLabel {
+.formGroup label,
+.uploadLabel {
     display: block;
     font-weight: 600;
-    margin-bottom: 0.5rem;
-    color: #555;
+    margin-bottom: 0.6rem;
+    color: #2c3e50;
     font-size: 0.95rem;
 }
 
-.formGroup input, 
-.formGroup select, 
+.formGroup input,
+.formGroup select,
 .formGroup textarea {
     width: 100%;
-    padding: 0.8rem;
-    border: 1px solid #ccc;
-    border-radius: 6px;
+    padding: 0.9rem 1rem;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
     font-size: 1rem;
-    box-sizing: border-box; /* Agar padding tidak menambah lebar */
-    transition: border-color 0.2s;
+    font-family: inherit;
+    box-sizing: border-box;
+    transition: all 0.3s ease;
+    background: #fafafa;
 }
 
 .formGroup input:focus,
 .formGroup select:focus,
 .formGroup textarea:focus {
     outline: none;
-    border-color: #28a745; /* Hijau Seller */
+    border-color: #7A57B3;
+    background: white;
+    box-shadow: 0 0 0 3px rgba(122, 87, 179, 0.1);
 }
 
-/* Grid Layout untuk Baris (Harga & Stok, dll) */
+.formGroup textarea {
+    resize: vertical;
+    min-height: 120px;
+    line-height: 1.6;
+}
+
+/* Grid Layout untuk Baris */
 .row {
-    display: flex;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
     gap: 1.5rem;
 }
 
-.row .formGroup {
-    flex: 1;
+@media (max-width: 640px) {
+    .row {
+        grid-template-columns: 1fr;
+    }
 }
 
-/* Upload Area */
+/* ========================================
+   UPLOAD SECTION
+   ======================================== */
+
 .uploadSection {
-    margin-top: 2rem;
-    padding-top: 2rem;
-    border-top: 1px dashed #eee;
+    margin-top: 2.5rem;
+    padding-top: 2.5rem;
+    border-top: 2px dashed #e0e0e0;
+}
+
+.uploadLabel {
+    font-size: 1.1rem;
+    color: #2c3e50;
+    margin-bottom: 1rem;
 }
 
 .uploadArea {
-    border: 2px dashed #28a745;
-    background-color: #f9fff9;
-    border-radius: 8px;
+    border: 3px dashed #7A57B3;
+    background: linear-gradient(135deg, #f8f6fb 0%, #ede9f5 100%);
+    border-radius: 12px;
     text-align: center;
-    padding: 2rem;
-    margin-bottom: 1rem;
-    transition: background 0.2s;
+    padding: 3rem 2rem;
+    margin-bottom: 1.5rem;
+    transition: all 0.3s ease;
+    cursor: pointer;
 }
 
 .uploadArea:hover {
-    background-color: #eef9ee;
+    background: linear-gradient(135deg, #ede9f5 0%, #e3dcf0 100%);
+    border-color: #6647a0;
+    transform: translateY(-2px);
+}
+
+.uploadAreaDragging {
+    background: linear-gradient(135deg, #e3dcf0 0%, #d4c5ed 100%);
+    border-color: #6647a0;
+    border-style: solid;
+    transform: scale(1.02);
 }
 
 .uploadBtn {
     cursor: pointer;
-    color: #28a745;
-    font-weight: bold;
-    font-size: 1.1rem;
+    color: #7A57B3;
+    font-weight: 700;
+    font-size: 1.2rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    pointer-events: none;
 }
 
-/* Preview Gambar */
+.uploadHint {
+    margin-top: 0.8rem;
+    font-size: 0.85rem;
+    color: #6c757d;
+    pointer-events: none;
+}
+
+/* ========================================
+   IMAGE PREVIEW
+   ======================================== */
+
 .previewGrid {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
 }
 
 .previewItem {
     position: relative;
-    width: 100px;
-    height: 100px;
+    width: 100%;
+    padding-top: 100%; /* Aspect ratio 1:1 */
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease, opacity 0.2s ease;
+    cursor: grab;
+}
+
+.previewItem:hover {
+    transform: scale(1.05);
+}
+
+.previewItem:active {
+    cursor: grabbing;
+}
+
+.previewItemDragging {
+    opacity: 0.5;
+    transform: scale(0.95);
 }
 
 .previewItem img {
+    position: absolute;
+    top: 0;
+    left: 0;
     width: 100%;
     height: 100%;
     object-fit: cover;
-    border-radius: 6px;
-    border: 1px solid #ddd;
+    border: 3px solid #f0f0f0;
 }
 
 .removeBtn {
     position: absolute;
-    top: -8px;
-    right: -8px;
-    width: 24px;
-    height: 24px;
-    background: #ff4444;
+    top: 8px;
+    right: 8px;
+    width: 28px;
+    height: 28px;
+    background: #dc3545;
     color: white;
-    border: none;
+    border: 2px solid white;
     border-radius: 50%;
-    font-size: 14px;
+    font-size: 16px;
+    font-weight: bold;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: background 0.2s;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    z-index: 10;
 }
 
 .removeBtn:hover {
-    background: #cc0000;
+    background: #c82333;
+    transform: scale(1.1);
+}
+
+.dragHint {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 2rem;
+    color: rgba(255, 255, 255, 0.6);
+    font-weight: bold;
+    pointer-events: none;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.previewItem:hover .dragHint {
+    opacity: 1;
 }
 
 .mainBadge {
@@ -138,48 +245,92 @@
     bottom: 0;
     left: 0;
     right: 0;
-    background: rgba(40, 167, 69, 0.9);
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
     color: white;
-    font-size: 0.7rem;
+    font-size: 0.75rem;
+    font-weight: 700;
     text-align: center;
-    padding: 2px;
-    border-bottom-left-radius: 5px;
-    border-bottom-right-radius: 5px;
+    padding: 6px 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.15);
 }
 
-/* Tombol Aksi */
+/* ========================================
+   ACTION BUTTONS
+   ======================================== */
+
 .actionButtons {
     display: flex;
     gap: 1rem;
-    margin-top: 2rem;
+    margin-top: 3rem;
+    padding-top: 2rem;
+    border-top: 2px solid #f0f0f0;
 }
 
-.btnDraft, .btnPublish {
-    flex: 1;
-    padding: 12px;
+.btnBack {
+    padding: 14px 24px;
     border: none;
-    border-radius: 6px;
-    font-weight: bold;
+    border-radius: 8px;
+    font-weight: 700;
     font-size: 1rem;
     cursor: pointer;
-    transition: opacity 0.2s;
+    transition: all 0.3s ease;
+    background: #dc3545;
+    color: white;
+    box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
+}
+
+.btnBack:hover {
+    background: #c82333;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(220, 53, 69, 0.4);
+}
+
+.btnDraft,
+.btnPublish {
+    flex: 1;
+    padding: 14px 24px;
+    border: none;
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
 }
 
 .btnDraft {
-    background: #e2e6ea;
-    color: #333;
+    background: linear-gradient(135deg, #7A57B3 0%, #6647a0 100%);
+    color: white;
+    box-shadow: 0 4px 12px rgba(122, 87, 179, 0.3);
+}
+
+.btnDraft:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(122, 87, 179, 0.4);
 }
 
 .btnPublish {
-    background: #28a745;
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
     color: white;
+    box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
 }
 
-.btnPublish:hover, .btnDraft:hover {
-    opacity: 0.9;
+.btnPublish:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(40, 167, 69, 0.4);
 }
 
-.btnDraft:disabled, .btnPublish:disabled {
-    opacity: 0.6;
+.btnDraft:disabled,
+.btnPublish:disabled {
+    opacity: 0.5;
     cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+.btnBack:active,
+.btnDraft:active,
+.btnPublish:active {
+    transform: translateY(0);
 }
