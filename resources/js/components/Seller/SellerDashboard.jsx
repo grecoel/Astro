@@ -23,7 +23,6 @@ function SellerDashboard() {
     }, []);
 
     const fetchDashboardData = async () => {
-        setLoading(true); // Tambahkan ini
         try {
             const token = localStorage.getItem('token');
             
@@ -34,31 +33,26 @@ function SellerDashboard() {
 
             const headers = { 'Authorization': `Bearer ${token}` };
 
-            // Get user info
-            const userResponse = await axios.get('/api/user', { headers });
-            setUser(userResponse.data.user);
+            // Parallel API calls untuk kecepatan
+            const [userResponse, statusResponse, dashResponse] = await Promise.all([
+                axios.get('/api/user', { headers }),
+                axios.get('/api/seller/status', { headers }),
+                axios.get('/api/seller/dashboard/data', { headers })
+            ]);
 
-            // Get seller status
-            const statusResponse = await axios.get('/api/seller/status', { headers });
+            setUser(userResponse.data.user);
             
             if (statusResponse.data.activated) {
                 setSeller(statusResponse.data.seller);
-                
-                // Get comprehensive dashboard data
-                const dashResponse = await axios.get('/api/seller/dashboard/data', { headers });
                 console.log('Dashboard Data:', dashResponse.data);
-                console.log('Product Stocks:', dashResponse.data.productStocks);
-                console.log('Product Ratings:', dashResponse.data.productRatings);
                 setDashboardData(dashResponse.data);
             } else {
-                // Jika seller belum diaktivasi
                 setError('Akun seller Anda belum diaktivasi');
             }
         } catch (err) {
             console.error('Error fetching dashboard data:', err);
             
             if (err.response?.status === 401) {
-                // Unauthorized - redirect to login
                 localStorage.removeItem('token');
                 navigate('/login');
                 return;
@@ -66,7 +60,6 @@ function SellerDashboard() {
             
             setError(err.response?.data?.message || 'Gagal memuat data dashboard');
         } finally {
-            // Set loading false setelah semua selesai
             setLoading(false);
         }
     };
@@ -85,12 +78,38 @@ function SellerDashboard() {
         }
     };
 
-    // Loading State - Tetap tampil saat loading
+    // Loading State - Show skeleton instead of full screen
     if (loading) {
         return (
-            <div className={styles.loadingContainer}>
-                <div className={styles.spinner}></div>
-                <p>Memuat data dashboard...</p>
+            <div className={styles.dashboardWrapper}>
+                <aside className={styles.sidebar}>
+                    <div className={styles.logoSection}>
+                        <div className={styles.logoIcon}>
+                            <img src="/logo.png" alt="Logo" />
+                        </div>
+                        <span className={styles.logoText}>AstroEcomm</span>
+                    </div>
+                    <nav className={styles.nav}>
+                        <div className={styles.navItemActive}>
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/>
+                            </svg>
+                            Dashboard
+                        </div>
+                        <div className={styles.navItem}>
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M19 3h-4.18C14.4 1.84 13.3 1 12 1c-1.3 0-2.4.84-2.82 2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 0c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zm2 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/>
+                            </svg>
+                            Managemen Toko
+                        </div>
+                    </nav>
+                </aside>
+                <main className={styles.mainContent}>
+                    <div className={styles.loadingContainer}>
+                        <div className={styles.spinner}></div>
+                        <p>Memuat data...</p>
+                    </div>
+                </main>
             </div>
         );
     }
@@ -171,12 +190,6 @@ function SellerDashboard() {
                         </svg>
                         Managemen Toko
                     </button>
-                    <button className={styles.navItem} onClick={() => navigate('/seller/upload-produk')}>
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
-                        </svg>
-                        Upload Produk
-                    </button>
                 </nav>
             </aside>
 
@@ -237,7 +250,7 @@ function SellerDashboard() {
                     >
                         <div className={styles.statIcon}>
                             <svg width="32" height="32" viewBox="0 0 24 24" fill="white">
-                                <path d="M20 6h-2.18c.11-.31.18-.65.18-1 0-1.66-1.34-3-3-3-1.05 0-1.96.54-2.5 1.35l-.5.67-.5-.68C10.96 2.54 10.05 2 9 2 7.34 2 6 3.34 6 5c0 .35.07.69.18 1H4c-1.11 0-1.99.89-1.99 2L2 19c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V8c0-1.11-.89-2-2-2zm-5-2c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zM9 4c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zm11 15H4v-2h16v2zm0-5H4V8h5.08L7 10.83 8.62 12 11 8.76l1-1.36 1 1.36L15.38 12 17 10.83 14.92 8H20v6z"/>
+                                <path d="M20 6h-2.18c.11-.31.18-.65.18-1 0-1.66-1.34-3-3-3-1.05 0-1.96.54-2.5 1.35l-.5.67-.5-.68C10.96 2.54 10.05 2 9 2 7.34 2 6 3.34 6 5c0 .35.07.69.18 1H4c-1.11 0-1.99.89-1.99 2L2 19c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V8c0-1.11-.89-2-2-2zm-5-2c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zM9 4c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zm11 15H4v-2h16v2zm0-5H4V8h16v6z"/>
                             </svg>
                         </div>
                         <div className={styles.statContent}>
@@ -496,7 +509,7 @@ function SellerDashboard() {
                                 </svg>
                                 <div>
                                     <h3>Sebaran Reviewer by Provinsi</h3>
-                                    <p>Lokasi asal pemberi rating (Top 10)</p>
+                                    <p>Lokasi asal pemberi rating</p>
                                 </div>
                             </div>
                         </div>
@@ -517,19 +530,8 @@ function SellerDashboard() {
                                     
                                     {/* Bar Chart dengan Scroll - baik saat 'all' atau 'reviewers' */}
                                     <div className={styles.provinceBarChartWrapper}>
-                                        {/* Header dengan Total Reviewer */}
-                                        <div className={styles.provinceChartHeader}>
-                                            <h4 className={styles.provinceChartTitle}>Top 10 Provinsi</h4>
-                                            <div className={styles.totalReviewerBadge}>
-                                                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                                                    <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/>
-                                                </svg>
-                                                <span>{summary.totalReviewers} Reviewer</span>
-                                            </div>
-                                        </div>
-                                        
                                         <div className={styles.provinceBarChart}>
-                                            {reviewersByProvince.slice(0, 10).map((item, index) => (
+                                            {reviewersByProvince.map((item, index) => (
                                                 <div 
                                                     key={index} 
                                                     className={styles.provinceBarItem}

@@ -1,28 +1,73 @@
 /* Import from SellerDashboard for consistency */
 @import './SellerDashboard.module.css';
 
-/* Summary Grid */
+/* Upload Produk Button - Purple theme */
+.btnUpload {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    padding: 0.75rem 1.375rem;
+    background: linear-gradient(135deg, #7A57B3 0%, #9B7BC8 100%);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 0.9375rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 12px rgba(122, 87, 179, 0.25);
+}
+
+.btnUpload:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(122, 87, 179, 0.35);
+}
+
+.btnUpload svg {
+    flex-shrink: 0;
+}
+
+/* Summary Grid - sama dengan statsGrid di dashboard */
 .summaryGrid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 1.5rem;
-    padding: 2.5rem 2.5rem 2rem;
+    margin-bottom: 2.5rem;
+    padding: 2.5rem 2.5rem 0;
 }
 
 .summaryCard {
+    position: relative;
     display: flex;
     align-items: center;
     gap: 1.25rem;
-    padding: 1.5rem;
+    padding: 1.5rem 1.5rem;
     background: white;
     border-radius: 16px;
     border: 2px solid #e5e7eb;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow: hidden;
+}
+
+.summaryCard::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    background: transparent;
     transition: all 0.3s ease;
 }
 
 .summaryCard:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.08);
+    transform: translateY(-4px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.08);
+    border-color: #d1d5db;
+}
+
+.summaryCard:hover::before {
+    background: #7A57B3;
 }
 
 .summaryCardWarning {
@@ -31,14 +76,19 @@
 }
 
 .summaryIcon {
-    width: 64px;
-    height: 64px;
+    width: 60px;
+    height: 60px;
     display: flex;
     align-items: center;
     justify-content: center;
     background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
     border-radius: 14px;
     flex-shrink: 0;
+    transition: all 0.3s ease;
+}
+
+.summaryCard:hover .summaryIcon {
+    transform: scale(1.05);
 }
 
 .summaryCardWarning .summaryIcon {
@@ -47,6 +97,7 @@
 
 .summaryContent {
     flex: 1;
+    min-width: 0;
 }
 
 .summaryLabel {
@@ -56,16 +107,15 @@
     text-transform: uppercase;
     letter-spacing: 0.5px;
     margin-bottom: 0.5rem;
+    transition: color 0.3s ease;
 }
 
 .summaryValue {
-    font-size: 2rem;
+    font-size: 1.875rem;
     font-weight: 800;
     color: #171719;
-}
-
-.summaryCardWarning .summaryValue {
-    color: #dc2626;
+    line-height: 1.2;
+    transition: color 0.3s ease;
 }
 
 /* Reports Container */
@@ -81,11 +131,12 @@
     border-radius: 16px;
     border: 2px solid #e5e7eb;
     overflow: hidden;
-    transition: all 0.3s ease;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .reportCard:hover {
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.08);
+    transform: translateY(-2px);
 }
 
 .reportCardWarning {
@@ -167,12 +218,33 @@
 /* Report Preview */
 .reportPreview {
     padding: 1.5rem 2rem;
+    max-height: 600px;
+    overflow-y: auto;
+}
+
+/* Custom Scrollbar untuk reportPreview */
+.reportPreview::-webkit-scrollbar {
+    width: 8px;
+}
+
+.reportPreview::-webkit-scrollbar-track {
+    background: #f3f4f6;
+    border-radius: 4px;
+}
+
+.reportPreview::-webkit-scrollbar-thumb {
+    background: #d1d5db;
+    border-radius: 4px;
+}
+
+.reportPreview::-webkit-scrollbar-thumb:hover {
+    background: #9ca3af;
 }
 
 .previewTable {
     display: flex;
     flex-direction: column;
-    gap: 0.75rem;
+    gap: 1rem;
 }
 
 .previewRow {
@@ -182,12 +254,16 @@
     padding: 0.875rem 1rem;
     background: #f9fafb;
     border-radius: 10px;
-    transition: all 0.2s ease;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: pointer;
+    border: 1px solid #f0f0f0;
 }
 
 .previewRow:hover {
-    background: #f3f4f6;
+    background: #f3f0ff;
+    border-color: #e9e3ff;
     transform: translateX(4px);
+    box-shadow: 0 2px 8px rgba(122, 87, 179, 0.1);
 }
 
 .previewRowWarning {
@@ -197,6 +273,7 @@
 
 .previewRowWarning:hover {
     background: #fee2e2;
+    border-color: #fca5a5;
 }
 
 .previewLabel {
@@ -223,6 +300,29 @@
     background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
 }
 
+.previewImage {
+    width: 48px;
+    height: 48px;
+    flex-shrink: 0;
+    border-radius: 8px;
+    overflow: hidden;
+    background: #f3f4f6;
+    border: 2px solid #e5e7eb;
+    transition: all 0.3s ease;
+}
+
+.previewRow:hover .previewImage {
+    border-color: #7A57B3;
+    transform: scale(1.1);
+    box-shadow: 0 4px 12px rgba(122, 87, 179, 0.25);
+}
+
+.previewImage img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
 .previewName {
     flex: 1;
     font-size: 0.9375rem;
@@ -231,13 +331,27 @@
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+    min-width: 0;
 }
 
 .previewStock,
 .previewRating {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
     font-size: 0.875rem;
     font-weight: 600;
     color: #7A57B3;
+    transition: all 0.2s ease;
+}
+
+.previewRating svg {
+    flex-shrink: 0;
+}
+
+.previewRow:hover .previewStock,
+.previewRow:hover .previewRating {
+    color: #6B4A9F;
 }
 
 .previewStockLow {
@@ -247,6 +361,12 @@
     padding: 0.375rem 0.75rem;
     background: #fee2e2;
     border-radius: 6px;
+    transition: all 0.2s ease;
+}
+
+.previewRowWarning:hover .previewStockLow {
+    background: #fca5a5;
+    color: #991b1b;
 }
 
 /* Empty State */

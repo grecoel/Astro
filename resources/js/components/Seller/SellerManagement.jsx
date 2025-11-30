@@ -13,6 +13,7 @@ function SellerManagement() {
     
     // Data states
     const [products, setProducts] = useState([]);
+    const [productRatings, setProductRatings] = useState([]);
     const [sortedProducts, setSortedProducts] = useState([]);
     const [lowStockProducts, setLowStockProducts] = useState([]);
     const [generating, setGenerating] = useState(false);
@@ -23,7 +24,6 @@ function SellerManagement() {
     }, []);
 
     const fetchUserData = async () => {
-        setLoading(true);
         try {
             const token = localStorage.getItem('token');
             
@@ -38,9 +38,16 @@ function SellerManagement() {
             // Set axios default header
             axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
 
-            // Get user info
-            const userResponse = await axios.get('/api/user');
+            // Parallel API calls untuk kecepatan
+            const [userResponse, sellerResponse, dashResponse] = await Promise.all([
+                axios.get('/api/user'),
+                axios.get('/api/seller/status'),
+                axios.get('/api/seller/dashboard/data')
+            ]);
+
             console.log('User response:', userResponse.data);
+            console.log('Seller response:', sellerResponse.data);
+            console.log('Dashboard data response:', dashResponse.data);
             
             if (userResponse.data.user.role !== 'seller') {
                 console.log('User is not a seller, redirecting...');
@@ -50,15 +57,27 @@ function SellerManagement() {
 
             setUser(userResponse.data.user);
 
-            // Get seller info
-            const sellerResponse = await axios.get('/api/seller/status');
-            console.log('Seller response:', sellerResponse.data);
-            
             if (sellerResponse.data.activated) {
                 setSeller(sellerResponse.data.seller);
                 
-                // Fetch products data
-                await fetchProducts();
+                // Process products data
+                const productsData = dashResponse.data.productStocks || [];
+                const ratingsData = dashResponse.data.productRatings || [];
+                console.log('Products data:', productsData);
+                console.log('Ratings data:', ratingsData);
+                
+                setProducts(productsData);
+                setProductRatings(ratingsData);
+                
+                // Sort by stock descending
+                const byStock = [...productsData].sort((a, b) => (b.stock || 0) - (a.stock || 0));
+                setSortedProducts(byStock);
+                console.log('Sorted by stock:', byStock);
+                
+                // Filter low stock (< 2)
+                const lowStock = productsData.filter(p => (p.stock || 0) < 2);
+                setLowStockProducts(lowStock);
+                console.log('Low stock products:', lowStock);
             } else {
                 setError('Akun seller Anda belum diaktivasi');
             }
@@ -78,34 +97,6 @@ function SellerManagement() {
             setError(err.response?.data?.message || 'Gagal memuat data');
         } finally {
             setLoading(false);
-        }
-    };
-
-    // Fetch products
-    const fetchProducts = async () => {
-        try {
-            console.log('Fetching products...');
-            const response = await axios.get('/api/seller/products');
-            console.log('Products response:', response.data);
-
-            const productsData = response.data.products || [];
-            console.log('Products data:', productsData);
-            
-            setProducts(productsData);
-            
-            // Sort by stock descending
-            const byStock = [...productsData].sort((a, b) => (b.stock || 0) - (a.stock || 0));
-            setSortedProducts(byStock);
-            console.log('Sorted by stock:', byStock);
-            
-            // Filter low stock (< 2)
-            const lowStock = productsData.filter(p => (p.stock || 0) < 2);
-            setLowStockProducts(lowStock);
-            console.log('Low stock products:', lowStock);
-            
-        } catch (err) {
-            console.error('Error fetching products:', err);
-            console.error('Error response:', err.response);
         }
     };
 
@@ -179,9 +170,35 @@ function SellerManagement() {
 
     if (loading) {
         return (
-            <div className={styles.loadingContainer}>
-                <div className={styles.spinner}></div>
-                <p>Memuat data...</p>
+            <div className={styles.dashboardWrapper}>
+                <aside className={styles.sidebar}>
+                    <div className={styles.logoSection}>
+                        <div className={styles.logoIcon}>
+                            <img src="/logo.png" alt="Logo" />
+                        </div>
+                        <span className={styles.logoText}>AstroEcomm</span>
+                    </div>
+                    <nav className={styles.nav}>
+                        <div className={styles.navItem}>
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/>
+                            </svg>
+                            Dashboard
+                        </div>
+                        <div className={styles.navItemActive}>
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M19 3h-4.18C14.4 1.84 13.3 1 12 1c-1.3 0-2.4.84-2.82 2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 0c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zm2 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/>
+                            </svg>
+                            Managemen Toko
+                        </div>
+                    </nav>
+                </aside>
+                <main className={styles.mainContent}>
+                    <div className={styles.loadingContainer}>
+                        <div className={styles.spinner}></div>
+                        <p>Memuat data...</p>
+                    </div>
+                </main>
             </div>
         );
     }
@@ -235,12 +252,6 @@ function SellerManagement() {
                         </svg>
                         Managemen Toko
                     </button>
-                    <button className={styles.navItem} onClick={() => navigate('/seller/upload-produk')}>
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
-                        </svg>
-                        Upload Produk
-                    </button>
                 </nav>
             </aside>
 
@@ -254,6 +265,16 @@ function SellerManagement() {
                     </div>
                     
                     <div className={styles.headerRight}>
+                        <button 
+                            className={styles.btnUpload}
+                            onClick={() => navigate('/seller/upload-produk')}
+                        >
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+                            </svg>
+                            Upload Produk
+                        </button>
+                        
                         <button 
                             className={styles.btnCatalog}
                             onClick={() => navigate('/products')}
@@ -361,12 +382,15 @@ function SellerManagement() {
                         <div className={styles.reportPreview}>
                             {products.length > 0 ? (
                                 <div className={styles.previewTable}>
-                                    <div className={styles.previewRow}>
-                                        <span className={styles.previewLabel}>Preview 5 teratas:</span>
-                                    </div>
-                                    {sortedProducts.slice(0, 5).map((product, index) => (
+                                    {sortedProducts.map((product, index) => (
                                         <div key={index} className={styles.previewRow}>
-                                            <span className={styles.previewRank}>#{index + 1}</span>
+                                            <div className={styles.previewImage}>
+                                                <img 
+                                                    src={product.image || '/placeholder-product.jpg'} 
+                                                    alt={product.name}
+                                                    onError={(e) => e.target.src = '/placeholder-product.jpg'}
+                                                />
+                                            </div>
                                             <span className={styles.previewName}>{product.name}</span>
                                             <span className={styles.previewStock}>Stok: {product.stock || 0}</span>
                                         </div>
@@ -404,25 +428,30 @@ function SellerManagement() {
                             </button>
                         </div>
                         <div className={styles.reportPreview}>
-                            {products.length > 0 ? (
+                            {productRatings.length > 0 ? (
                                 <div className={styles.previewTable}>
-                                    <div className={styles.previewRow}>
-                                        <span className={styles.previewLabel}>Preview 5 teratas:</span>
-                                    </div>
-                                    {[...products].sort((a, b) => (b.average_rating || 0) - (a.average_rating || 0))
-                                        .slice(0, 5).map((product, index) => (
+                                    {productRatings.map((product, index) => (
                                         <div key={index} className={styles.previewRow}>
-                                            <span className={styles.previewRank}>#{index + 1}</span>
+                                            <div className={styles.previewImage}>
+                                                <img 
+                                                    src={product.image || '/placeholder-product.jpg'} 
+                                                    alt={product.name}
+                                                    onError={(e) => e.target.src = '/placeholder-product.jpg'}
+                                                />
+                                            </div>
                                             <span className={styles.previewName}>{product.name}</span>
                                             <span className={styles.previewRating}>
-                                                ⭐ {product.average_rating ? product.average_rating.toFixed(1) : '0.0'}
+                                                <svg width="16" height="16" viewBox="0 0 24 24" fill="#FDB813">
+                                                    <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
+                                                </svg>
+                                                {product.rating}
                                             </span>
                                         </div>
                                     ))}
                                 </div>
                             ) : (
                                 <div className={styles.emptyState}>
-                                    <p>Belum ada produk</p>
+                                    <p>Belum ada produk dengan rating</p>
                                 </div>
                             )}
                         </div>
@@ -454,14 +483,15 @@ function SellerManagement() {
                         <div className={styles.reportPreview}>
                             {lowStockProducts.length > 0 ? (
                                 <div className={styles.previewTable}>
-                                    <div className={styles.previewRow}>
-                                        <span className={styles.previewLabel}>
-                                            ⚠ {lowStockProducts.length} produk perlu dipesan:
-                                        </span>
-                                    </div>
-                                    {lowStockProducts.slice(0, 5).map((product, index) => (
+                                    {lowStockProducts.map((product, index) => (
                                         <div key={index} className={`${styles.previewRow} ${styles.previewRowWarning}`}>
-                                            <span className={styles.previewRank}>#{index + 1}</span>
+                                            <div className={styles.previewImage}>
+                                                <img 
+                                                    src={product.image || '/placeholder-product.jpg'} 
+                                                    alt={product.name}
+                                                    onError={(e) => e.target.src = '/placeholder-product.jpg'}
+                                                />
+                                            </div>
                                             <span className={styles.previewName}>{product.name}</span>
                                             <span className={styles.previewStockLow}>Stok: {product.stock || 0}</span>
                                         </div>
