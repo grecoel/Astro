@@ -217,11 +217,21 @@ function UploadProduk() {
     return (
         <div className={styles.container}>
             <div className={styles.header}>
+                <button 
+                    onClick={() => navigate('/seller/management')} 
+                    className={styles.backButton}
+                    type="button"
+                >
+                    ← Kembali
+                </button>
                 <h1>Form Jual Produk</h1>
             </div>
             
             <div className={styles.card}>
-                {/* --- FORM INPUTS --- */}
+                {/* Informasi Produk Section */}
+                <div className={styles.section}>
+                    <h2 className={styles.sectionTitle}>Informasi Produk</h2>
+                    
                 <div className={styles.formGroup}>
                     <label>Nama Produk</label>
                     <input 
@@ -261,33 +271,35 @@ function UploadProduk() {
 
                 <div className={styles.row}>
                     <div className={styles.formGroup}>
-                        <label>Harga (Rp)</label>
-                        <input type="number" name="price" onChange={handleChange} placeholder="0" />
+                        <label>Harga (Rupiah)</label>
+                        <input type="number" name="price" onChange={handleChange} placeholder="Rp 4.000" min="0" />
                     </div>
                     <div className={styles.formGroup}>
                         <label>Stok</label>
-                        <input type="number" name="stock" value={formData.stock} onChange={handleChange} />
+                        <input type="number" name="stock" value={formData.stock} onChange={handleChange} placeholder="25" min="0" />
                     </div>
                 </div>
 
-                <div className={styles.formGroup}>
-                    <label>Lokasi Barang</label>
-                    <input type="text" name="location" onChange={handleChange} placeholder="Kota / Kecamatan" />
-                </div>
-                
-                <div className={styles.formGroup}>
-                    <label>Berat (Gram)</label>
-                    <input type="number" name="weight" value={formData.weight} onChange={handleChange} />
-                </div>
-
-                <div className={styles.formGroup}>
-                    <label>Deskripsi Produk</label>
-                    <textarea name="description" rows="5" onChange={handleChange} placeholder="Jelaskan detail produk Anda..."></textarea>
+                <div className={styles.row}>
+                    <div className={styles.formGroup}>
+                        <label>Lokasi Barang</label>
+                        <input type="text" name="location" value={formData.location} onChange={handleChange} placeholder="Tomohon City" />
+                    </div>
+                    <div className={styles.formGroup}>
+                        <label>Berat (gram)</label>
+                        <input type="number" name="weight" value={formData.weight} onChange={handleChange} placeholder="300" min="0" />
+                    </div>
                 </div>
 
-                {/* --- IMAGE UPLOAD --- */}
-                <div className={styles.uploadSection}>
-                    <label className={styles.uploadLabel}>Foto Produk (Max 5)</label>
+                    <div className={styles.formGroup}>
+                        <label>Deskripsi Produk</label>
+                        <textarea name="description" rows="5" onChange={handleChange} placeholder="Jelaskan detail produk, spesifikasi, kondisi, dan keunggulan produk Anda secara lengkap..."></textarea>
+                    </div>
+                </div>
+
+                {/* Upload Foto Produk Section */}
+                <div className={styles.section}>
+                    <h2 className={styles.sectionTitle}>Upload Foto Produk</h2>
                     
                     <div 
                         className={`${styles.uploadArea} ${isDragging ? styles.uploadAreaDragging : ''}`}
@@ -308,10 +320,12 @@ function UploadProduk() {
                             {isDragging ? (
                                 <>📥 Lepaskan Gambar di Sini</>
                             ) : (
-                                <>📸 Klik atau Seret Gambar ke Sini</>
+                                <>
+                                    <span className={styles.uploadIcon}>+</span>
+                                    <span>Klik untuk upload</span>
+                                </>
                             )}
                         </label>
-                        <p className={styles.uploadHint}>Format: JPG, PNG, GIF (Max 2MB per file)</p>
                     </div>
 
                     {/* Preview Gallery */}
@@ -344,13 +358,6 @@ function UploadProduk() {
                 {/* --- BUTTONS --- */}
                 <div className={styles.actionButtons}>
                     <button 
-                        onClick={() => navigate('/seller/management')} 
-                        className={styles.btnBack}
-                        type="button"
-                    >
-                        Kembali
-                    </button>
-                    <button 
                         onClick={() => handleSubmit('DRAFT')} 
                         className={styles.btnDraft} 
                         disabled={isLoading}
@@ -362,7 +369,7 @@ function UploadProduk() {
                         className={styles.btnPublish} 
                         disabled={isLoading}
                     >
-                        {isLoading ? 'Mengupload...' : 'Tayangkan Sekarang'}
+                        {isLoading ? 'Mengupload...' : 'Upload Produk'}
                     </button>
                 </div>
             </div>
