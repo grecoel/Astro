@@ -5,33 +5,77 @@
 /* Container Utama */
 .container {
     min-height: 100vh;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: #f5f5f5;
     padding: 2rem 1rem;
 }
 
 /* Header Section */
 .header {
-    max-width: 800px;
+    max-width: 900px;
     margin: 0 auto 2rem;
 }
 
+/* Back Button */
+.backButton {
+    background: none;
+    border: none;
+    color: #666;
+    font-size: 0.9rem;
+    cursor: pointer;
+    padding: 0;
+    margin-bottom: 0.5rem;
+    display: block;
+    text-align: left;
+    transition: color 0.2s ease;
+}
+
+.backButton:hover {
+    color: #333;
+}
+
 .header h1 {
-    color: white;
+    color: #333;
     margin: 0;
-    font-size: 2rem;
-    font-weight: 700;
-    text-align: center;
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    font-size: 1.75rem;
+    font-weight: 600;
+    text-align: left;
 }
 
 /* Card Container */
 .card {
-    max-width: 800px;
+    max-width: 900px;
     margin: 0 auto;
     background: white;
-    padding: 2.5rem;
-    border-radius: 12px;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    padding: 0;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+}
+
+/* ========================================
+   SECTIONS
+   ======================================== */
+
+.section {
+    padding: 2rem;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.section:last-of-type {
+    border-bottom: none;
+}
+
+.sectionTitle {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #333;
+    margin: 0 0 1.5rem 0;
+}
+
+.sectionSubtitle {
+    font-size: 0.9rem;
+    color: #666;
+    margin: -0.5rem 0 1rem 0;
 }
 
 /* ========================================
@@ -55,23 +99,22 @@
 .formGroup select,
 .formGroup textarea {
     width: 100%;
-    padding: 0.9rem 1rem;
-    border: 2px solid #e0e0e0;
-    border-radius: 8px;
-    font-size: 1rem;
+    padding: 0.75rem 1rem;
+    border: 1px solid #d0d0d0;
+    border-radius: 6px;
+    font-size: 0.95rem;
     font-family: inherit;
     box-sizing: border-box;
-    transition: all 0.3s ease;
-    background: #fafafa;
+    transition: all 0.2s ease;
+    background: white;
 }
 
 .formGroup input:focus,
 .formGroup select:focus,
 .formGroup textarea:focus {
     outline: none;
-    border-color: #7A57B3;
-    background: white;
-    box-shadow: 0 0 0 3px rgba(122, 87, 179, 0.1);
+    border-color: #999;
+    box-shadow: 0 0 0 2px rgba(153, 153, 153, 0.1);
 }
 
 .formGroup textarea {
@@ -97,22 +140,10 @@
    UPLOAD SECTION
    ======================================== */
 
-.uploadSection {
-    margin-top: 2.5rem;
-    padding-top: 2.5rem;
-    border-top: 2px dashed #e0e0e0;
-}
-
-.uploadLabel {
-    font-size: 1.1rem;
-    color: #2c3e50;
-    margin-bottom: 1rem;
-}
-
 .uploadArea {
-    border: 3px dashed #7A57B3;
-    background: linear-gradient(135deg, #f8f6fb 0%, #ede9f5 100%);
-    border-radius: 12px;
+    border: 2px dashed #d0d0d0;
+    background: #fafafa;
+    border-radius: 8px;
     text-align: center;
     padding: 3rem 2rem;
     margin-bottom: 1.5rem;
@@ -121,34 +152,39 @@
 }
 
 .uploadArea:hover {
-    background: linear-gradient(135deg, #ede9f5 0%, #e3dcf0 100%);
-    border-color: #6647a0;
-    transform: translateY(-2px);
+    background: #f0f0f0;
+    border-color: #999;
 }
 
 .uploadAreaDragging {
-    background: linear-gradient(135deg, #e3dcf0 0%, #d4c5ed 100%);
-    border-color: #6647a0;
+    background: #f0f0f0;
+    border-color: #999;
     border-style: solid;
-    transform: scale(1.02);
 }
 
 .uploadBtn {
     cursor: pointer;
-    color: #7A57B3;
-    font-weight: 700;
-    font-size: 1.2rem;
-    display: inline-flex;
+    color: #666;
+    font-weight: 500;
+    font-size: 1rem;
+    display: flex;
+    flex-direction: column;
     align-items: center;
     gap: 0.5rem;
     pointer-events: none;
 }
 
-.uploadHint {
-    margin-top: 0.8rem;
-    font-size: 0.85rem;
-    color: #6c757d;
-    pointer-events: none;
+.uploadIcon {
+    width: 60px;
+    height: 60px;
+    border: 2px dashed #d0d0d0;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    color: #999;
+    background: white;
 }
 
 /* ========================================
@@ -157,7 +193,7 @@
 
 .previewGrid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    grid-template-columns: repeat(5, 1fr);
     gap: 1rem;
     margin-top: 1rem;
 }
@@ -166,11 +202,12 @@
     position: relative;
     width: 100%;
     padding-top: 100%; /* Aspect ratio 1:1 */
-    border-radius: 10px;
+    border-radius: 8px;
     overflow: hidden;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
     transition: transform 0.2s ease, opacity 0.2s ease;
     cursor: grab;
+    border: 2px solid #e0e0e0;
 }
 
 .previewItem:hover {
@@ -245,15 +282,40 @@
     bottom: 0;
     left: 0;
     right: 0;
-    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
-    color: white;
-    font-size: 0.75rem;
-    font-weight: 700;
+    background: #D3F26A;
+    color: #000;
+    font-size: 0.7rem;
+    font-weight: 600;
     text-align: center;
-    padding: 6px 4px;
+    padding: 4px;
     text-transform: uppercase;
     letter-spacing: 0.5px;
-    box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* ========================================
+   CHECKBOX GROUP
+   ======================================== */
+
+.checkboxGroup {
+    display: flex;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+}
+
+.checkbox {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    font-size: 0.95rem;
+    color: #333;
+}
+
+.checkbox input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+    accent-color: #7A57B3;
 }
 
 /* ========================================
@@ -262,75 +324,44 @@
 
 .actionButtons {
     display: flex;
+    justify-content: flex-end;
     gap: 1rem;
-    margin-top: 3rem;
-    padding-top: 2rem;
-    border-top: 2px solid #f0f0f0;
-}
-
-.btnBack {
-    padding: 14px 24px;
-    border: none;
-    border-radius: 8px;
-    font-weight: 700;
-    font-size: 1rem;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    background: #dc3545;
-    color: white;
-    box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
-}
-
-.btnBack:hover {
-    background: #c82333;
-    transform: translateY(-2px);
-    box-shadow: 0 6px 16px rgba(220, 53, 69, 0.4);
+    padding: 2rem;
+    background: #fafafa;
 }
 
 .btnDraft,
 .btnPublish {
-    flex: 1;
-    padding: 14px 24px;
-    border: none;
+    padding: 12px 32px;
     border-radius: 8px;
-    font-weight: 700;
+    font-weight: 600;
     font-size: 1rem;
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: all 0.2s ease;
 }
 
 .btnDraft {
-    background: linear-gradient(135deg, #7A57B3 0%, #6647a0 100%);
-    color: white;
-    box-shadow: 0 4px 12px rgba(122, 87, 179, 0.3);
+    background: white;
+    color: #000;
+    border: 2px solid #000;
 }
 
 .btnDraft:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 16px rgba(122, 87, 179, 0.4);
+    background: #f8f8f8;
 }
 
 .btnPublish {
-    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
-    color: white;
-    box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+    background: #000;
+    color: #D3F26A;
+    border: 2px solid #000;
 }
 
 .btnPublish:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 16px rgba(40, 167, 69, 0.4);
+    background: #1a1a1a;
 }
 
 .btnDraft:disabled,
 .btnPublish:disabled {
     opacity: 0.5;
     cursor: not-allowed;
-    transform: none;
-    box-shadow: none;
-}
-
-.btnBack:active,
-.btnDraft:active,
-.btnPublish:active {
-    transform: translateY(0);
 }
