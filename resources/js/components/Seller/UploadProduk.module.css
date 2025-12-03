@@ -1,136 +1,281 @@
+/* ========================================
+   UPLOAD PRODUK - SELLER
+   ======================================== */
+
 /* Container Utama */
 .container {
-    padding: 0 1rem;
-    max-width: 800px; /* Batasi lebar agar enak dibaca */
-    margin: 0 auto;
+    min-height: 100vh;
+    background: #f5f5f5;
+    padding: 2rem 1rem;
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+}
+
+/* Header Section */
+.header {
+    max-width: 900px;
+    margin: 0 auto 2rem;
+}
+
+/* Back Button */
+.backButton {
+    background: none;
+    border: none;
+    color: #666;
+    font-size: 0.9rem;
+    cursor: pointer;
+    padding: 0;
+    margin-bottom: 0.5rem;
+    display: block;
+    text-align: left;
+    transition: color 0.2s ease;
+}
+
+.backButton:hover {
+    color: #333;
 }
 
 .header h1 {
     color: #333;
-    margin-bottom: 1.5rem;
-    font-size: 1.5rem;
+    margin: 0;
+    font-size: 1.75rem;
+    font-weight: 600;
+    text-align: left;
 }
 
-/* Kartu Putih Pembungkus Form */
+/* Card Container */
 .card {
+    max-width: 900px;
+    margin: 0 auto;
     background: white;
-    padding: 2rem;
-    border: 1px solid #e0e0e0;
+    padding: 0;
     border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
 }
 
-/* Form Styles */
+/* ========================================
+   SECTIONS
+   ======================================== */
+
+.section {
+    padding: 2rem;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.section:last-of-type {
+    border-bottom: none;
+}
+
+.sectionTitle {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #333;
+    margin: 0 0 1.5rem 0;
+}
+
+.sectionSubtitle {
+    font-size: 0.9rem;
+    color: #666;
+    margin: -0.5rem 0 1rem 0;
+}
+
+/* ========================================
+   FORM ELEMENTS
+   ======================================== */
+
 .formGroup {
-    margin-bottom: 1.2rem;
+    margin-bottom: 1.5rem;
 }
 
-.formGroup label, .uploadLabel {
+.formGroup label,
+.uploadLabel {
     display: block;
     font-weight: 600;
-    margin-bottom: 0.5rem;
-    color: #555;
+    margin-bottom: 0.6rem;
+    color: #2c3e50;
     font-size: 0.95rem;
 }
 
-.formGroup input, 
-.formGroup select, 
+.formGroup input,
+.formGroup select,
 .formGroup textarea {
     width: 100%;
-    padding: 0.8rem;
-    border: 1px solid #ccc;
+    padding: 0.75rem 1rem;
+    border: 1px solid #d0d0d0;
     border-radius: 6px;
-    font-size: 1rem;
-    box-sizing: border-box; /* Agar padding tidak menambah lebar */
-    transition: border-color 0.2s;
+    font-size: 0.95rem;
+    font-family: inherit;
+    box-sizing: border-box;
+    transition: all 0.2s ease;
+    background: white;
 }
 
 .formGroup input:focus,
 .formGroup select:focus,
 .formGroup textarea:focus {
     outline: none;
-    border-color: #28a745; /* Hijau Seller */
+    border-color: #999;
+    box-shadow: 0 0 0 2px rgba(153, 153, 153, 0.1);
 }
 
-/* Grid Layout untuk Baris (Harga & Stok, dll) */
+.formGroup textarea {
+    resize: vertical;
+    min-height: 120px;
+    line-height: 1.6;
+}
+
+/* Grid Layout untuk Baris */
 .row {
-    display: flex;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
     gap: 1.5rem;
 }
 
-.row .formGroup {
-    flex: 1;
+@media (max-width: 640px) {
+    .row {
+        grid-template-columns: 1fr;
+    }
 }
 
-/* Upload Area */
-.uploadSection {
-    margin-top: 2rem;
-    padding-top: 2rem;
-    border-top: 1px dashed #eee;
-}
+/* ========================================
+   UPLOAD SECTION
+   ======================================== */
 
 .uploadArea {
-    border: 2px dashed #28a745;
-    background-color: #f9fff9;
+    border: 2px dashed #d0d0d0;
+    background: #fafafa;
     border-radius: 8px;
     text-align: center;
-    padding: 2rem;
-    margin-bottom: 1rem;
-    transition: background 0.2s;
+    padding: 3rem 2rem;
+    margin-bottom: 1.5rem;
+    transition: all 0.3s ease;
+    cursor: pointer;
 }
 
 .uploadArea:hover {
-    background-color: #eef9ee;
+    background: #f0f0f0;
+    border-color: #999;
+}
+
+.uploadAreaDragging {
+    background: #f0f0f0;
+    border-color: #999;
+    border-style: solid;
 }
 
 .uploadBtn {
     cursor: pointer;
-    color: #28a745;
-    font-weight: bold;
-    font-size: 1.1rem;
+    color: #666;
+    font-weight: 500;
+    font-size: 1rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    pointer-events: none;
 }
 
-/* Preview Gambar */
-.previewGrid {
+.uploadIcon {
+    width: 60px;
+    height: 60px;
+    border: 2px dashed #d0d0d0;
+    border-radius: 8px;
     display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    color: #999;
+    background: white;
+}
+
+/* ========================================
+   IMAGE PREVIEW
+   ======================================== */
+
+.previewGrid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 1rem;
+    margin-top: 1rem;
 }
 
 .previewItem {
     position: relative;
-    width: 100px;
-    height: 100px;
+    width: 100%;
+    padding-top: 100%; /* Aspect ratio 1:1 */
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease, opacity 0.2s ease;
+    cursor: grab;
+    border: 2px solid #e0e0e0;
+}
+
+.previewItem:hover {
+    transform: scale(1.05);
+}
+
+.previewItem:active {
+    cursor: grabbing;
+}
+
+.previewItemDragging {
+    opacity: 0.5;
+    transform: scale(0.95);
 }
 
 .previewItem img {
+    position: absolute;
+    top: 0;
+    left: 0;
     width: 100%;
     height: 100%;
     object-fit: cover;
-    border-radius: 6px;
-    border: 1px solid #ddd;
+    border: 3px solid #f0f0f0;
 }
 
 .removeBtn {
     position: absolute;
-    top: -8px;
-    right: -8px;
-    width: 24px;
-    height: 24px;
-    background: #ff4444;
+    top: 8px;
+    right: 8px;
+    width: 28px;
+    height: 28px;
+    background: #dc3545;
     color: white;
-    border: none;
+    border: 2px solid white;
     border-radius: 50%;
-    font-size: 14px;
+    font-size: 16px;
+    font-weight: bold;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: background 0.2s;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    z-index: 10;
 }
 
 .removeBtn:hover {
-    background: #cc0000;
+    background: #c82333;
+    transform: scale(1.1);
+}
+
+.dragHint {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 2rem;
+    color: rgba(255, 255, 255, 0.6);
+    font-weight: bold;
+    pointer-events: none;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.previewItem:hover .dragHint {
+    opacity: 1;
 }
 
 .mainBadge {
@@ -138,48 +283,86 @@
     bottom: 0;
     left: 0;
     right: 0;
-    background: rgba(40, 167, 69, 0.9);
-    color: white;
+    background: #D3F26A;
+    color: #000;
     font-size: 0.7rem;
+    font-weight: 600;
     text-align: center;
-    padding: 2px;
-    border-bottom-left-radius: 5px;
-    border-bottom-right-radius: 5px;
+    padding: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
-/* Tombol Aksi */
-.actionButtons {
+/* ========================================
+   CHECKBOX GROUP
+   ======================================== */
+
+.checkboxGroup {
     display: flex;
-    gap: 1rem;
-    margin-top: 2rem;
+    gap: 1.5rem;
+    flex-wrap: wrap;
 }
 
-.btnDraft, .btnPublish {
-    flex: 1;
-    padding: 12px;
-    border: none;
-    border-radius: 6px;
-    font-weight: bold;
-    font-size: 1rem;
+.checkbox {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
     cursor: pointer;
-    transition: opacity 0.2s;
-}
-
-.btnDraft {
-    background: #e2e6ea;
+    font-size: 0.95rem;
     color: #333;
 }
 
+.checkbox input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+    accent-color: #7A57B3;
+}
+
+/* ========================================
+   ACTION BUTTONS
+   ======================================== */
+
+.actionButtons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+    padding: 2rem;
+    background: #fafafa;
+}
+
+.btnDraft,
 .btnPublish {
-    background: #28a745;
-    color: white;
+    padding: 12px 32px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
 }
 
-.btnPublish:hover, .btnDraft:hover {
-    opacity: 0.9;
+.btnDraft {
+    background: white;
+    color: #000;
+    border: 2px solid #000;
 }
 
-.btnDraft:disabled, .btnPublish:disabled {
-    opacity: 0.6;
+.btnDraft:hover {
+    background: #f8f8f8;
+}
+
+.btnPublish {
+    background: #000;
+    color: #D3F26A;
+    border: 2px solid #000;
+}
+
+.btnPublish:hover {
+    background: #1a1a1a;
+}
+
+.btnDraft:disabled,
+.btnPublish:disabled {
+    opacity: 0.5;
     cursor: not-allowed;
 }

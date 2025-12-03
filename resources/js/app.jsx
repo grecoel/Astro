@@ -3,7 +3,8 @@ import React from 'react';
 import { createRoot } from 'react-dom/client';
 import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
 
-import '../css/app.css'; 
+import '../css/app.css';
+import { ToastProvider } from './components/Common/ToastContext'; 
 
 import RegistrasiForm from './components/RegistrasiForm/RegistrasiForm';
 import VerifikasiList from './components/Admin/VerifikasiList'; 
@@ -13,6 +14,7 @@ import ProtectedRoute from './components/Auth/ProtectedRoute';
 import AktivasiAkun from './components/Auth/AktivasiAkun';
 import SellerDashboard from './components/Seller/SellerDashboard';
 import UploadProduk from './components/Seller/UploadProduk';
+import SellerManagement from './components/Seller/SellerManagement';
 import AdminLayout from './components/Admin/AdminLayout';
 import CategoryManager from './components/Admin/CategoryManager';
 import AdminDashboard from './components/Admin/AdminDashboard';
@@ -27,13 +29,10 @@ const root = createRoot(container);
 
 root.render(
     <React.StrictMode>
-        <BrowserRouter>
-            <Routes>
-                <Route path="/login" element={
-                    <div className="page-container">
-                        <LoginForm />
-                    </div>
-                } />
+        <ToastProvider>
+            <BrowserRouter>
+                <Routes>
+                <Route path="/login" element={<LoginForm />} />
                 <Route path="/registrasi" element={
                     <div className="page-container">
                         <RegistrasiForm />
@@ -64,6 +63,11 @@ root.render(
                         <SellerDashboard />
                     </ProtectedRoute>
                 } />
+                <Route path="/seller/management" element={
+                    <ProtectedRoute>
+                        <SellerManagement />
+                    </ProtectedRoute>
+                } />
                 <Route path="/seller/upload-produk" element={
                     <ProtectedRoute>
                         <UploadProduk />
@@ -74,7 +78,8 @@ root.render(
                 <Route path="/" element={<Home />} />
                 <Route path="/search" element={<SearchResults />} />
                 <Route path="/product/:id" element={<ProductDetail />} />
-            </Routes>
-        </BrowserRouter>
+                </Routes>
+            </BrowserRouter>
+        </ToastProvider>
     </React.StrictMode>
 );

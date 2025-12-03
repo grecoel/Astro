@@ -1,0 +1,349 @@
+.container {
+  background-color: #f4fadf;
+  height: 100vh;
+  width: 100%;
+  position: fixed;
+  top: 0;
+  left: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 1rem;
+  font-family: 'Helvetica Neue', 'Inter', Arial, sans-serif;
+  overflow: hidden;
+  z-index: 0;
+}
+
+.bgGreen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  background-color: #f4fadf;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.whiteBackground {
+  background-color: #ffffff;
+  height: 100vh;
+  left: 0;
+  position: fixed;
+  top: 0;
+  width: 55%;
+  z-index: 1;
+}
+
+.card {
+  background-color: #ffffff;
+  border-radius: 20px;
+  box-shadow: 0px 19px 40px rgba(0, 0, 0, 0.05);
+  height: auto;
+  min-height: 500px;
+  position: relative;
+  width: 90%;
+  max-width: 450px;
+  padding: 2.5rem 2rem;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+}
+
+.title {
+  color: #000000;
+  font-family: 'Helvetica Neue', 'Inter', Arial, sans-serif;
+  font-size: 2rem;
+  font-weight: 700;
+  margin: 0 0 0.5rem 0;
+  text-align: center;
+  letter-spacing: -0.5px;
+}
+
+.subtitle {
+  color: rgba(0, 0, 0, 0.7);
+  font-family: 'Helvetica Neue', 'Inter', Arial, sans-serif;
+  font-size: 0.95rem;
+  margin: 0 0 2rem 0;
+  text-align: center;
+  line-height: 1.5;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  flex: 1;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.label {
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: #000000;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+  opacity: 0.85;
+}
+
+.input {
+  padding: 0.75rem;
+  border: 2px solid #E5E5E5;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-family: 'Helvetica Neue', 'Inter', Arial, sans-serif;
+  background-color: #ffffff;
+  color: #000000;
+  transition: all 0.3s ease;
+}
+
+.input:focus {
+  outline: none;
+  border-color: #D3F26A;
+  box-shadow: 0 0 0 3px rgba(211, 242, 106, 0.15);
+  background-color: #ffffff;
+}
+
+.input::placeholder {
+  color: #999;
+}
+
+.submitButton {
+  padding: 0.85rem 1.5rem;
+  background-color: #D3F26A;
+  color: #000000;
+  border: 2px solid #D3F26A;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  font-family: 'Helvetica Neue', 'Inter', Arial, sans-serif;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  letter-spacing: 0.5px;
+  margin-top: 1rem;
+  text-align: center;
+}
+
+.submitButton:hover:not(:disabled) {
+  background-color: #000000;
+  color: #D3F26A;
+  border-color: #000000;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  transform: translateY(-2px);
+}
+
+.submitButton:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.submitButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.alertMessage {
+  padding: 0.75rem 0.9rem;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  margin-bottom: 1rem;
+  animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.successMessage {
+  background-color: rgba(211, 242, 106, 0.1);
+  border: 2px solid #D3F26A;
+  color: #667a30;
+}
+
+.errorMessage {
+  background-color: rgba(255, 107, 107, 0.1);
+  border: 2px solid #FF6B6B;
+  color: #FF6B6B;
+}
+
+/* Modal Styling */
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(23, 23, 25, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.modal {
+  background-color: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 10px 40px rgba(23, 23, 25, 0.15);
+  width: 90%;
+  max-width: 380px;
+  padding: 0;
+  overflow: hidden;
+  animation: slideUp 0.3s ease;
+  border: 2px solid #E5E5E5;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.modal-success {
+  border-top: 4px solid #D3F26A;
+}
+
+.modal-error {
+  border-top: 4px solid #FF6B6B;
+}
+
+.modalHeader {
+  padding: 1.5rem 1.5rem 0.75rem 1.5rem;
+  text-align: center;
+  background-color: rgba(211, 242, 106, 0.05);
+}
+
+.modalIcon {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  font-weight: bold;
+  margin: 0 auto;
+}
+
+.iconSuccess {
+  background-color: rgba(211, 242, 106, 0.2);
+  color: #D3F26A;
+}
+
+.iconSuccess::before {
+  content: '✓';
+  font-size: 2.5rem;
+  font-weight: bold;
+}
+
+.iconError {
+  background-color: rgba(255, 107, 107, 0.2);
+  color: #FF6B6B;
+}
+
+.iconError::before {
+  content: '✕';
+  font-size: 2.5rem;
+  font-weight: bold;
+}
+
+.modalContent {
+  padding: 1.5rem 1.5rem;
+  text-align: center;
+}
+
+.modalContent h3 {
+  margin: 0 0 0.75rem 0;
+  font-size: 1.3rem;
+  color: #000000;
+  font-weight: 700;
+}
+
+.modalContent p {
+  margin: 0;
+  font-size: 0.95rem;
+  color: #000000;
+  line-height: 1.5;
+  opacity: 0.8;
+}
+
+.modalFooter {
+  padding: 1.25rem 1.5rem 1.5rem 1.5rem;
+  display: flex;
+  justify-content: center;
+}
+
+.modalButton {
+  padding: 0.75rem 1.75rem;
+  background-color: #D3F26A;
+  color: #000000;
+  border: 2px solid #D3F26A;
+  border-radius: 12px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: 'Helvetica Neue', 'Inter', Arial, sans-serif;
+  transition: all 0.3s ease;
+  letter-spacing: 0.5px;
+}
+
+.modalButton:hover {
+  background-color: #000000;
+  color: #D3F26A;
+  border-color: #000000;
+  box-shadow: 0 2px 8px rgba(211, 242, 106, 0.3);
+  transform: translateY(-2px);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .card {
+    max-width: 100%;
+    width: 95%;
+    min-height: auto;
+    padding: 2rem 1.5rem;
+  }
+
+  .title {
+    font-size: 1.75rem;
+  }
+
+  .subtitle {
+    font-size: 0.9rem;
+  }
+
+  .submitButton {
+    padding: 0.8rem 1.25rem;
+    font-size: 0.9rem;
+  }
+
+  .modal {
+    max-width: 320px;
+  }
+}

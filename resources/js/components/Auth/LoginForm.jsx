@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import styles from './Auth.module.css';
+import loginIllustration from '../Public/images/login-illustration.png';
 
 function LoginForm() {
     const navigate = useNavigate();
@@ -20,13 +21,11 @@ function LoginForm() {
             ...formData,
             [e.target.name]: e.target.value
         });
-        setError('');
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         setIsLoading(true);
-        setError('');
 
         try {
             // Login request (no CSRF needed for token auth)
@@ -74,31 +73,38 @@ function LoginForm() {
             setModalType('error');
             setModalMessage(errorMsg);
             setShowModal(true);
-            setError(errorMsg);
         } finally {
             setIsLoading(false);
         }
     };
 
     return (
-        <div className={styles.authContainer}>
-            <button onClick={() => navigate('/')} className={styles.homeButton}>
-                Home &gt;
-            </button>
-            <div className={styles.authBox}>
-                <h2 className={styles.authTitle}>Login</h2>
+        <>
+            <div className={styles.floorLine}></div>
+            
+            <div className={styles.loginContainer}>
+                <div className={styles.bgWhite} />
+                <div className={styles.bgGreen} />
                 
-                {error && (
-                    <div className={styles.errorAlert}>
-                        {error}
-                    </div>
-                )}
+                <div className={styles.illustrationWrapper}>
+                    <img 
+                        src={loginIllustration} 
+                        alt="Shopping Illustration" 
+                        className={styles.illustration}
+                    />
+                </div>
+                
+                <div className={styles.card}>
+                <div className={styles.logoContainer}>
+                    <h1 className={styles.logo}>AstroEcomm.</h1>
+                </div>
+                
+                <p className={styles.greeting}>Selamat datang!</p>
+                <h2 className={styles.title}>Log In</h2>
 
-                <form onSubmit={handleSubmit} className={styles.authForm}>
+                <form onSubmit={handleSubmit} className={styles.form}>
                     <div className={styles.formGroup}>
-                        <label htmlFor="email" className={styles.label}>
-                            Email
-                        </label>
+                        <label className={styles.label} htmlFor="email">Email</label>
                         <input
                             type="email"
                             id="email"
@@ -106,15 +112,13 @@ function LoginForm() {
                             value={formData.email}
                             onChange={handleChange}
                             className={styles.input}
-                            placeholder="Email Anda"
+                            placeholder="Masukkan email Anda"
                             required
                         />
                     </div>
 
                     <div className={styles.formGroup}>
-                        <label htmlFor="password" className={styles.label}>
-                            Password
-                        </label>
+                        <label className={styles.label} htmlFor="password">Password</label>
                         <input
                             type="password"
                             id="password"
@@ -122,7 +126,7 @@ function LoginForm() {
                             value={formData.password}
                             onChange={handleChange}
                             className={styles.input}
-                            placeholder="••••••••"
+                            placeholder="Masukkan password"
                             required
                         />
                     </div>
@@ -132,13 +136,21 @@ function LoginForm() {
                         className={styles.submitButton}
                         disabled={isLoading}
                     >
-                        {isLoading ? 'Loading...' : 'Login'}
+                        {isLoading ? 'Loading...' : 'LOG IN'}
                     </button>
                 </form>
 
-                <div className={styles.authFooter}>
-                    <p>Belum punya akun? <a href="/registrasi" style={{color: '#7B923B'}}>Daftar di sini</a></p>
-                </div>
+                <p className={styles.signupPrompt}>
+                    <span className={styles.signupPromptText}>Belum punya akun?</span>
+                    <span className={styles.signupPromptSpace}>&nbsp;</span>
+                    <span className={styles.signupPromptLink} onClick={() => navigate('/registrasi')}>Daftar yuk!</span>
+                </p>
+
+                <p className={styles.signupPrompt}>
+                    <span className={styles.signupPromptText}>Atau</span>
+                    <span className={styles.signupPromptSpace}>&nbsp;</span>
+                    <span className={styles.signupPromptLink} onClick={() => navigate('/')}>Kembali ke Katalog</span>
+                </p>
             </div>
 
             {/* Modal Popup untuk Error */}
@@ -146,10 +158,10 @@ function LoginForm() {
                 <div className={styles.modalOverlay} onClick={() => setShowModal(false)}>
                     <div className={`${styles.modal} ${styles[`modal-${modalType}`]}`} onClick={(e) => e.stopPropagation()}>
                         <div className={styles.modalHeader}>
-                            <div className={styles.modalIcon + ' ' + styles.iconError}>✕</div>
+                            <div className={styles.modalIcon + ' ' + (modalType === 'success' ? styles.iconSuccess : styles.iconError)}></div>
                         </div>
                         <div className={styles.modalContent}>
-                            <h3>Terjadi Kesalahan</h3>
+                            <h3>{modalType === 'success' ? 'Berhasil!' : 'Terjadi Kesalahan'}</h3>
                             <p>{modalMessage}</p>
                         </div>
                         <div className={styles.modalFooter}>
@@ -163,7 +175,8 @@ function LoginForm() {
                     </div>
                 </div>
             )}
-        </div>
+            </div>
+        </>
     );
 }
 

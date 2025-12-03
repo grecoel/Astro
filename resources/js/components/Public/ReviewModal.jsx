@@ -2,8 +2,11 @@ import React, { useState } from 'react';
 import styles from './ReviewModal.module.css';
 import { locations } from '../../Data/locations';
 import axios from 'axios';
+import { useToast } from '../Common/ToastContext';
+import CustomSelect from '../Common/CustomSelect';
 
 const ReviewModal = ({ isOpen, onClose, product, onReviewSubmitted }) => {
+  const { showSuccess, showError } = useToast();
   const [rating, setRating] = useState(0);
   const [comment, setComment] = useState('');
   const [name, setName] = useState('');
@@ -58,7 +61,8 @@ const ReviewModal = ({ isOpen, onClose, product, onReviewSubmitted }) => {
       setProvince('');
       setCity('');
       
-      alert('Terima kasih! Review Anda berhasil dikirim. Silakan cek email Anda.');
+      // Show success toast notification
+      showSuccess('Terima kasih! Review Anda berhasil dikirim. Silakan cek email Anda.', 5000);
       onClose();
       
       // Callback untuk refresh data tanpa reload
@@ -67,7 +71,10 @@ const ReviewModal = ({ isOpen, onClose, product, onReviewSubmitted }) => {
       }
     } catch (err) {
       console.error('Error submitting review:', err);
-      setError(err.response?.data?.message || 'Gagal mengirim review. Silakan coba lagi.');
+      const errorMessage = err.response?.data?.message || 'Gagal mengirim review. Silakan coba lagi.';
+      setError(errorMessage);
+      // Durasi lebih panjang untuk pesan error yang lebih panjang
+      showError(errorMessage, 6000);
     } finally {
       setIsSubmitting(false);
     }
@@ -157,21 +164,16 @@ const ReviewModal = ({ isOpen, onClose, product, onReviewSubmitted }) => {
 
               <div className={styles.formGroup}>
                 <label>Provinsi Asal:</label>
-                <select
+                <CustomSelect
                   value={province}
-                  onChange={(e) => {
-                    setProvince(e.target.value);
+                  onChange={(value) => {
+                    setProvince(value);
                     setCity('');
                   }}
+                  options={Object.keys(locations)}
+                  placeholder="Pilih Provinsi"
                   required
-                >
-                  <option value="">Pilih Provinsi</option>
-                  {Object.keys(locations).map((prov) => (
-                    <option key={prov} value={prov}>
-                      {prov}
-                    </option>
-                  ))}
-                </select>
+                />
               </div>
             </div>
 
@@ -189,19 +191,14 @@ const ReviewModal = ({ isOpen, onClose, product, onReviewSubmitted }) => {
 
               <div className={styles.formGroup}>
                 <label>Kota / Kabupaten Asal:</label>
-                <select
+                <CustomSelect
                   value={city}
-                  onChange={(e) => setCity(e.target.value)}
+                  onChange={setCity}
+                  options={cities}
+                  placeholder="Pilih Kabupaten/Kota"
                   disabled={!province}
                   required
-                >
-                  <option value="">Pilih Kabupaten/Kota</option>
-                  {cities.map((cityName) => (
-                    <option key={cityName} value={cityName}>
-                      {cityName}
-                    </option>
-                  ))}
-                </select>
+                />
               </div>
             </div>
 
@@ -260,7 +257,12 @@ const ReviewModal = ({ isOpen, onClose, product, onReviewSubmitted }) => {
               className={styles.submitBtn}
               disabled={isSubmitting}
             >
-              {isSubmitting ? 'Mengirim...' : 'Kirim'}
+              {isSubmitting ? (
+                <span className={styles.loadingWrapper}>
+                  <span className={styles.spinner}></span>
+                  Mengirim Review...
+                </span>
+              ) : 'Kirim'}
             </button>
           </div>
         </form>

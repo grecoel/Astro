@@ -451,26 +451,66 @@
     display: flex;
     gap: 20px;
     overflow-x: auto;
+    overflow-y: hidden;
     padding-bottom: 15px;
-    scrollbar-width: thin;
-    scrollbar-color: #d1d5db #f3f4f6;
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+    position: relative;
+    /* Fade effect - default no fade */
+    mask-image: linear-gradient(to right, transparent 0%, black 0%, black 100%, transparent 100%);
+    -webkit-mask-image: linear-gradient(to right, transparent 0%, black 0%, black 100%, transparent 100%);
+    transition: mask-image 0.3s ease, -webkit-mask-image 0.3s ease;
 }
 
+/* Fade kanan saja (ada scroll di kanan) */
+.reviewScroll.fadeRight:not(.fadeLeft) {
+    mask-image: linear-gradient(to right, black 0%, black 90%, transparent 100%);
+    -webkit-mask-image: linear-gradient(to right, black 0%, black 90%, transparent 100%);
+}
+
+/* Fade kiri saja (sudah di-scroll) */
+.reviewScroll.fadeLeft:not(.fadeRight) {
+    mask-image: linear-gradient(to right, transparent 0%, black 10%, black 100%);
+    -webkit-mask-image: linear-gradient(to right, transparent 0%, black 10%, black 100%);
+}
+
+/* Fade kedua sisi (scroll di tengah) */
+.reviewScroll.fadeLeft.fadeRight {
+    mask-image: linear-gradient(to right, transparent 0%, black 5%, black 95%, transparent 100%);
+    -webkit-mask-image: linear-gradient(to right, transparent 0%, black 5%, black 95%, transparent 100%);
+}
+
+/* Scrollbar hidden by default */
 .reviewScroll::-webkit-scrollbar {
-    height: 8px;
+    height: 0;
+    transition: height 0.3s ease;
 }
 
 .reviewScroll::-webkit-scrollbar-track {
-    background: #f3f4f6;
+    background: transparent;
     border-radius: 4px;
 }
 
 .reviewScroll::-webkit-scrollbar-thumb {
-    background: #d1d5db;
+    background: transparent;
     border-radius: 4px;
+    transition: background 0.3s ease;
 }
 
-.reviewScroll::-webkit-scrollbar-thumb:hover {
+/* Scrollbar visible on hover */
+.reviewScroll:hover::-webkit-scrollbar {
+    height: 8px;
+}
+
+.reviewScroll:hover::-webkit-scrollbar-track {
+    background: #f3f4f6;
+}
+
+.reviewScroll:hover::-webkit-scrollbar-thumb {
+    background: #d1d5db;
+}
+
+.reviewScroll:hover::-webkit-scrollbar-thumb:hover {
     background: #9ca3af;
 }
 

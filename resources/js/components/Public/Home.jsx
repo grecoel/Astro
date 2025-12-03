@@ -4,6 +4,7 @@ import { useSearchParams } from 'react-router-dom';
 import Navbar from './Navbar';
 import ProductCard from './ProductCard';
 import Footer from './Footer';
+import SplashScreen from './SplashScreen';
 import { BannerSkeleton, CategorySkeleton, ProductGridSkeleton } from './SkeletonLoader';
 import styles from './Home.module.css';
 
@@ -11,6 +12,11 @@ const Home = () => {
     const [banners, setBanners] = useState([]);
     const [categories, setCategories] = useState([]);
     const [products, setProducts] = useState([]);
+    // Check if user has visited before
+    const [showSplash, setShowSplash] = useState(() => {
+        const hasVisited = localStorage.getItem('astro_visited');
+        return !hasVisited; // Show splash only if not visited before
+    });
     const [initialLoading, setInitialLoading] = useState(true);
     const [productsLoading, setProductsLoading] = useState(false);
     const [loadingMore, setLoadingMore] = useState(false);
@@ -189,6 +195,18 @@ const Home = () => {
             return -newIndex * 100;
         });
     };
+
+    // Handle splash screen completion
+    const handleSplashComplete = () => {
+        setShowSplash(false);
+        // Mark as visited so splash won't show again
+        localStorage.setItem('astro_visited', 'true');
+    };
+
+    // Show splash screen on first load
+    if (showSplash) {
+        return <SplashScreen onComplete={handleSplashComplete} />;
+    }
 
     return (
         <div className={styles.uiDesktopKatalog}>
