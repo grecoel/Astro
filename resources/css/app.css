@@ -33,7 +33,10 @@ body {
   --color-light: #FFFFFF;
   --color-dark: #171719;
   --color-bg: #F2F4F0;
+  --color-success: #667A30;
+  --color-success-light: #7DBA30;
   --color-error: #FF6B6B;
+  --color-error-dark: #E74C3C;
   --color-border: #E0DDD8;
   --color-border-dark: #D1CDCA;
 }
