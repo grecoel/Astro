@@ -573,7 +573,7 @@ function RegistrasiForm() {
                             className={styles.submitButton}
                             disabled={isLoading}
                         >
-                            {isLoading ? 'Mengirim...' : currentStep === 4 ? 'Daftar Sekarang' : 'Berikutnya'}
+                            {isLoading ? 'Mengirim...' : currentStep === 4 ? 'Daftar' : 'Berikutnya'}
                         </button>
                     </div>
 
