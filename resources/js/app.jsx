@@ -18,6 +18,7 @@ import AdminLayout from './components/Admin/AdminLayout';
 import CategoryManager from './components/Admin/CategoryManager';
 import AdminDashboard from './components/Admin/AdminDashboard';
 import BannerManager from './components/Admin/BannerManager';
+import SellerManagement from './components/Admin/SellerManagement';
 
 import Home from './components/Public/Home';
 import SearchResults from './components/Public/SearchResult';
@@ -52,6 +53,7 @@ root.render(
                     <Route path="dashboard" element={<AdminDashboard />} />
                     <Route path="kategori" element={<CategoryManager />} />
                     <Route path="banners" element={<BannerManager />} />
+                    <Route path="seller-management" element={<SellerManagement />} />
                     <Route path="verifikasi" element={<VerifikasiList />} />
                     <Route path="verifikasi/:sellerId" element={<VerifikasiDetail />} />
                 </Route>

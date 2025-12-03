@@ -1,25 +1,22 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate, Link, Outlet } from 'react-router-dom';
+import { useNavigate, Link, Outlet, useLocation } from 'react-router-dom';
 import axios from 'axios';
-// Pastikan Anda punya file CSS ini (bisa pakai style Admin.module.css sebelumnya)
 import styles from './AdminLayout.module.css'; 
 
 function AdminLayout() {
     const navigate = useNavigate();
+    const location = useLocation();
     const [user, setUser] = useState(null);
 
     useEffect(() => {
-        // 1. Cek Token saat halaman dimuat
         const token = localStorage.getItem('token');
         const storedUser = localStorage.getItem('user');
 
         if (!token || !storedUser) {
-            // Jika tidak ada token, tendang ke login
             navigate('/login');
             return;
         }
 
-        // 2. Set Axios Header (PENTING: Agar request kategori nanti tidak 401 Unauthorized)
         axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
         setUser(JSON.parse(storedUser));
     }, [navigate]);
@@ -31,212 +28,259 @@ function AdminLayout() {
         navigate('/login');
     };
 
-    if (!user) return null; // Jangan render apa-apa sebelum cek user selesai
+    const isActive = (path) => location.pathname === path;
+
+    if (!user) return null;
+
+    const navLinkStyle = (path) => ({
+        color: isActive(path) ? '#4A5A22' : '#555',
+        textDecoration: 'none',
+        padding: '0.875rem 1.25rem',
+        transition: 'all 0.2s ease',
+        display: 'flex',
+        alignItems: 'center',
+        gap: '12px',
+        borderLeft: isActive(path) ? '3px solid #7DBA30' : '3px solid transparent',
+        fontSize: '0.9rem',
+        fontWeight: isActive(path) ? '600' : '500',
+        background: isActive(path) ? 'rgba(125, 186, 48, 0.1)' : 'transparent'
+    });
 
     return (
-        <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', width: '100%', background: '#f8f9fa' }}>
-            {/* HEADER - FULL WIDTH - FIXED */}
-            <header style={{
+        <div style={{ display: 'flex', minHeight: '100vh', width: '100%', background: '#f5f7f6' }}>
+            {/* SIDEBAR - WHITE WITH GREEN ACCENT */}
+            <aside style={{
+                width: '260px',
+                minWidth: '260px',
+                background: '#ffffff',
                 display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                background: 'var(--color-dark)',
-                padding: '1.25rem 2rem',
-                boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
-                borderBottom: '2px solid var(--color-primary)',
+                flexDirection: 'column',
+                boxShadow: '2px 0 12px rgba(0, 0, 0, 0.04)',
                 position: 'fixed',
-                top: '0',
                 left: '0',
-                right: '0',
-                zIndex: '1000',
-                height: '70px'
+                top: '0',
+                height: '100vh',
+                overflowY: 'auto',
+                zIndex: '999',
+                borderRight: '1px solid #e8ebe9'
             }}>
-                <h1 style={{
-                    margin: '0',
-                    fontSize: '1.75rem',
-                    fontWeight: '700',
-                    color: 'var(--color-primary)',
-                    letterSpacing: '0.5px'
-                }}>Astro Admin</h1>
-                
+                {/* Logo/Brand */}
                 <div style={{
+                    padding: '1.5rem 1.25rem',
+                    borderBottom: '1px solid #e8ebe9',
                     display: 'flex',
                     alignItems: 'center',
-                    gap: '2rem'
+                    gap: '12px'
                 }}>
-                    <span style={{
-                        fontSize: '1rem',
-                        color: 'var(--color-light)',
-                        fontWeight: '600'
-                    }}>
-                        {user.name}
-                    </span>
-                    <button onClick={handleLogout} style={{
-                        background: 'var(--color-error)',
-                        color: 'white',
-                        border: '2px solid var(--color-error)',
-                        padding: '0.65rem 1.25rem',
-                        cursor: 'pointer',
-                        borderRadius: '6px',
-                        transition: 'all 0.3s ease',
-                        fontSize: '0.9rem',
-                        fontWeight: '600'
-                    }}
-                    onMouseEnter={(e) => {
-                        e.target.style.background = 'white';
-                        e.target.style.color = 'var(--color-error)';
-                        e.target.style.transform = 'translateY(-2px)';
-                        e.target.style.boxShadow = '0 4px 12px rgba(255, 107, 107, 0.3)';
-                    }}
-                    onMouseLeave={(e) => {
-                        e.target.style.background = 'var(--color-error)';
-                        e.target.style.color = 'white';
-                        e.target.style.transform = 'translateY(0)';
-                        e.target.style.boxShadow = 'none';
-                    }}>
-                        Logout
-                    </button>
+                    <img 
+                        src="/logo.png" 
+                        alt="Astro" 
+                        style={{
+                            width: '40px',
+                            height: '40px',
+                            objectFit: 'contain'
+                        }} 
+                    />
+                    <div>
+                        <h1 style={{
+                            margin: '0',
+                            fontSize: '1.125rem',
+                            fontWeight: '700',
+                            color: '#2d3436',
+                            letterSpacing: '-0.3px'
+                        }}>Astro Admin</h1>
+                        <span style={{
+                            fontSize: '0.75rem',
+                            color: '#7DBA30',
+                            fontWeight: '500'
+                        }}>Dashboard</span>
+                    </div>
                 </div>
-            </header>
 
-            {/* CONTAINER - SIDEBAR + CONTENT */}
-            <div style={{ display: 'flex', flex: 1, width: '100%', marginTop: '70px' }}>
-                {/* SIDEBAR - FIXED */}
-                <aside style={{
-                    width: '250px',
-                    minWidth: '250px',
-                    background: 'var(--color-dark)',
-                    color: 'white',
-                    padding: '0',
+                {/* User Info */}
+                <div style={{
+                    padding: '1rem 1.25rem',
+                    borderBottom: '1px solid #e8ebe9',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '10px'
+                }}>
+                    <div style={{
+                        width: '36px',
+                        height: '36px',
+                        background: '#f0f4f1',
+                        borderRadius: '50%',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        fontSize: '0.875rem',
+                        fontWeight: '600',
+                        color: '#7DBA30'
+                    }}>
+                        {user.name?.charAt(0)?.toUpperCase() || 'A'}
+                    </div>
+                    <div style={{ flex: 1 }}>
+                        <div style={{
+                            fontSize: '0.875rem',
+                            fontWeight: '600',
+                            color: '#2d3436'
+                        }}>{user.name}</div>
+                        <div style={{
+                            fontSize: '0.75rem',
+                            color: '#888'
+                        }}>Administrator</div>
+                    </div>
+                </div>
+
+                {/* Navigation */}
+                <nav style={{
                     display: 'flex',
                     flexDirection: 'column',
-                    boxShadow: '2px 0 10px rgba(0, 0, 0, 0.1)',
-                    position: 'fixed',
-                    left: '0',
-                    top: '70px',
-                    height: 'calc(100vh - 70px)',
-                    overflowY: 'auto',
-                    zIndex: '999'
-                }}>
-                    {/* Navigation */}
-                    <nav style={{
-                        display: 'flex',
-                        flexDirection: 'column',
-                        gap: '0',
-                        flex: 1,
-                        padding: '1rem 0'
-                    }}>
-                        <Link to="/admin/dashboard" style={{
-                            color: 'white',
-                            textDecoration: 'none',
-                            padding: '1rem 1.5rem',
-                            borderRadius: '0',
-                            transition: 'all 0.3s ease',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '12px',
-                            borderLeft: '4px solid transparent',
-                            fontSize: '0.95rem',
-                            fontWeight: '500'
-                        }}
-                        onMouseEnter={(e) => {
-                            e.currentTarget.style.background = 'rgba(211, 242, 106, 0.15)';
-                            e.currentTarget.style.borderLeftColor = 'var(--color-primary)';
-                        }}
-                        onMouseLeave={(e) => {
-                            e.currentTarget.style.background = 'transparent';
-                            e.currentTarget.style.borderLeftColor = 'transparent';
-                        }}>
-                            Dashboard
-                        </Link>
-
-                        <Link to="/admin/kategori" style={{
-                            color: 'white',
-                            textDecoration: 'none',
-                            padding: '1rem 1.5rem',
-                            borderRadius: '0',
-                            transition: 'all 0.3s ease',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '12px',
-                            borderLeft: '4px solid transparent',
-                            fontSize: '0.95rem',
-                            fontWeight: '500'
-                        }}
-                        onMouseEnter={(e) => {
-                            e.currentTarget.style.background = 'rgba(211, 242, 106, 0.15)';
-                            e.currentTarget.style.borderLeftColor = 'var(--color-primary)';
-                        }}
-                        onMouseLeave={(e) => {
-                            e.currentTarget.style.background = 'transparent';
-                            e.currentTarget.style.borderLeftColor = 'transparent';
-                        }}>
-                            Kategori
-                        </Link>
-
-                        <Link to="/admin/banners" style={{
-                            color: 'white',
-                            textDecoration: 'none',
-                            padding: '1rem 1.5rem',
-                            borderRadius: '0',
-                            transition: 'all 0.3s ease',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '12px',
-                            borderLeft: '4px solid transparent',
-                            fontSize: '0.95rem',
-                            fontWeight: '500'
-                        }}
-                        onMouseEnter={(e) => {
-                            e.currentTarget.style.background = 'rgba(211, 242, 106, 0.15)';
-                            e.currentTarget.style.borderLeftColor = 'var(--color-primary)';
-                        }}
-                        onMouseLeave={(e) => {
-                            e.currentTarget.style.background = 'transparent';
-                            e.currentTarget.style.borderLeftColor = 'transparent';
-                        }}>
-                            Banner
-                        </Link>
-
-                        <Link to="/admin/verifikasi" style={{
-                            color: 'white',
-                            textDecoration: 'none',
-                            padding: '1rem 1.5rem',
-                            borderRadius: '0',
-                            transition: 'all 0.3s ease',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '12px',
-                            borderLeft: '4px solid transparent',
-                            fontSize: '0.95rem',
-                            fontWeight: '500'
-                        }}
-                        onMouseEnter={(e) => {
-                            e.currentTarget.style.background = 'rgba(211, 242, 106, 0.15)';
-                            e.currentTarget.style.borderLeftColor = 'var(--color-primary)';
-                        }}
-                        onMouseLeave={(e) => {
-                            e.currentTarget.style.background = 'transparent';
-                            e.currentTarget.style.borderLeftColor = 'transparent';
-                        }}>
-                            Verifikasi Penjual
-                        </Link>
-                    </nav>
-                </aside>
-
-                {/* MAIN CONTENT */}
-                <main style={{
                     flex: 1,
-                    marginLeft: '250px',
-                    overflow: 'auto',
-                    background: '#f8f9fa'
+                    padding: '0.75rem 0'
                 }}>
-                    {/* Content Area */}
-                    <div style={{ height: '100%', overflow: 'auto' }}>
-                        <Outlet />
-                    </div>
-                </main>
-            </div>
+                    <div style={{
+                        padding: '0.5rem 1.25rem',
+                        fontSize: '0.7rem',
+                        fontWeight: '600',
+                        color: '#aaa',
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.5px'
+                    }}>Menu</div>
+
+                    <Link to="/admin/dashboard" style={navLinkStyle('/admin/dashboard')}
+                        onMouseEnter={(e) => {
+                            if (!isActive('/admin/dashboard')) {
+                                e.currentTarget.style.background = 'rgba(125, 186, 48, 0.05)';
+                                e.currentTarget.style.borderLeftColor = '#A8D94A';
+                            }
+                        }}
+                        onMouseLeave={(e) => {
+                            if (!isActive('/admin/dashboard')) {
+                                e.currentTarget.style.background = 'transparent';
+                                e.currentTarget.style.borderLeftColor = 'transparent';
+                            }
+                        }}>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <rect x="3" y="3" width="7" height="7" rx="1"/>
+                            <rect x="14" y="3" width="7" height="7" rx="1"/>
+                            <rect x="3" y="14" width="7" height="7" rx="1"/>
+                            <rect x="14" y="14" width="7" height="7" rx="1"/>
+                        </svg>
+                        Dashboard
+                    </Link>
+
+                    <Link to="/admin/kategori" style={navLinkStyle('/admin/kategori')}
+                        onMouseEnter={(e) => {
+                            if (!isActive('/admin/kategori')) {
+                                e.currentTarget.style.background = 'rgba(125, 186, 48, 0.05)';
+                                e.currentTarget.style.borderLeftColor = '#A8D94A';
+                            }
+                        }}
+                        onMouseLeave={(e) => {
+                            if (!isActive('/admin/kategori')) {
+                                e.currentTarget.style.background = 'transparent';
+                                e.currentTarget.style.borderLeftColor = 'transparent';
+                            }
+                        }}>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <path d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM17 14v6M14 17h6"/>
+                        </svg>
+                        Kategori
+                    </Link>
+
+                    <Link to="/admin/banners" style={navLinkStyle('/admin/banners')}
+                        onMouseEnter={(e) => {
+                            if (!isActive('/admin/banners')) {
+                                e.currentTarget.style.background = 'rgba(125, 186, 48, 0.05)';
+                                e.currentTarget.style.borderLeftColor = '#A8D94A';
+                            }
+                        }}
+                        onMouseLeave={(e) => {
+                            if (!isActive('/admin/banners')) {
+                                e.currentTarget.style.background = 'transparent';
+                                e.currentTarget.style.borderLeftColor = 'transparent';
+                            }
+                        }}>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <rect x="3" y="3" width="18" height="18" rx="2"/>
+                            <circle cx="8.5" cy="8.5" r="1.5"/>
+                            <path d="M21 15l-5-5L5 21"/>
+                        </svg>
+                        Banner
+                    </Link>
+
+                    <Link to="/admin/seller-management" style={navLinkStyle('/admin/seller-management')}
+                        onMouseEnter={(e) => {
+                            if (!isActive('/admin/seller-management')) {
+                                e.currentTarget.style.background = 'rgba(125, 186, 48, 0.05)';
+                                e.currentTarget.style.borderLeftColor = '#A8D94A';
+                            }
+                        }}
+                        onMouseLeave={(e) => {
+                            if (!isActive('/admin/seller-management')) {
+                                e.currentTarget.style.background = 'transparent';
+                                e.currentTarget.style.borderLeftColor = 'transparent';
+                            }
+                        }}>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                            <circle cx="9" cy="7" r="4"/>
+                            <path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>
+                        </svg>
+                        Manajemen Penjual
+                    </Link>
+                </nav>
+
+                {/* Logout Button */}
+                <div style={{
+                    padding: '1rem 1.25rem',
+                    borderTop: '1px solid #e8ebe9'
+                }}>
+                    <button onClick={handleLogout} style={{
+                        width: '100%',
+                        background: '#fff',
+                        color: '#e74c3c',
+                        border: '1px solid #fde2e2',
+                        padding: '0.75rem 1rem',
+                        cursor: 'pointer',
+                        borderRadius: '8px',
+                        transition: 'all 0.2s ease',
+                        fontSize: '0.875rem',
+                        fontWeight: '500',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '8px'
+                    }}
+                    onMouseEnter={(e) => {
+                        e.target.style.background = '#fef2f2';
+                        e.target.style.borderColor = '#e74c3c';
+                    }}
+                    onMouseLeave={(e) => {
+                        e.target.style.background = '#fff';
+                        e.target.style.borderColor = '#fde2e2';
+                    }}>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+                            <polyline points="16,17 21,12 16,7"/>
+                            <line x1="21" y1="12" x2="9" y2="12"/>
+                        </svg>
+                        Keluar
+                    </button>
+                </div>
+            </aside>
+
+            {/* MAIN CONTENT */}
+            <main style={{
+                flex: 1,
+                marginLeft: '260px',
+                overflow: 'auto',
+                background: '#f5f7f6',
+                minHeight: '100vh'
+            }}>
+                <Outlet />
+            </main>
         </div>
     );
 }
