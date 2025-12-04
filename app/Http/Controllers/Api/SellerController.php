@@ -5,8 +5,12 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Seller;
+use App\Models\Product;
+use App\Models\Review;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Log;
 use App\Services\SupabaseStorageService;
+use Mpdf\Mpdf;
 
 class SellerController extends Controller
 {
@@ -144,5 +148,356 @@ class SellerController extends Controller
                 'status' => $seller->status
             ]
         ]);
+    }
+
+    /**
+     * Get seller's products for dashboard
+     */
+    public function getProducts(Request $request)
+    {
+        $user = $request->user();
+        
+        if ($user->role !== 'seller') {
+            return response()->json([
+                'message' => 'Akses ditolak. Hanya seller yang bisa mengakses.'
+            ], 403);
+        }
+
+        $seller = Seller::find($user->seller_id);
+        
+        if (!$seller) {
+            return response()->json(['message' => 'Seller not found'], 404);
+        }
+        
+        $products = Product::where('seller_id', $seller->id)
+            ->select('id', 'name', 'stock', 'price', 'created_at')
+            ->orderBy('name', 'asc')
+            ->get();
+        
+        return response()->json([
+            'products' => $products
+        ]);
+    }
+    
+    /**
+     * Get all reviews for seller's products
+     */
+    public function getReviews(Request $request)
+    {
+        $user = $request->user();
+        
+        if ($user->role !== 'seller') {
+            return response()->json([
+                'message' => 'Akses ditolak. Hanya seller yang bisa mengakses.'
+            ], 403);
+        }
+
+        $seller = Seller::find($user->seller_id);
+        
+        if (!$seller) {
+            return response()->json(['message' => 'Seller not found'], 404);
+        }
+        
+        // Get all reviews for seller's products
+        $reviews = Review::whereHas('product', function($query) use ($seller) {
+            $query->where('seller_id', $seller->id);
+        })
+        ->select('id', 'product_id', 'rating', 'comment', 'reviewer_name', 'created_at')
+        ->with('product:id,name')
+        ->get();
+        
+        return response()->json([
+            'reviews' => $reviews
+        ]);
+    }
+
+    /**
+     * Get dashboard statistics
+     */
+    public function getStats(Request $request)
+    {
+        $user = $request->user();
+        
+        if ($user->role !== 'seller') {
+            return response()->json([
+                'message' => 'Akses ditolak. Hanya seller yang bisa mengakses.'
+            ], 403);
+        }
+
+        $seller = Seller::find($user->seller_id);
+        
+        if (!$seller) {
+            return response()->json(['message' => 'Seller not found'], 404);
+        }
+        
+        // Get total products
+        $totalProducts = Product::where('seller_id', $seller->id)->count();
+        
+        // Get reviews and calculate stats
+        $reviews = Review::whereHas('product', function($query) use ($seller) {
+            $query->where('seller_id', $seller->id);
+        })->get();
+        
+        $averageRating = $reviews->count() > 0 
+            ? round($reviews->avg('rating'), 1) 
+            : 0;
+        
+        // Count unique reviewers by email
+        $totalReviewers = $reviews->unique('reviewer_email')->count();
+        
+        return response()->json([
+            'totalProducts' => $totalProducts,
+            'averageRating' => $averageRating,
+            'totalReviewers' => $totalReviewers
+        ]);
+    }
+
+    /**
+     * Get comprehensive dashboard data (SRS-MartPlace-08)
+     * - Sebaran jumlah stok per produk
+     * - Sebaran nilai rating per produk
+     * - Sebaran pemberi rating berdasarkan lokasi provinsi
+     */
+    public function getDashboardData(Request $request)
+    {
+        $user = $request->user();
+        
+        if ($user->role !== 'seller') {
+            return response()->json([
+                'message' => 'Akses ditolak. Hanya seller yang bisa mengakses.'
+            ], 403);
+        }
+
+        $seller = Seller::find($user->seller_id);
+        
+        if (!$seller) {
+            return response()->json(['message' => 'Seller not found'], 404);
+        }
+
+        // 1. Sebaran Stok Per Produk
+        $productStocks = Product::where('seller_id', $seller->id)
+            ->with(['images' => function($query) {
+                $query->orderBy('is_primary', 'desc')->orderBy('created_at', 'asc');
+            }, 'category', 'seller', 'reviews' => function($query) {
+                $query->orderBy('created_at', 'desc');
+            }])
+            ->withCount('reviews')
+            ->withAvg('reviews', 'rating')
+            ->orderBy('stock', 'desc')
+            ->get()
+            ->map(function($product) {
+                $firstImage = $product->images->first();
+                $allImages = $product->images->map(function($img) {
+                    return [
+                        'id' => $img->id,
+                        'image_url' => $img->image_url,
+                        'is_primary' => $img->is_primary
+                    ];
+                });
+                
+                $reviews = $product->reviews->map(function($review) {
+                    return [
+                        'id' => $review->id,
+                        'rating' => $review->rating,
+                        'comment' => $review->comment,
+                        'reviewer_name' => $review->reviewer_name,
+                        'reviewer_email' => $review->reviewer_email,
+                        'reviewer_province' => $review->reviewer_province,
+                        'created_at' => $review->created_at,
+                        'updated_at' => $review->updated_at
+                    ];
+                });
+                
+                return [
+                    'id' => $product->id,
+                    'name' => $product->name,
+                    'description' => $product->description,
+                    'price' => $product->price,
+                    'stock' => $product->stock,
+                    'condition' => $product->condition,
+                    'location' => $product->location,
+                    'status' => $product->status,
+                    'weight' => $product->weight,
+                    'category' => $product->category ? [
+                        'id' => $product->category->id,
+                        'name' => $product->category->name
+                    ] : null,
+                    'seller' => $product->seller ? [
+                        'id' => $product->seller->id,
+                        'store_name' => $product->seller->store_name
+                    ] : null,
+                    'reviews_avg_rating' => $product->reviews_avg_rating,
+                    'reviews_count' => $product->reviews_count,
+                    'image' => $firstImage ? $firstImage->image_url : null,
+                    'images' => $allImages,
+                    'reviews' => $reviews,
+                    'created_at' => $product->created_at,
+                    'updated_at' => $product->updated_at
+                ];
+            });
+
+        // 2. Sebaran Rating Per Produk (rata-rata rating tiap produk)
+        $productRatings = Product::where('seller_id', $seller->id)
+            ->with(['images' => function($query) {
+                $query->where('is_primary', true)->orWhere(function($q) {
+                    $q->orderBy('created_at', 'asc');
+                });
+            }])
+            ->withCount('reviews')
+            ->withAvg('reviews', 'rating')
+            ->get()
+            ->filter(function($product) {
+                return $product->reviews_count > 0;
+            })
+            ->sortByDesc('reviews_avg_rating')
+            ->values()
+            ->map(function($product) {
+                $firstImage = $product->images->first();
+                return [
+                    'id' => $product->id,
+                    'name' => $product->name,
+                    'rating' => round($product->reviews_avg_rating, 1),
+                    'review_count' => $product->reviews_count,
+                    'image' => $firstImage ? $firstImage->image_url : null
+                ];
+            });
+
+        // 3. Sebaran Reviewer Berdasarkan Provinsi
+        $reviewersByProvince = Review::whereHas('product', function($query) use ($seller) {
+                $query->where('seller_id', $seller->id);
+            })
+            ->select('reviewer_province')
+            ->selectRaw('COUNT(DISTINCT reviewer_email) as total_reviewers')
+            ->groupBy('reviewer_province')
+            ->orderBy('total_reviewers', 'desc')
+            // ->limit(10) // Top 10 provinsi
+            ->get()
+            ->map(function($item) {
+                return [
+                    'province' => $item->reviewer_province,
+                    'total' => $item->total_reviewers
+                ];
+            });
+
+        // Summary Stats
+        $totalProducts = Product::where('seller_id', $seller->id)->count();
+        $totalStock = Product::where('seller_id', $seller->id)->sum('stock');
+        
+        $reviews = Review::whereHas('product', function($query) use ($seller) {
+            $query->where('seller_id', $seller->id);
+        })->get();
+        
+        $averageRating = $reviews->count() > 0 ? round($reviews->avg('rating'), 1) : 0;
+        $totalReviewers = $reviews->unique('reviewer_email')->count();
+        $totalReviews = $reviews->count();
+
+        return response()->json([
+            'summary' => [
+                'totalProducts' => $totalProducts,
+                'totalStock' => $totalStock,
+                'averageRating' => $averageRating,
+                'totalReviewers' => $totalReviewers,
+                'totalReviews' => $totalReviews
+            ],
+            'productStocks' => $productStocks,
+            'productRatings' => $productRatings,
+            'reviewersByProvince' => $reviewersByProvince
+        ]);
+    }
+
+    /**
+     * Generate PDF Report
+     */
+    public function generateReport(Request $request, $type)
+    {
+        $user = $request->user();
+        
+        // Check if user is seller
+        if ($user->role !== 'seller') {
+            return response()->json(['message' => 'Akses ditolak. Hanya seller yang bisa mengakses.'], 403);
+        }
+        
+        $seller = Seller::find($user->seller_id);
+        
+        if (!$seller) {
+            return response()->json(['message' => 'Seller not found'], 404);
+        }
+
+        $data = [
+            'seller' => $seller,
+            'user' => $user,
+            'generated_at' => now()->format('d F Y H:i'),
+            'type' => $type
+        ];
+
+        try {
+            switch($type) {
+                case 'stock':
+                    $products = Product::where('seller_id', $seller->id)
+                        ->with('category:id,name')
+                        ->withAvg('reviews', 'rating')
+                        ->orderBy('stock', 'desc')
+                        ->get();
+                    $data['products'] = $products;
+                    $data['title'] = 'Laporan Daftar Produk Berdasarkan Stock';
+                    break;
+
+                case 'rating':
+                    $products = Product::where('seller_id', $seller->id)
+                        ->with('category:id,name')
+                        ->withCount('reviews')
+                        ->withAvg('reviews', 'rating')
+                        ->get()
+                        ->filter(fn($p) => $p->reviews_count > 0)
+                        ->sortByDesc('reviews_avg_rating')
+                        ->values();
+                    $data['products'] = $products;
+                    $data['title'] = 'Laporan Daftar Produk Berdasarkan Rating';
+                    break;
+
+                case 'reorder':
+                    $products = Product::where('seller_id', $seller->id)
+                        ->with('category:id,name')
+                        ->where('stock', '<', 2)
+                        ->orderBy('category_id', 'asc')
+                        ->orderBy('name', 'asc')
+                        ->get();
+                    $data['products'] = $products;
+                    $data['title'] = 'Laporan Daftar Produk Segera Dipesan';
+                    break;
+
+                default:
+                    return response()->json(['message' => 'Invalid report type'], 400);
+            }
+
+            // Render view to HTML
+            $html = view('reports.seller_report', $data)->render();
+            
+            // Create mPDF instance
+            $mpdf = new Mpdf([
+                'mode' => 'utf-8',
+                'format' => 'A4',
+                'margin_top' => 15,
+                'margin_bottom' => 15,
+                'margin_left' => 15,
+                'margin_right' => 15,
+            ]);
+            
+            $mpdf->WriteHTML($html);
+            
+            $filename = 'Laporan_' . ucfirst($type) . '_' . str_replace(' ', '_', $seller->store_name) . '_' . now()->format('YmdHis') . '.pdf';
+            
+            return response($mpdf->Output($filename, 'S'), 200, [
+                'Content-Type' => 'application/pdf',
+                'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('PDF Generation Error: ' . $e->getMessage());
+            return response()->json([
+                'message' => 'Failed to generate PDF report',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 }

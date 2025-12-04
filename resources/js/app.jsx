@@ -14,11 +14,12 @@ import ProtectedRoute from './components/Auth/ProtectedRoute';
 import AktivasiAkun from './components/Auth/AktivasiAkun';
 import SellerDashboard from './components/Seller/SellerDashboard';
 import UploadProduk from './components/Seller/UploadProduk';
+import SellerManagement from './components/Seller/SellerManagement';
 import AdminLayout from './components/Admin/AdminLayout';
 import CategoryManager from './components/Admin/CategoryManager';
 import AdminDashboard from './components/Admin/AdminDashboard';
 import BannerManager from './components/Admin/BannerManager';
-import SellerManagement from './components/Admin/SellerManagement';
+import AdminSellerManagement from './components/Admin/SellerManagement';
 
 import Home from './components/Public/Home';
 import SearchResults from './components/Public/SearchResult';
@@ -53,7 +54,7 @@ root.render(
                     <Route path="dashboard" element={<AdminDashboard />} />
                     <Route path="kategori" element={<CategoryManager />} />
                     <Route path="banners" element={<BannerManager />} />
-                    <Route path="seller-management" element={<SellerManagement />} />
+                    <Route path="seller-management" element={<AdminSellerManagement />} />
                     <Route path="verifikasi" element={<VerifikasiList />} />
                     <Route path="verifikasi/:sellerId" element={<VerifikasiDetail />} />
                 </Route>
@@ -62,6 +63,11 @@ root.render(
                 <Route path="/seller/dashboard" element={
                     <ProtectedRoute>
                         <SellerDashboard />
+                    </ProtectedRoute>
+                } />
+                <Route path="/seller/management" element={
+                    <ProtectedRoute>
+                        <SellerManagement />
                     </ProtectedRoute>
                 } />
                 <Route path="/seller/upload-produk" element={

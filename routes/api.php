@@ -36,6 +36,17 @@ Route::middleware('auth:sanctum')->group(function () {
     // Seller Routes
     Route::prefix('seller')->group(function () {
         Route::get('/status', [SellerController::class, 'getActivationStatus']);
+        
+        // Dashboard data endpoints
+        Route::get('/dashboard/products', [SellerController::class, 'getProducts']);
+        Route::get('/dashboard/reviews', [SellerController::class, 'getReviews']);
+        Route::get('/dashboard/stats', [SellerController::class, 'getStats']);
+        Route::get('/dashboard/data', [SellerController::class, 'getDashboardData']); // Comprehensive dashboard data
+        
+        // PDF Report Generation
+        Route::get('/reports/{type}', [SellerController::class, 'generateReport']);
+        
+        // Product management (existing)
         Route::get('/products', [SellerProductController::class, 'index']);
         Route::get('/products/create', [SellerProductController::class, 'create']); 
         Route::post('/products', [SellerProductController::class, 'store']);
@@ -56,7 +67,6 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/sellers/{seller}/verify', [SellerVerificationController::class, 'verify']);
 
         // 2. Category Management
-        // 'apiResource' otomatis membuat rute: index, store, show, update, destroy
         Route::apiResource('categories', CategoryController::class);
 
         //3. banner management
