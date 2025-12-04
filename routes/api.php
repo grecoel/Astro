@@ -43,6 +43,9 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/dashboard/stats', [SellerController::class, 'getStats']);
         Route::get('/dashboard/data', [SellerController::class, 'getDashboardData']); // Comprehensive dashboard data
         
+        // Report Data (JSON for preview)
+        Route::get('/reports/{type}/data', [SellerController::class, 'getReportData']);
+        
         // PDF Report Generation
         Route::get('/reports/{type}', [SellerController::class, 'generateReport']);
         

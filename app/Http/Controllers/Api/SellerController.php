@@ -406,6 +406,108 @@ class SellerController extends Controller
     }
 
     /**
+     * Get Report Data for Preview (JSON)
+     */
+    public function getReportData(Request $request, $type)
+    {
+        $user = $request->user();
+        
+        if ($user->role !== 'seller') {
+            return response()->json(['message' => 'Akses ditolak'], 403);
+        }
+        
+        $seller = Seller::find($user->seller_id);
+        
+        if (!$seller) {
+            return response()->json(['message' => 'Seller not found'], 404);
+        }
+
+        try {
+            $products = [];
+            
+            switch($type) {
+                case 'stock':
+                    $products = Product::where('seller_id', $seller->id)
+                        ->with('category:id,name')
+                        ->withAvg('reviews', 'rating')
+                        ->orderBy('stock', 'desc')
+                        ->get()
+                        ->map(function($product, $index) {
+                            return [
+                                'id' => $product->id,
+                                'no' => $index + 1,
+                                'nama_produk' => $product->name,
+                                'kategori' => $product->category->name ?? '-',
+                                'harga' => $product->price,
+                                'stok' => $product->stock,
+                                'rating' => round($product->reviews_avg_rating ?? 0, 1)
+                            ];
+                        });
+                    break;
+
+                case 'rating':
+                    $products = Product::where('seller_id', $seller->id)
+                        ->with('category:id,name')
+                        ->withCount('reviews')
+                        ->withAvg('reviews', 'rating')
+                        ->get()
+                        ->filter(fn($p) => $p->reviews_count > 0)
+                        ->sortByDesc('reviews_avg_rating')
+                        ->values()
+                        ->map(function($product, $index) {
+                            return [
+                                'id' => $product->id,
+                                'no' => $index + 1,
+                                'nama_produk' => $product->name,
+                                'kategori' => $product->category->name ?? '-',
+                                'harga' => $product->price,
+                                'stok' => $product->stock,
+                                'rating' => round($product->reviews_avg_rating ?? 0, 1),
+                                'total_reviews' => $product->reviews_count
+                            ];
+                        });
+                    break;
+
+                case 'reorder':
+                    $products = Product::where('seller_id', $seller->id)
+                        ->with('category:id,name')
+                        ->where('stock', '<', 2)
+                        ->orderBy('category_id', 'asc')
+                        ->orderBy('name', 'asc')
+                        ->get()
+                        ->map(function($product, $index) {
+                            return [
+                                'id' => $product->id,
+                                'no' => $index + 1,
+                                'nama_produk' => $product->name,
+                                'kategori' => $product->category->name ?? '-',
+                                'harga' => $product->price,
+                                'stok' => $product->stock
+                            ];
+                        });
+                    break;
+
+                default:
+                    return response()->json(['message' => 'Invalid report type'], 400);
+            }
+
+            return response()->json([
+                'success' => true,
+                'data' => $products,
+                'generated_by' => $user->name,
+                'generated_date' => now()->format('d F Y')
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Report Data Error: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to fetch report data'
+            ], 500);
+        }
+    }
+
+    /**
      * Generate PDF Report
      */
     public function generateReport(Request $request, $type)
@@ -423,14 +525,19 @@ class SellerController extends Controller
             return response()->json(['message' => 'Seller not found'], 404);
         }
 
-        $data = [
-            'seller' => $seller,
-            'user' => $user,
-            'generated_at' => now()->format('d F Y H:i'),
-            'type' => $type
-        ];
-
         try {
+            // Get logo as base64
+            $logoPath = public_path('logo.png');
+            $logoData = '';
+            if (file_exists($logoPath)) {
+                $logoData = 'data:image/png;base64,' . base64_encode(file_get_contents($logoPath));
+            }
+
+            // Fetch products based on type
+            $products = [];
+            $title = '';
+            $columns = [];
+
             switch($type) {
                 case 'stock':
                     $products = Product::where('seller_id', $seller->id)
@@ -438,8 +545,8 @@ class SellerController extends Controller
                         ->withAvg('reviews', 'rating')
                         ->orderBy('stock', 'desc')
                         ->get();
-                    $data['products'] = $products;
-                    $data['title'] = 'Laporan Daftar Produk Berdasarkan Stock';
+                    $title = 'Laporan Daftar Produk Berdasarkan Stock';
+                    $columns = ['No', 'Produk', 'Kategori', 'Harga', 'Rating', 'Stock'];
                     break;
 
                 case 'rating':
@@ -451,8 +558,8 @@ class SellerController extends Controller
                         ->filter(fn($p) => $p->reviews_count > 0)
                         ->sortByDesc('reviews_avg_rating')
                         ->values();
-                    $data['products'] = $products;
-                    $data['title'] = 'Laporan Daftar Produk Berdasarkan Rating';
+                    $title = 'Laporan Daftar Produk Berdasarkan Rating';
+                    $columns = ['No', 'Produk', 'Kategori', 'Harga', 'Stock', 'Rating'];
                     break;
 
                 case 'reorder':
@@ -462,16 +569,222 @@ class SellerController extends Controller
                         ->orderBy('category_id', 'asc')
                         ->orderBy('name', 'asc')
                         ->get();
-                    $data['products'] = $products;
-                    $data['title'] = 'Laporan Daftar Produk Segera Dipesan';
+                    $title = 'Laporan Daftar Produk Segera Dipesan';
+                    $columns = ['No', 'Produk', 'Kategori', 'Harga', 'Stock'];
                     break;
 
                 default:
                     return response()->json(['message' => 'Invalid report type'], 400);
             }
 
-            // Render view to HTML
-            $html = view('reports.seller_report', $data)->render();
+            // Build HTML
+            $html = '
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <meta charset="utf-8">
+                <title>' . $title . '</title>
+                <style>
+                    @page {
+                        margin: 20mm 15mm;
+                    }
+                    
+                    body {
+                        font-family: "DejaVu Sans", Arial, sans-serif;
+                        font-size: 10px;
+                        color: #1a1a1a;
+                        margin: 0;
+                        padding: 0;
+                        line-height: 1.5;
+                    }
+                    
+                    .header {
+                        background: #7A57B3;
+                        color: white;
+                        padding: 20px 25px;
+                        margin-bottom: 20px;
+                        border-radius: 6px;
+                        box-shadow: 0 2px 6px rgba(122, 87, 179, 0.15);
+                        display: flex;
+                        align-items: center;
+                        gap: 15px;
+                    }
+                    
+                    .logo {
+                        width: 48px;
+                        height: 48px;
+                        border-radius: 8px;
+                        flex-shrink: 0;
+                    }
+                    
+                    .company-info h1 {
+                        margin: 0;
+                        font-size: 16px;
+                        font-weight: 700;
+                        letter-spacing: 0.3px;
+                    }
+                    
+                    .company-info p {
+                        margin: 2px 0 0 0;
+                        font-size: 9px;
+                        opacity: 0.9;
+                    }
+                    
+                    .meta-info {
+                        background: #f7fafc;
+                        border: 1px solid #e2e8f0;
+                        border-radius: 6px;
+                        padding: 12px 15px;
+                        margin: 15px 0;
+                        display: flex;
+                        justify-content: space-between;
+                        align-items: center;
+                    }
+                    
+                    .meta-item {
+                        font-size: 9px;
+                        color: #4a5568;
+                    }
+                    
+                    .meta-item strong {
+                        display: block;
+                        font-weight: 600;
+                        color: #2d3748;
+                        margin-top: 2px;
+                    }
+                    
+                    table {
+                        width: 100%;
+                        border-collapse: collapse;
+                        margin-top: 10px;
+                    }
+                    
+                    th {
+                        background: #7A57B3;
+                        color: white;
+                        padding: 10px;
+                        text-align: left;
+                        font-weight: 600;
+                        font-size: 9px;
+                        border: 1px solid #7A57B3;
+                    }
+                    
+                    td {
+                        padding: 8px 10px;
+                        border: 1px solid #e2e8f0;
+                        font-size: 9px;
+                    }
+                    
+                    tbody tr:nth-child(even) {
+                        background-color: #f8f9fa;
+                    }
+                    
+                    tbody tr:hover {
+                        background-color: #f0f4ff;
+                    }
+                    
+                    .text-center {
+                        text-align: center;
+                    }
+                    
+                    .text-right {
+                        text-align: right;
+                    }
+                    
+                    .footer {
+                        margin-top: 30px;
+                        padding-top: 15px;
+                        border-top: 2px solid #7A57B3;
+                        font-size: 8px;
+                        color: #718096;
+                        display: flex;
+                        justify-content: space-between;
+                    }
+                </style>
+            </head>
+            <body>
+                <div class="header">
+                    ' . ($logoData ? '<img src="' . $logoData . '" alt="Logo" class="logo">' : '') . '
+                    <div class="company-info">
+                        <h1>Astro E-Commerce</h1>
+                        <p>Laporan Seller - ' . htmlspecialchars($seller->store_name) . '</p>
+                    </div>
+                </div>
+                
+                <h2 style="text-align: center; margin: 20px 0 10px 0; font-size: 12px; color: #2d3748;">' . htmlspecialchars($title) . '</h2>
+                
+                <div class="meta-info">
+                    <div class="meta-item">
+                        <span>Tanggal dibuat</span>
+                        <strong>' . now()->format('d F Y') . ' oleh ' . htmlspecialchars($user->name) . '</strong>
+                    </div>
+                    <div class="meta-item" style="text-align: center;">
+                        <span>Total Data</span>
+                        <strong>' . count($products) . ' Produk</strong>
+                    </div>
+                    <div class="meta-item">
+                        <span>Urutkan</span>
+                        <strong>' . ($type === 'stock' ? 'berdasarkan stock' : ($type === 'rating' ? 'berdasarkan rating' : 'berdasarkan kategori dan produk')) . '</strong>
+                    </div>
+                </div>
+                
+                <table>
+                    <thead>
+                        <tr>';
+            
+            // Add table headers
+            foreach ($columns as $column) {
+                $html .= '<th>' . $column . '</th>';
+            }
+            
+            $html .= '
+                        </tr>
+                    </thead>
+                    <tbody>';
+            
+            // Add table rows
+            if (count($products) > 0) {
+                foreach ($products as $index => $product) {
+                    $no = $index + 1;
+                    $html .= '<tr>';
+                    $html .= '<td class="text-center">' . $no . '</td>';
+                    $html .= '<td>' . htmlspecialchars($product->name) . '</td>';
+                    $html .= '<td>' . htmlspecialchars($product->category->name ?? '-') . '</td>';
+                    $html .= '<td class="text-right">Rp ' . number_format($product->price ?? 0, 0, ',', '.') . '</td>';
+                    
+                    if ($type === 'stock') {
+                        $html .= '<td class="text-center">' . round($product->reviews_avg_rating ?? 0, 1) . '</td>';
+                        $html .= '<td class="text-center">' . $product->stock . '</td>';
+                    } elseif ($type === 'rating') {
+                        $html .= '<td class="text-center">' . $product->stock . '</td>';
+                        $html .= '<td class="text-center">' . round($product->reviews_avg_rating ?? 0, 1) . '</td>';
+                    } else {
+                        $html .= '<td class="text-center">' . $product->stock . '</td>';
+                    }
+                    
+                    $html .= '</tr>';
+                }
+            } else {
+                $html .= '<tr><td colspan="' . count($columns) . '" class="text-center">Tidak ada data</td></tr>';
+            }
+            
+            $html .= '
+                    </tbody>
+                </table>
+                
+                <div class="footer">
+                    <div>
+                        <strong>Astro E-Commerce</strong><br>
+                        ***) ' . ($type === 'stock' ? 'urutkan berdasarkan stock' : ($type === 'rating' ? 'urutkan berdasarkan rating' : 'urutkan berdasarkan kategori dan produk'))
+                    . '
+                    </div>
+                    <div style="text-align: right;">
+                        <strong>' . htmlspecialchars($seller->store_name) . '</strong><br>
+                        Dicetak: ' . now()->format('d F Y H:i') . ' WIB
+                    </div>
+                </div>
+            </body>
+            </html>';
             
             // Create mPDF instance
             $mpdf = new Mpdf([
