@@ -4,11 +4,13 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import styles from './RegistrasiForm.module.css';
 import { locations } from '../../Data/locations';
+import loginIllustration from '../Public/images/login-illustration.png';
 
 const API_URL = '/api/sellers';
 
 function RegistrasiForm() {
     const navigate = useNavigate();
+    const [currentStep, setCurrentStep] = useState(1);
     const [formData, setFormData] = useState({
         store_name: '',
         store_description: '',
@@ -169,6 +171,27 @@ function RegistrasiForm() {
         }
     };
 
+    const handleNext = (e) => {
+        e.preventDefault();
+        setCurrentStep(currentStep + 1);
+        setErrors({});
+        // Scroll to top of card content
+        const cardContent = document.querySelector(`.${styles.cardContent}`);
+        if (cardContent) {
+            cardContent.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    };
+
+    const handlePrev = () => {
+        setCurrentStep(currentStep - 1);
+        setErrors({});
+        // Scroll to top of card content
+        const cardContent = document.querySelector(`.${styles.cardContent}`);
+        if (cardContent) {
+            cardContent.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         setIsLoading(true);
@@ -214,123 +237,115 @@ function RegistrasiForm() {
         <span className={styles.errorText}>{errors[field][0]}</span>
     ) : null;
 
-    return (
-        <>
-            <style>{`
-                .page-container {
-                    max-width: 100%;
-                    width: 100%;
-                }
-            `}</style>
-            <div className={styles.header}>
-                <div className={styles.logoContainer}>
-                    <h1 className={styles.logo}>AstroEcomm.</h1>
-                </div>
-                <h1 className={styles.title}>Registrasi Penjual</h1>
-                <p className={styles.subtitle}>Lengkapi data toko dan identitas Anda dengan benar</p>
-            </div>
+    const getStepTitle = () => {
+        switch(currentStep) {
+            case 1: return 'Data Toko';
+            case 2: return 'Data PIC';
+            case 3: return 'Alamat PIC';
+            case 4: return 'Dokumen Identitas';
+            default: return 'Registrasi Penjual';
+        }
+    };
 
-            <div className={styles.content}>
-                <form onSubmit={handleSubmit} className={styles.form}>
-                    
-                    {/* Data Toko */}
-                    <div className={styles.section}>
-                        <h2 className={styles.sectionTitle}>Data Toko</h2>
-                        <div className={styles.formGrid}>
-                            <div className={styles.formGroup}>
-                                <label htmlFor="store_name">Nama Toko*</label>
-                                <input 
-                                    type="text" 
-                                    id="store_name" 
-                                    name="store_name" 
-                                    value={formData.store_name}
-                                    onChange={handleChange} 
-                                    placeholder="Masukkan nama toko"
-                                    required 
-                                />
-                                {getError('store_name')}
-                            </div>
-                            <div className={styles.formGroup}>
-                                <label htmlFor="store_description">Deskripsi Toko</label>
-                                <textarea 
-                                    id="store_description" 
-                                    name="store_description" 
-                                    value={formData.store_description}
-                                    onChange={handleChange}
-                                    rows="3"
-                                    placeholder="Jelaskan tentang toko Anda (opsional)"
-                                />
-                                {getError('store_description')}
-                            </div>
-                        </div>
+    const renderStepContent = () => {
+        if (currentStep === 1) {
+            return (
+                <>
+                    <div className={styles.formGroup}>
+                        <label htmlFor="store_name">Nama Toko*</label>
+                        <input 
+                            type="text" 
+                            id="store_name" 
+                            name="store_name" 
+                            value={formData.store_name}
+                            onChange={handleChange} 
+                            placeholder="Masukkan nama toko"
+                            required 
+                        />
+                        {getError('store_name')}
                     </div>
-
-                    {/* Data PIC */}
-                    <div className={styles.section}>
-                        <h2 className={styles.sectionTitle}>Data PIC (Person in Charge)</h2>
-                        <div className={styles.formGrid}>
-                            <div className={styles.formGroup}>
-                                <label htmlFor="pic_name">Nama PIC*</label>
-                                <input 
-                                    type="text" 
-                                    id="pic_name" 
-                                    name="pic_name" 
-                                    value={formData.pic_name}
-                                    onChange={handleChange}
-                                    placeholder="Masukkan nama lengkap"
-                                    required 
-                                />
-                                {getError('pic_name')}
-                            </div>
-                            <div className={styles.formGroup}>
-                                <label htmlFor="pic_phone">No. HP PIC* (max 13 digit)</label>
-                                <input 
-                                    type="tel" 
-                                    id="pic_phone" 
-                                    name="pic_phone" 
-                                    value={formData.pic_phone}
-                                    onChange={handleChange} 
-                                    maxLength="13"
-                                    placeholder="08xxxxxxxxxx"
-                                    required 
-                                />
-                                {getError('pic_phone')}
-                            </div>
-                            <div className={styles.formGroup}>
-                                <label htmlFor="pic_email">Email PIC*</label>
-                                <input 
-                                    type="email" 
-                                    id="pic_email" 
-                                    name="pic_email" 
-                                    value={formData.pic_email}
-                                    onChange={handleChange}
-                                    placeholder="email@example.com"
-                                    required 
-                                />
-                                {getError('pic_email')}
-                            </div>
-                        </div>
+                    <div className={styles.formGroup}>
+                        <label htmlFor="store_description">Deskripsi Toko</label>
+                        <textarea 
+                            id="store_description" 
+                            name="store_description" 
+                            value={formData.store_description}
+                            onChange={handleChange}
+                            rows="4"
+                            placeholder="Ceritakan tentang toko Anda"
+                        />
+                        {getError('store_description')}
                     </div>
-
-                    {/* Alamat PIC */}
-                    <div className={styles.section}>
-                        <h2 className={styles.sectionTitle}>Alamat PIC</h2>
-                        <div className={styles.formGrid}>
-                            <div className={styles.formGroup + ' ' + styles.fullWidth}>
-                                <label htmlFor="pic_address">Alamat Lengkap*</label>
-                                <textarea 
-                                    id="pic_address" 
-                                    name="pic_address" 
-                                    value={formData.pic_address}
-                                    onChange={handleChange}
-                                    rows="3"
-                                    placeholder="Jalan, nomor rumah, dll"
-                                    required 
-                                />
-                                {getError('pic_address')}
-                            </div>
+                </>
+            );
+        }
+        
+        if (currentStep === 2) {
+            return (
+                    <>
+                        <div className={styles.formGroup}>
+                            <label htmlFor="pic_name">Nama Lengkap PIC*</label>
+                            <input 
+                                type="text" 
+                                id="pic_name" 
+                                name="pic_name" 
+                                value={formData.pic_name}
+                                onChange={handleChange}
+                                placeholder="Masukkan nama lengkap"
+                                required 
+                            />
+                            {getError('pic_name')}
+                        </div>
+                        <div className={styles.formGroup}>
+                            <label htmlFor="pic_phone">No. HP PIC* (max 13 digit)</label>
+                            <input 
+                                type="tel" 
+                                id="pic_phone" 
+                                name="pic_phone" 
+                                value={formData.pic_phone}
+                                onChange={handleChange} 
+                                maxLength="13"
+                                placeholder="08xxxxxxxxxx"
+                                required 
+                            />
+                            {getError('pic_phone')}
+                        </div>
+                        <div className={styles.formGroup}>
+                            <label htmlFor="pic_email">Email PIC*</label>
+                            <input 
+                                type="email" 
+                                id="pic_email" 
+                                name="pic_email" 
+                                value={formData.pic_email}
+                                onChange={handleChange}
+                                placeholder="email@example.com"
+                                required 
+                            />
+                            {getError('pic_email')}
+                        </div>
+                    </>
+                );
+        }
+        
+        if (currentStep === 3) {
+            return (
+                    <>
+                        <div className={styles.formGroup}>
+                            <label htmlFor="pic_address">Alamat Lengkap*</label>
+                            <textarea 
+                                id="pic_address" 
+                                name="pic_address" 
+                                value={formData.pic_address}
+                                onChange={handleChange}
+                                rows="3"
+                                placeholder="Jalan, nomor rumah, dll"
+                                required 
+                            />
+                            {getError('pic_address')}
+                        </div>
+                        <div className={styles.formRow}>
                             <div className={styles.formGroup}>
-                                <label htmlFor="pic_rt">RT* (max 3 digit)</label>
+                                <label htmlFor="pic_rt">RT*</label>
                                 <input 
                                     type="text" 
                                     id="pic_rt" 
@@ -344,7 +359,7 @@ function RegistrasiForm() {
                                 {getError('pic_rt')}
                             </div>
                             <div className={styles.formGroup}>
-                                <label htmlFor="pic_rw">RW* (max 3 digit)</label>
+                                <label htmlFor="pic_rw">RW*</label>
                                 <input 
                                     type="text" 
                                     id="pic_rw" 
@@ -357,162 +372,217 @@ function RegistrasiForm() {
                                 />
                                 {getError('pic_rw')}
                             </div>
-                            <div className={styles.formGroup}>
-                                <label htmlFor="pic_district">Kecamatan*</label>
+                        </div>
+                        <div className={styles.formGroup}>
+                            <label htmlFor="pic_province">Provinsi*</label>
+                            <select 
+                                id="pic_province" 
+                                name="pic_province" 
+                                value={formData.pic_province}
+                                onChange={handleProvinceChange}
+                                required
+                            >
+                                <option value="">Pilih Provinsi</option>
+                                {Object.keys(locations).map(province => (
+                                    <option key={province} value={province}>{province}</option>
+                                ))}
+                            </select>
+                            {getError('pic_province')}
+                        </div>
+                        <div className={styles.formGroup}>
+                            <label htmlFor="pic_city">Kota/Kabupaten*</label>
+                            <select 
+                                id="pic_city" 
+                                name="pic_city" 
+                                value={formData.pic_city}
+                                onChange={handleCityChange}
+                                disabled={!formData.pic_province}
+                                required
+                            >
+                                <option value="">Pilih Kota/Kabupaten</option>
+                                {availableCities.map(city => (
+                                    <option key={city} value={city}>{city}</option>
+                                ))}
+                            </select>
+                            {getError('pic_city')}
+                        </div>
+                        <div className={styles.formGroup}>
+                            <label htmlFor="pic_district">Kecamatan*</label>
+                            <input 
+                                type="text" 
+                                id="pic_district" 
+                                name="pic_district" 
+                                value={formData.pic_district}
+                                onChange={handleChange}
+                                placeholder="Masukkan kecamatan"
+                                required 
+                            />
+                            {getError('pic_district')}
+                        </div>
+                    </>
+                );
+        }
+        
+        if (currentStep === 4) {
+            return (
+                    <>
+                        <div className={styles.formGroup}>
+                            <label htmlFor="pic_ktp_number">Nomor KTP* (16 digit)</label>
+                            <input 
+                                type="text" 
+                                id="pic_ktp_number" 
+                                name="pic_ktp_number" 
+                                value={formData.pic_ktp_number}
+                                onChange={handleChange}
+                                maxLength="20"
+                                placeholder="Masukkan 16 digit nomor KTP"
+                                required 
+                            />
+                            {getError('pic_ktp_number')}
+                        </div>
+                        <div className={styles.formGroup}>
+                            <label htmlFor="pic_photo">Foto PIC (Opsional, max 2MB)</label>
+                            <div 
+                                className={`${styles.dragDropZone} ${dragOverPhoto ? styles.dragOver : ''}`}
+                                onDragOver={handlePhotoDragOver}
+                                onDragLeave={handlePhotoDragLeave}
+                                onDrop={handlePhotoDrop}
+                            >
                                 <input 
-                                    type="text" 
-                                    id="pic_district" 
-                                    name="pic_district" 
-                                    value={formData.pic_district}
-                                    onChange={handleChange}
-                                    placeholder="Masukkan kecamatan"
-                                    required 
+                                    type="file" 
+                                    id="pic_photo" 
+                                    name="pic_photo" 
+                                    onChange={handlePhotoChange} 
+                                    accept="image/*"
+                                    className={styles.fileInput}
                                 />
-                                {getError('pic_district')}
-                            </div>
-                            <div className={styles.formGroup}>
-                                <label htmlFor="pic_province">Provinsi*</label>
-                                <select 
-                                    id="pic_province" 
-                                    name="pic_province" 
-                                    value={formData.pic_province}
-                                    onChange={handleProvinceChange} 
-                                    required
-                                >
-                                    <option value="">-- Pilih Provinsi --</option>
-                                    {Object.keys(locations).map((province) => (
-                                        <option key={province} value={province}>
-                                            {province}
-                                        </option>
-                                    ))}
-                                </select>
-                                {getError('pic_province')}
-                            </div>
-                            <div className={styles.formGroup}>
-                                <label htmlFor="pic_city">Kota/Kabupaten*</label>
-                                <select 
-                                    id="pic_city" 
-                                    name="pic_city" 
-                                    value={formData.pic_city}
-                                    onChange={handleCityChange} 
-                                    required 
-                                    disabled={!formData.pic_province}
-                                >
-                                    <option value="">
-                                        {formData.pic_province 
-                                            ? "-- Pilih Kota/Kabupaten --" 
-                                            : "-- Pilih Provinsi Terlebih Dahulu --"}
-                                    </option>
-                                    {availableCities.map((city) => (
-                                        <option key={city} value={city}>
-                                            {city}
-                                        </option>
-                                    ))}
-                                </select>
-                                {getError('pic_city')}
+                                <label htmlFor="pic_photo" className={styles.dragDropLabel}>
+                                    {picPhotoPreview ? (
+                                        <>
+                                            <img src={picPhotoPreview} alt="Foto Preview" className={styles.dragDropPreview} />
+                                            <p>Ubah Foto</p>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <svg className={styles.uploadIcon} viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                                            </svg>
+                                            <p className={styles.dragDropTitle}>Klik untuk upload foto</p>
+                                            <p className={styles.dragDropSubtitle}>atau drag & drop di sini</p>
+                                        </>
+                                    )}
+                                </label>
                             </div>
                         </div>
-                    </div>
-
-                    {/* Dokumen Identitas */}
-                    <div className={styles.section}>
-                        <h2 className={styles.sectionTitle}>Dokumen Identitas PIC</h2>
-                        <div className={styles.formGrid}>
-                            <div className={styles.formGroup + ' ' + styles.fullWidth}>
-                                <label htmlFor="pic_ktp_number">No. KTP PIC* (max 16 digit)</label>
+                        <div className={styles.formGroup}>
+                            <label htmlFor="pic_ktp_file">File KTP* (max 5MB)</label>
+                            <div 
+                                className={`${styles.dragDropZone} ${dragOverKtp ? styles.dragOver : ''}`}
+                                onDragOver={handleKtpDragOver}
+                                onDragLeave={handleKtpDragLeave}
+                                onDrop={handleKtpDrop}
+                            >
                                 <input 
-                                    type="text" 
-                                    id="pic_ktp_number" 
-                                    name="pic_ktp_number" 
-                                    value={formData.pic_ktp_number}
-                                    onChange={handleChange}
-                                    maxLength="20"
-                                    placeholder="Masukkan 16 digit nomor KTP"
+                                    type="file" 
+                                    id="pic_ktp_file" 
+                                    name="pic_ktp_file" 
+                                    onChange={handleKtpChange} 
+                                    accept="image/*,application/pdf"
+                                    className={styles.fileInput}
                                     required 
                                 />
-                                {getError('pic_ktp_number')}
-                            </div>
-                            <div className={styles.formGroup}>
-                                <label htmlFor="pic_photo">Foto PIC (Opsional, max 2MB)</label>
-                                <div 
-                                    className={`${styles.dragDropZone} ${dragOverPhoto ? styles.dragOver : ''}`}
-                                    onDragOver={handlePhotoDragOver}
-                                    onDragLeave={handlePhotoDragLeave}
-                                    onDrop={handlePhotoDrop}
-                                >
-                                    <input 
-                                        type="file" 
-                                        id="pic_photo" 
-                                        name="pic_photo" 
-                                        onChange={handlePhotoChange} 
-                                        accept="image/*"
-                                        className={styles.fileInput}
-                                    />
-                                    <label htmlFor="pic_photo" className={styles.dragDropLabel}>
-                                        {picPhotoPreview ? (
-                                            <>
-                                                <img src={picPhotoPreview} alt="Foto Preview" className={styles.dragDropPreview} />
-                                                <p>Ubah Foto</p>
-                                            </>
-                                        ) : (
-                                            <>
-                                                <svg className={styles.uploadIcon} viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                                                </svg>
-                                                <p className={styles.dragDropTitle}>Klik untuk upload foto</p>
-                                                <p className={styles.dragDropSubtitle}>atau drag & drop di sini</p>
-                                            </>
-                                        )}
-                                    </label>
-                                </div>
-                            </div>
-                            <div className={styles.formGroup}>
-                                <label htmlFor="pic_ktp_file">File KTP* (max 5MB)</label>
-                                <div 
-                                    className={`${styles.dragDropZone} ${dragOverKtp ? styles.dragOver : ''}`}
-                                    onDragOver={handleKtpDragOver}
-                                    onDragLeave={handleKtpDragLeave}
-                                    onDrop={handleKtpDrop}
-                                >
-                                    <input 
-                                        type="file" 
-                                        id="pic_ktp_file" 
-                                        name="pic_ktp_file" 
-                                        onChange={handleKtpChange} 
-                                        accept="image/*,application/pdf"
-                                        className={styles.fileInput}
-                                        required 
-                                    />
-                                    <label htmlFor="pic_ktp_file" className={styles.dragDropLabel}>
-                                        {picKtpPreview ? (
-                                            <>
-                                                <img src={picKtpPreview} alt="KTP Preview" className={styles.dragDropPreview} />
-                                                <p>Ubah File KTP</p>
-                                            </>
-                                        ) : (
-                                            <>
-                                                <svg className={styles.uploadIcon} viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                                                </svg>
-                                                <p className={styles.dragDropTitle}>Klik untuk upload KTP</p>
-                                                <p className={styles.dragDropSubtitle}>atau drag & drop di sini</p>
-                                            </>
-                                        )}
-                                    </label>
-                                </div>
+                                <label htmlFor="pic_ktp_file" className={styles.dragDropLabel}>
+                                    {picKtpPreview ? (
+                                        <>
+                                            <img src={picKtpPreview} alt="KTP Preview" className={styles.dragDropPreview} />
+                                            <p>Ubah File KTP</p>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <svg className={styles.uploadIcon} viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                                            </svg>
+                                            <p className={styles.dragDropTitle}>Klik untuk upload KTP</p>
+                                            <p className={styles.dragDropSubtitle}>atau drag & drop di sini</p>
+                                        </>
+                                    )}
+                                </label>
                             </div>
                         </div>
+                    </>
+                );
+        }
+        
+        return null;
+    };
+
+    return (
+        <>
+            <div className={styles.bgWhite} />
+            <div className={styles.bgGreen} />
+            
+            {/* Illustration on the right */}
+            <div className={styles.illustrationWrapper}>
+                <img
+                    src={loginIllustration}
+                    alt="Shopping Illustration"
+                    className={styles.illustration}
+                />
+            </div>
+            <div className={styles.floorLine} />
+            
+            <div className={styles.card}>
+                <div className={styles.cardContent}>
+                    <div className={styles.logoContainer}>
+                        <h1 className={styles.logo}>AstroEcomm.</h1>
+                    </div>
+                    
+                    <p className={styles.greeting}>Bergabunglah bersama kami!</p>
+                    <h2 className={styles.title}>{getStepTitle()}</h2>
+
+                    <div className={styles.stepIndicator}>
+                        <div className={`${styles.step} ${currentStep >= 1 ? styles.stepActive : ''}`}>1</div>
+                        <div className={styles.stepLine}></div>
+                        <div className={`${styles.step} ${currentStep >= 2 ? styles.stepActive : ''}`}>2</div>
+                        <div className={styles.stepLine}></div>
+                        <div className={`${styles.step} ${currentStep >= 3 ? styles.stepActive : ''}`}>3</div>
+                        <div className={styles.stepLine}></div>
+                        <div className={`${styles.step} ${currentStep >= 4 ? styles.stepActive : ''}`}>4</div>
                     </div>
 
+                    <form id="registrationForm" onSubmit={currentStep === 4 ? handleSubmit : handleNext} className={styles.form}>
+                        {renderStepContent()}
+                    </form>
+                </div>
+
+                <div className={styles.cardFooter}>
                     <div className={styles.buttonGroup}>
-                        <button type="submit" className={styles.submitButton} disabled={isLoading}>
-                            {isLoading ? 'Mengirim...' : 'Daftar Sekarang'}
-                        </button>
-                        <button type="button" className={styles.cancelButton} onClick={() => navigate('/')} disabled={isLoading}>
-                            Kembali
+                        {currentStep === 1 ? (
+                            <button type="button" className={styles.backButton} onClick={() => navigate('/')}>
+                                Batal
+                            </button>
+                        ) : currentStep > 1 && (
+                            <button type="button" className={styles.backButton} onClick={handlePrev}>
+                                Kembali
+                            </button>
+                        )}
+                        <button 
+                            type="submit" 
+                            form="registrationForm"
+                            onClick={currentStep === 4 ? handleSubmit : handleNext}
+                            className={styles.submitButton}
+                            disabled={isLoading}
+                        >
+                            {isLoading ? 'Mengirim...' : currentStep === 4 ? 'Daftar' : 'Berikutnya'}
                         </button>
                     </div>
-                </form>
+
+                    <p className={styles.signupPrompt}>
+                        <span className={styles.signupPromptText}>Sudah punya akun?</span>
+                        <span className={styles.signupPromptSpace}>&nbsp;</span>
+                        <span className={styles.signupPromptLink} onClick={() => navigate('/login')}>Login yuk!</span>
+                    </p>
+                </div>
             </div>
 
             {/* Modal */}

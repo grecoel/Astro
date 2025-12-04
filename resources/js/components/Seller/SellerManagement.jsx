@@ -19,6 +19,22 @@ function SellerManagement() {
     const [generatingStock, setGeneratingStock] = useState(false);
     const [generatingRating, setGeneratingRating] = useState(false);
     const [generatingReorder, setGeneratingReorder] = useState(false);
+    
+    // PDF Preview Modal states
+    const [showPdfModal, setShowPdfModal] = useState(false);
+    const [pdfUrl, setPdfUrl] = useState(null);
+    const [pdfFileName, setPdfFileName] = useState('');
+    
+    // Active View State
+    const [activeView, setActiveView] = useState('reports'); // 'reports' or 'products'
+    const [activeProductType, setActiveProductType] = useState(''); // 'all', 'lowStock', 'totalStock'
+    const [displayProducts, setDisplayProducts] = useState([]);
+    
+    // Product Detail Modal states
+    const [showProductDetail, setShowProductDetail] = useState(false);
+    const [selectedProduct, setSelectedProduct] = useState(null);
+    const [selectedImage, setSelectedImage] = useState('');
+    const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
 
     // Fetch user data
     useEffect(() => {
@@ -68,16 +84,26 @@ function SellerManagement() {
                 console.log('Products data:', productsData);
                 console.log('Ratings data:', ratingsData);
                 
-                setProducts(productsData);
+                // Merge ratings into products
+                const mergedProducts = productsData.map(product => {
+                    const ratingInfo = ratingsData.find(r => r.id === product.id);
+                    return {
+                        ...product,
+                        reviews_avg_rating: ratingInfo?.rating || null,
+                        reviews_count: ratingInfo?.review_count || null
+                    };
+                });
+                
+                setProducts(mergedProducts);
                 setProductRatings(ratingsData);
                 
                 // Sort by stock descending
-                const byStock = [...productsData].sort((a, b) => (b.stock || 0) - (a.stock || 0));
+                const byStock = [...mergedProducts].sort((a, b) => (b.stock || 0) - (a.stock || 0));
                 setSortedProducts(byStock);
                 console.log('Sorted by stock:', byStock);
                 
                 // Filter low stock (< 2)
-                const lowStock = productsData.filter(p => (p.stock || 0) < 2);
+                const lowStock = mergedProducts.filter(p => (p.stock || 0) < 2);
                 setLowStockProducts(lowStock);
                 console.log('Low stock products:', lowStock);
             } else {
@@ -117,42 +143,62 @@ function SellerManagement() {
         }
     };
 
-    // Download PDF dari Backend
+    // Download PDF dari Backend dengan Preview Modal
     const downloadPDF = async (reportType, setLoadingState) => {
         setLoadingState(true);
         try {
-            console.log(`Downloading ${reportType} report...`);
+            console.log(`Loading ${reportType} report...`);
             const response = await axios.get(`/api/seller/reports/${reportType}`, {
                 responseType: 'blob'
             });
 
-            // Create blob link to download
-            const url = window.URL.createObjectURL(new Blob([response.data]));
-            const link = document.createElement('a');
-            link.href = url;
+            // Create blob URL for preview
+            const blob = new Blob([response.data], { type: 'application/pdf' });
+            const url = window.URL.createObjectURL(blob);
             
-            // Set filename based on report type
-            const fileName = {
+            // Set filename
+            const fileNames = {
                 'stock': `Laporan_Stok_${new Date().getTime()}.pdf`,
                 'rating': `Laporan_Rating_${new Date().getTime()}.pdf`,
                 'reorder': `Laporan_Reorder_${new Date().getTime()}.pdf`
             };
             
-            link.setAttribute('download', fileName[reportType]);
-            document.body.appendChild(link);
-            link.click();
-            link.parentNode.removeChild(link);
-            window.URL.revokeObjectURL(url);
+            // Show modal with PDF preview
+            setPdfUrl(url);
+            setPdfFileName(fileNames[reportType]);
+            setShowPdfModal(true);
             
-            console.log(`${reportType} report downloaded successfully`);
+            console.log(`${reportType} report loaded successfully`);
             
         } catch (err) {
-            console.error('Error downloading PDF:', err);
+            console.error('Error loading PDF:', err);
             console.error('Error response:', err.response);
-            alert('Gagal mengunduh laporan PDF: ' + (err.response?.data?.message || err.message));
+            alert('Gagal memuat laporan PDF: ' + (err.response?.data?.message || err.message));
         } finally {
             setLoadingState(false);
         }
+    };
+    
+    // Close PDF Modal
+    const closePdfModal = () => {
+        if (pdfUrl) {
+            window.URL.revokeObjectURL(pdfUrl);
+        }
+        setShowPdfModal(false);
+        setPdfUrl(null);
+        setPdfFileName('');
+    };
+    
+    // Download PDF from modal
+    const downloadPdfFromModal = () => {
+        if (!pdfUrl || !pdfFileName) return;
+        
+        const link = document.createElement('a');
+        link.href = pdfUrl;
+        link.setAttribute('download', pdfFileName);
+        document.body.appendChild(link);
+        link.click();
+        link.parentNode.removeChild(link);
     };
 
     // Generate PDF - Laporan Stock (Descending)
@@ -168,6 +214,61 @@ function SellerManagement() {
     // Generate PDF - Laporan Stok Habis (Reorder)
     const generateReorderReport = () => {
         downloadPDF('reorder', setGeneratingReorder);
+    };
+    
+    // Show Product Details (toggle view)
+    const showProductDetails = (type) => {
+        // If clicking the same card, toggle back to reports
+        if (activeView === 'products' && activeProductType === type) {
+            setActiveView('reports');
+            setActiveProductType('');
+            setDisplayProducts([]);
+            return;
+        }
+        
+        let productsToShow = [];
+        
+        switch(type) {
+            case 'all':
+                // Sort alphabetically by name
+                productsToShow = [...products].sort((a, b) => 
+                    a.name.localeCompare(b.name, 'id', { sensitivity: 'base' })
+                );
+                break;
+            case 'lowStock':
+                productsToShow = lowStockProducts;
+                break;
+            case 'totalStock':
+                // Sort by stock highest to lowest
+                productsToShow = sortedProducts;
+                break;
+            default:
+                productsToShow = [];
+        }
+        
+        setActiveProductType(type);
+        setDisplayProducts(productsToShow);
+        setActiveView('products');
+    };
+    
+    // Open product detail modal
+    const openProductDetail = (product) => {
+        setSelectedProduct(product);
+        // Set default selected image
+        const firstImg = product.images?.find(i => i.is_primary)?.image_url 
+                        || product.images?.[0]?.image_url
+                        || product.image 
+                        || '/placeholder-product.jpg';
+        setSelectedImage(firstImg);
+        setShowProductDetail(true);
+    };
+    
+    // Close product detail modal
+    const closeProductDetail = () => {
+        setShowProductDetail(false);
+        setSelectedProduct(null);
+        setSelectedImage('');
+        setIsDescriptionExpanded(false);
     };
 
     if (loading) {
@@ -317,7 +418,11 @@ function SellerManagement() {
 
                 {/* Summary Cards */}
                 <div className={styles.summaryGrid}>
-                    <div className={styles.summaryCard}>
+                    <div 
+                        className={`${styles.summaryCard} ${activeView === 'products' && activeProductType === 'all' ? styles.summaryCardActive : ''}`}
+                        onClick={() => showProductDetails('all')} 
+                        style={{cursor: 'pointer'}}
+                    >
                         <div className={styles.summaryIcon}>
                             <svg width="28" height="28" viewBox="0 0 24 24" fill="#7A57B3">
                                 <path d="M20 6h-2.18c.11-.31.18-.65.18-1 0-1.66-1.34-3-3-3-1.05 0-1.96.54-2.5 1.35l-.5.67-.5-.68C10.96 2.54 10.05 2 9 2 7.34 2 6 3.34 6 5c0 .35.07.69.18 1H4c-1.11 0-1.99.89-1.99 2L2 19c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V8c0-1.11-.89-2-2-2zm-5-2c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zm-8 2c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zm11 15H4v-2h14v2zm0-5H4V8h5.08L7 10.83 8.62 12 11 8.76l1-1.36 1 1.36L15.38 12 17 10.83 14.92 8H20v6z"/>
@@ -329,7 +434,11 @@ function SellerManagement() {
                         </div>
                     </div>
 
-                    <div className={styles.summaryCard}>
+                    <div 
+                        className={`${styles.summaryCard} ${activeView === 'products' && activeProductType === 'totalStock' ? styles.summaryCardActive : ''}`}
+                        onClick={() => showProductDetails('totalStock')} 
+                        style={{cursor: 'pointer'}}
+                    >
                         <div className={styles.summaryIcon}>
                             <svg width="28" height="28" viewBox="0 0 24 24" fill="#10b981">
                                 <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/>
@@ -343,7 +452,11 @@ function SellerManagement() {
                         </div>
                     </div>
 
-                    <div className={`${styles.summaryCard} ${lowStockProducts.length > 0 ? styles.summaryCardWarning : ''}`}>
+                    <div 
+                        className={`${styles.summaryCard} ${lowStockProducts.length > 0 ? styles.summaryCardWarning : ''} ${activeView === 'products' && activeProductType === 'lowStock' ? styles.summaryCardActive : ''}`}
+                        onClick={() => showProductDetails('lowStock')}
+                        style={{cursor: 'pointer'}}
+                    >
                         <div className={styles.summaryIcon}>
                             <svg width="28" height="28" viewBox="0 0 24 24" fill={lowStockProducts.length > 0 ? "#dc2626" : "#6b7280"}>
                                 <path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/>
@@ -356,8 +469,10 @@ function SellerManagement() {
                     </div>
                 </div>
 
-                {/* Report Sections */}
+                {/* Report Sections or Product List */}
                 <div className={styles.reportsContainer}>
+                    {activeView === 'reports' ? (
+                        <>
                     {/* Report 1: By Stock */}
                     <div className={styles.reportCard}>
                         <div className={styles.reportHeader}>
@@ -509,8 +624,407 @@ function SellerManagement() {
                             )}
                         </div>
                     </div>
+                    </>
+                    ) : (
+                        /* Product List View */
+                        <div className={styles.productListSection}>
+                            <div className={styles.productListHeader}>
+                                <h2>
+                                    {activeProductType === 'all' && 'Semua Produk'}
+                                    {activeProductType === 'totalStock' && 'Produk dengan Stok Tertinggi'}
+                                    {activeProductType === 'lowStock' && 'Produk Stok Rendah'}
+                                </h2>
+                                <p className={styles.productCount}>
+                                    Menampilkan {displayProducts.length} produk
+                                    {activeProductType === 'all' && ' (Diurutkan A-Z)'}
+                                    {activeProductType === 'totalStock' && ' (Diurutkan dari stok tertinggi)'}
+                                    {activeProductType === 'lowStock' && ' (Stok < 2)'}
+                                </p>
+                            </div>
+                            {displayProducts.length > 0 ? (
+                                <div className={styles.productGrid}>
+                                    {displayProducts.map((product, index) => (
+                                        <div key={product.id || index} className={styles.productCard} onClick={() => openProductDetail(product)}>
+                                            <div className={styles.productCardImage}>
+                                                <img 
+                                                    src={product.main_image || product.image || '/placeholder-product.jpg'} 
+                                                    alt={product.name}
+                                                    onError={(e) => e.target.src = '/placeholder-product.jpg'}
+                                                />
+                                                {product.stock < 2 && (
+                                                    <span className={styles.lowStockTag}>Stok Rendah!</span>
+                                                )}
+                                            </div>
+                                            <div className={styles.productCardContent}>
+                                                <h4>{product.name}</h4>
+                                                <p className={styles.productCardCategory}>{product.category?.name || 'Tanpa Kategori'}</p>
+                                                <div className={styles.productCardFooter}>
+                                                    <div className={styles.productCardPrice}>
+                                                        Rp{new Intl.NumberFormat('id-ID').format(parseFloat(product.price) || 0)}
+                                                    </div>
+                                                    <div className={styles.productCardBadges}>
+                                                        <span className={`${styles.productCardStock} ${product.stock < 2 ? styles.stockLow : ''}`}>
+                                                            Stok: {product.stock || 0}
+                                                        </span>
+                                                        {product.reviews_avg_rating != null && product.reviews_avg_rating > 0 && (
+                                                            <span className={styles.productCardRating}>
+                                                                ★ {parseFloat(product.reviews_avg_rating).toFixed(1)}
+                                                            </span>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            ) : (
+                                <div className={styles.emptyState} style={{padding: '4rem'}}>
+                                    <p>Tidak ada produk</p>
+                                </div>
+                            )}
+                        </div>
+                    )}
                 </div>
             </main>
+            
+            {/* PDF Preview Modal */}
+            {showPdfModal && (
+                <div className={styles.modalOverlay} onClick={closePdfModal}>
+                    <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
+                        <div className={styles.modalHeader}>
+                            <h3>Preview Laporan PDF</h3>
+                            <div className={styles.modalActions}>
+                                <button 
+                                    className={styles.btnModalDownload}
+                                    onClick={downloadPdfFromModal}
+                                    title="Download PDF"
+                                >
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                                        <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
+                                    </svg>
+                                    Download
+                                </button>
+                                <button 
+                                    className={styles.btnModalClose}
+                                    onClick={closePdfModal}
+                                    title="Tutup"
+                                >
+                                    ✕
+                                </button>
+                            </div>
+                        </div>
+                        <div className={styles.modalBody}>
+                            <iframe
+                                src={pdfUrl}
+                                className={styles.pdfViewer}
+                                title="PDF Preview"
+                            />
+                        </div>
+                    </div>
+                </div>
+            )}
+            
+            {/* Product Detail Modal */}
+            {showProductDetail && selectedProduct && (
+                <div className={styles.modalOverlay} onClick={closeProductDetail}>
+                    <div className={styles.productDetailModal} onClick={(e) => e.stopPropagation()}>
+                        <div className={styles.productDetailHeader}>
+                            <h3>Detail Produk</h3>
+                            <button 
+                                className={styles.btnModalClose}
+                                onClick={closeProductDetail}
+                                title="Tutup"
+                            >
+                                ✕
+                            </button>
+                        </div>
+                        
+                        <div className={styles.productDetailBody}>
+                            {/* Gallery Section */}
+                            <div className={styles.gallery}>
+                                <img 
+                                    src={selectedImage} 
+                                    alt={selectedProduct.name} 
+                                    className={styles.mainImage}
+                                    onError={(e) => e.target.src = '/placeholder-product.jpg'}
+                                />
+                                {selectedProduct.images && selectedProduct.images.length > 0 && (
+                                    <div className={styles.thumbnailContainer}>
+                                        {selectedProduct.images.map((img, idx) => (
+                                            <img
+                                                key={img.id || idx}
+                                                src={img.image_url}
+                                                alt={`${selectedProduct.name} ${idx + 1}`}
+                                                className={`${styles.thumbnail} ${selectedImage === img.image_url ? styles.activeThumbnail : ''}`}
+                                                onClick={() => setSelectedImage(img.image_url)}
+                                                onError={(e) => e.target.src = '/placeholder-product.jpg'}
+                                            />
+                                        ))}
+                                    </div>
+                                )}
+                                {selectedProduct.images && selectedProduct.images.length > 1 && (
+                                    <p className={styles.imageCount}>
+                                        {selectedProduct.images.length} gambar tersedia
+                                    </p>
+                                )}
+                            </div>
+                            
+                            {/* Product Info Section */}
+                            <div className={styles.productInfo}>
+                                <h2 className={styles.productTitle}>{selectedProduct.name}</h2>
+                                
+                                {/* Price */}
+                                <div className={styles.priceSection}>
+                                    <span className={styles.priceLabel}>Harga</span>
+                                    <span className={styles.priceValue}>
+                                        {new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(parseFloat(selectedProduct.price) || 0)}
+                                    </span>
+                                </div>
+                                
+                                {/* Description */}
+                                {selectedProduct.description && (
+                                    <div className={styles.descriptionSection}>
+                                        <h4 className={styles.sectionTitle}>Deskripsi Produk</h4>
+                                        <p className={`${styles.descriptionText} ${!isDescriptionExpanded ? styles.descriptionCollapsed : ''}`}>
+                                            {selectedProduct.description}
+                                        </p>
+                                        {selectedProduct.description.length > 200 && (
+                                            <button 
+                                                className={styles.toggleDescriptionBtn}
+                                                onClick={() => setIsDescriptionExpanded(!isDescriptionExpanded)}
+                                            >
+                                                {isDescriptionExpanded ? '← Sembunyikan' : 'Lihat Selengkapnya →'}
+                                            </button>
+                                        )}
+                                    </div>
+                                )}
+                                
+                                {/* Meta Info */}
+                                <div className={styles.metaInfo}>
+                                    <div className={styles.metaRow}>
+                                        <span className={styles.metaLabel}>Nama Produk</span>
+                                        <span className={styles.metaValue}>{selectedProduct.name}</span>
+                                    </div>
+                                    <div className={styles.metaRow}>
+                                        <span className={styles.metaLabel}>Kategori</span>
+                                        <span className={styles.metaValue}>
+                                            {selectedProduct.category?.name || 'Tanpa Kategori'}
+                                        </span>
+                                    </div>
+                                    <div className={styles.metaRow}>
+                                        <span className={styles.metaLabel}>Kondisi</span>
+                                        <span className={styles.metaValue}>{selectedProduct.condition || '-'}</span>
+                                    </div>
+                                    <div className={styles.metaRow}>
+                                        <span className={styles.metaLabel}>Stok</span>
+                                        <span className={`${styles.metaValue} ${selectedProduct.stock < 2 ? styles.stockLowText : styles.stockOkText}`}>
+                                            {selectedProduct.stock || 0} Unit
+                                        </span>
+                                    </div>
+                                    <div className={styles.metaRow}>
+                                        <span className={styles.metaLabel}>Berat</span>
+                                        <span className={styles.metaValue}>{selectedProduct.weight ? `${selectedProduct.weight} gram` : '-'}</span>
+                                    </div>
+                                    <div className={styles.metaRow}>
+                                        <span className={styles.metaLabel}>Lokasi</span>
+                                        <span className={styles.metaValue}>{selectedProduct.location || '-'}</span>
+                                    </div>
+                                    {selectedProduct.discount_price && (
+                                        <div className={styles.metaRow}>
+                                            <span className={styles.metaLabel}>Harga Diskon</span>
+                                            <span className={styles.metaValue}>
+                                                {new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(parseFloat(selectedProduct.discount_price))}
+                                            </span>
+                                        </div>
+                                    )}
+                                    {selectedProduct.sku && (
+                                        <div className={styles.metaRow}>
+                                            <span className={styles.metaLabel}>SKU</span>
+                                            <span className={styles.metaValue}>{selectedProduct.sku}</span>
+                                        </div>
+                                    )}
+                                    {selectedProduct.brand && (
+                                        <div className={styles.metaRow}>
+                                            <span className={styles.metaLabel}>Merek</span>
+                                            <span className={styles.metaValue}>{selectedProduct.brand}</span>
+                                        </div>
+                                    )}
+                                    {selectedProduct.warranty_period && (
+                                        <div className={styles.metaRow}>
+                                            <span className={styles.metaLabel}>Garansi</span>
+                                            <span className={styles.metaValue}>{selectedProduct.warranty_period}</span>
+                                        </div>
+                                    )}
+                                    {selectedProduct.material && (
+                                        <div className={styles.metaRow}>
+                                            <span className={styles.metaLabel}>Material</span>
+                                            <span className={styles.metaValue}>{selectedProduct.material}</span>
+                                        </div>
+                                    )}
+                                    {selectedProduct.color && (
+                                        <div className={styles.metaRow}>
+                                            <span className={styles.metaLabel}>Warna</span>
+                                            <span className={styles.metaValue}>{selectedProduct.color}</span>
+                                        </div>
+                                    )}
+                                    {selectedProduct.size && (
+                                        <div className={styles.metaRow}>
+                                            <span className={styles.metaLabel}>Ukuran</span>
+                                            <span className={styles.metaValue}>{selectedProduct.size}</span>
+                                        </div>
+                                    )}
+                                    {selectedProduct.dimensions && (
+                                        <div className={styles.metaRow}>
+                                            <span className={styles.metaLabel}>Dimensi</span>
+                                            <span className={styles.metaValue}>{selectedProduct.dimensions}</span>
+                                        </div>
+                                    )}
+                                    {selectedProduct.video_url && (
+                                        <div className={styles.metaRow}>
+                                            <span className={styles.metaLabel}>Video</span>
+                                            <a href={selectedProduct.video_url} target="_blank" rel="noopener noreferrer" className={styles.metaLink}>
+                                                Lihat Video
+                                            </a>
+                                        </div>
+                                    )}
+                                    {selectedProduct.min_order && (
+                                        <div className={styles.metaRow}>
+                                            <span className={styles.metaLabel}>Min. Pembelian</span>
+                                            <span className={styles.metaValue}>{selectedProduct.min_order} Unit</span>
+                                        </div>
+                                    )}
+                                    {selectedProduct.tags && (
+                                        <div className={styles.metaRow}>
+                                            <span className={styles.metaLabel}>Tags</span>
+                                            <span className={styles.metaValue}>{selectedProduct.tags}</span>
+                                        </div>
+                                    )}
+                                    <div className={styles.metaRow}>
+                                        <span className={styles.metaLabel}>Status Publikasi</span>
+                                        <span className={`${styles.statusBadge} ${styles['status' + selectedProduct.status]}`}>
+                                            {selectedProduct.status || 'DRAFT'}
+                                        </span>
+                                    </div>
+                                    {selectedProduct.is_featured !== undefined && (
+                                        <div className={styles.metaRow}>
+                                            <span className={styles.metaLabel}>Produk Unggulan</span>
+                                            <span className={styles.metaValue}>
+                                                {selectedProduct.is_featured ? '✓ Ya' : '✗ Tidak'}
+                                            </span>
+                                        </div>
+                                    )}
+                                    {selectedProduct.view_count !== undefined && (
+                                        <div className={styles.metaRow}>
+                                            <span className={styles.metaLabel}>Total Dilihat</span>
+                                            <span className={styles.metaValue}>{selectedProduct.view_count} kali</span>
+                                        </div>
+                                    )}
+                                    {selectedProduct.seller && (
+                                        <div className={styles.metaRow}>
+                                            <span className={styles.metaLabel}>Nama Toko</span>
+                                            <span className={styles.metaValue}>{selectedProduct.seller.store_name}</span>
+                                        </div>
+                                    )}
+                                    {selectedProduct.created_at && (
+                                        <div className={styles.metaRow}>
+                                            <span className={styles.metaLabel}>Ditambahkan</span>
+                                            <span className={styles.metaValue}>
+                                                {new Date(selectedProduct.created_at).toLocaleDateString('id-ID', {
+                                                    weekday: 'long',
+                                                    year: 'numeric',
+                                                    month: 'long',
+                                                    day: 'numeric',
+                                                    hour: '2-digit',
+                                                    minute: '2-digit'
+                                                })}
+                                            </span>
+                                        </div>
+                                    )}
+                                    {selectedProduct.updated_at && selectedProduct.updated_at !== selectedProduct.created_at && (
+                                        <div className={styles.metaRow}>
+                                            <span className={styles.metaLabel}>🔄 Terakhir Diubah</span>
+                                            <span className={styles.metaValue}>
+                                                {new Date(selectedProduct.updated_at).toLocaleDateString('id-ID', {
+                                                    weekday: 'long',
+                                                    year: 'numeric',
+                                                    month: 'long',
+                                                    day: 'numeric',
+                                                    hour: '2-digit',
+                                                    minute: '2-digit'
+                                                })}
+                                            </span>
+                                        </div>
+                                    )}
+                                </div>
+                                
+                                {/* Rating & Reviews Summary */}
+                                {selectedProduct.reviews_avg_rating != null && selectedProduct.reviews_avg_rating > 0 && (
+                                    <div className={styles.ratingSection}>
+                                        <div className={styles.ratingBadge}>
+                                            <svg width="16" height="16" viewBox="0 0 15 15" fill="none">
+                                                <path d="M7.5 0L9.18386 5.18237H14.6329L10.2245 8.38525L11.9084 13.5676L7.5 10.3647L3.09161 13.5676L4.77547 8.38525L0.367076 5.18237H5.81614L7.5 0Z" fill="#FDB813"/>
+                                            </svg>
+                                            <span className={styles.ratingValue}>
+                                                {parseFloat(selectedProduct.reviews_avg_rating).toFixed(1)}
+                                            </span>
+                                        </div>
+                                        <span className={styles.reviewCount}>
+                                            ({selectedProduct.reviews_count || 0} penilaian)
+                                        </span>
+                                    </div>
+                                )}
+                                
+                                {/* Reviews Section */}
+                                {selectedProduct.reviews && selectedProduct.reviews.length > 0 && (
+                                    <div className={styles.reviewsSection}>
+                                        <h4 className={styles.sectionTitle}>
+                                            Penilaian & Ulasan ({selectedProduct.reviews.length})
+                                        </h4>
+                                        <div className={styles.reviewsList}>
+                                            {selectedProduct.reviews.map((review, idx) => (
+                                                <div key={review.id || idx} className={styles.reviewCard}>
+                                                    <div className={styles.reviewHeader}>
+                                                        <div className={styles.reviewerInfo}>
+                                                            <div className={styles.reviewerAvatar}>
+                                                                {review.reviewer_name?.charAt(0).toUpperCase() || '?'}
+                                                            </div>
+                                                            <div>
+                                                                <div className={styles.reviewerName}>{review.reviewer_name}</div>
+                                                                <div className={styles.reviewerLocation}>{review.reviewer_province}</div>
+                                                            </div>
+                                                        </div>
+                                                        <div className={styles.reviewRating}>
+                                                            {[...Array(5)].map((_, i) => (
+                                                                <svg key={i} width="14" height="14" viewBox="0 0 15 15" fill="none">
+                                                                    <path 
+                                                                        d="M7.5 0L9.18386 5.18237H14.6329L10.2245 8.38525L11.9084 13.5676L7.5 10.3647L3.09161 13.5676L4.77547 8.38525L0.367076 5.18237H5.81614L7.5 0Z" 
+                                                                        fill={i < review.rating ? "#FDB813" : "#e5e7eb"}
+                                                                    />
+                                                                </svg>
+                                                            ))}
+                                                            <span className={styles.reviewRatingText}>{review.rating}.0</span>
+                                                        </div>
+                                                    </div>
+                                                    {review.comment && (
+                                                        <p className={styles.reviewComment}>{review.comment}</p>
+                                                    )}
+                                                    <div className={styles.reviewDate}>
+                                                        {new Date(review.created_at).toLocaleDateString('id-ID', {
+                                                            year: 'numeric',
+                                                            month: 'long',
+                                                            day: 'numeric'
+                                                        })}
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

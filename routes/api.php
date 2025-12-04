@@ -10,6 +10,8 @@ use App\Http\Controllers\Api\ReviewController;
 use App\Http\Controllers\Api\Admin\SellerVerificationController;
 use App\Http\Controllers\Api\Admin\CategoryController;
 use App\Http\Controllers\Api\Admin\BannerController;
+use App\Http\Controllers\Api\Admin\DashboardController;
+use App\Http\Controllers\Api\Admin\ReportController;
 
 
 // SRS-01: Registrasi Seller
@@ -53,6 +55,12 @@ Route::middleware('auth:sanctum')->group(function () {
     // ADMIN ROUTES
     Route::prefix('admin')->middleware('admin')->group(function () {
         
+        // Dashboard Statistics (SRS-MartPlace-07)
+        Route::get('/dashboard', [DashboardController::class, 'index']);
+        
+        // Seller Status Toggle - Aktifkan/Nonaktifkan seller
+        Route::post('/sellers/{seller}/toggle-status', [DashboardController::class, 'toggleSellerStatus']);
+        
         // 1. Seller Verification (SRS-02)
         Route::get('/pending-sellers', [SellerVerificationController::class, 'index']);
         Route::get('/sellers/{seller}', [SellerVerificationController::class, 'show']);
@@ -64,6 +72,18 @@ Route::middleware('auth:sanctum')->group(function () {
         //3. banner management
         Route::apiResource('banners', BannerController::class);
         Route::post('banners/{banner}/toggle', [BannerController::class, 'toggleActive']);
+
+        // 4. Reports - Laporan Penjual
+        Route::get('/reports/sellers/data', [ReportController::class, 'getSellersData']);
+        Route::get('/reports/sellers/pdf', [ReportController::class, 'generateSellersPdf']);
+        
+        // 5. Reports - Laporan Penjual Per Provinsi
+        Route::get('/reports/sellers/province/data', [ReportController::class, 'getSellersDataByProvince']);
+        Route::get('/reports/sellers/province/pdf', [ReportController::class, 'generateSellersByProvincePdf']);
+        
+        // 6. Reports - Laporan Produk Berdasarkan Rating
+        Route::get('/reports/products/rating/data', [ReportController::class, 'getProductsByRatingData']);
+        Route::get('/reports/products/rating/pdf', [ReportController::class, 'generateProductsByRatingPdf']);
     });
 
 });

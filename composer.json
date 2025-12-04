@@ -17,7 +17,7 @@
         "laravel/tinker": "^2.10.1",
         "laravel/wayfinder": "^0.1.9",
         "league/flysystem-aws-s3-v3": "*",
-        "mpdf/mpdf": "^8.2"
+        "mpdf/mpdf": "*"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",
