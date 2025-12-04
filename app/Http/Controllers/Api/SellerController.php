@@ -277,20 +277,62 @@ class SellerController extends Controller
         // 1. Sebaran Stok Per Produk
         $productStocks = Product::where('seller_id', $seller->id)
             ->with(['images' => function($query) {
-                $query->where('is_primary', true)->orWhere(function($q) {
-                    $q->orderBy('created_at', 'asc');
-                });
+                $query->orderBy('is_primary', 'desc')->orderBy('created_at', 'asc');
+            }, 'category', 'seller', 'reviews' => function($query) {
+                $query->orderBy('created_at', 'desc');
             }])
-            ->select('id', 'name', 'stock')
+            ->withCount('reviews')
+            ->withAvg('reviews', 'rating')
             ->orderBy('stock', 'desc')
             ->get()
             ->map(function($product) {
                 $firstImage = $product->images->first();
+                $allImages = $product->images->map(function($img) {
+                    return [
+                        'id' => $img->id,
+                        'image_url' => $img->image_url,
+                        'is_primary' => $img->is_primary
+                    ];
+                });
+                
+                $reviews = $product->reviews->map(function($review) {
+                    return [
+                        'id' => $review->id,
+                        'rating' => $review->rating,
+                        'comment' => $review->comment,
+                        'reviewer_name' => $review->reviewer_name,
+                        'reviewer_email' => $review->reviewer_email,
+                        'reviewer_province' => $review->reviewer_province,
+                        'created_at' => $review->created_at,
+                        'updated_at' => $review->updated_at
+                    ];
+                });
+                
                 return [
                     'id' => $product->id,
                     'name' => $product->name,
+                    'description' => $product->description,
+                    'price' => $product->price,
                     'stock' => $product->stock,
-                    'image' => $firstImage ? $firstImage->image_url : null
+                    'condition' => $product->condition,
+                    'location' => $product->location,
+                    'status' => $product->status,
+                    'weight' => $product->weight,
+                    'category' => $product->category ? [
+                        'id' => $product->category->id,
+                        'name' => $product->category->name
+                    ] : null,
+                    'seller' => $product->seller ? [
+                        'id' => $product->seller->id,
+                        'store_name' => $product->seller->store_name
+                    ] : null,
+                    'reviews_avg_rating' => $product->reviews_avg_rating,
+                    'reviews_count' => $product->reviews_count,
+                    'image' => $firstImage ? $firstImage->image_url : null,
+                    'images' => $allImages,
+                    'reviews' => $reviews,
+                    'created_at' => $product->created_at,
+                    'updated_at' => $product->updated_at
                 ];
             });
 
@@ -384,7 +426,7 @@ class SellerController extends Controller
         $data = [
             'seller' => $seller,
             'user' => $user,
-            'generated_at' => now()->format('d-m-Y'),
+            'generated_at' => now()->format('d F Y H:i'),
             'type' => $type
         ];
 

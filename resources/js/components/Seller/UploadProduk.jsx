@@ -322,7 +322,7 @@ function UploadProduk() {
                             ) : (
                                 <>
                                     <span className={styles.uploadIcon}>+</span>
-                                    <span>Klik untuk upload</span>
+                                    <span>Klik atau Seret File untuk Upload</span>
                                 </>
                             )}
                         </label>
