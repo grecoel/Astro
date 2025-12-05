@@ -20,6 +20,7 @@ const CategoryManager = () => {
     const [showEditModal, setShowEditModal] = useState(false);
     const [dragOverAdd, setDragOverAdd] = useState(false);
     const [dragOverEdit, setDragOverEdit] = useState(false);
+    const [searchQuery, setSearchQuery] = useState('');
 
     // Load Kategori
     const fetchCategories = async () => {
@@ -283,8 +284,23 @@ const CategoryManager = () => {
     return (
         <div className={styles.container}>
             <div className={styles.header}>
-                <h1>Manajemen Kategori Produk</h1>
-                <p className={styles.subtitle}>Kelola semua kategori produk di Astro E-Commerce</p>
+                <div className={styles.headerContent}>
+                    <h1>Manajemen Kategori Produk</h1>
+                    <p className={styles.subtitle}>Kelola semua kategori produk di Astro E-Commerce</p>
+                </div>
+                <div className={styles.searchBar}>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <circle cx="11" cy="11" r="8"/>
+                        <path d="m21 21-4.35-4.35"/>
+                    </svg>
+                    <input
+                        type="text"
+                        placeholder="Cari kategori..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        className={styles.searchInput}
+                    />
+                </div>
             </div>
 
             {/* Alert Messages */}
@@ -304,9 +320,20 @@ const CategoryManager = () => {
             {/* Tabel Kategori */}
             <div className={styles.tableCard}>
                 <h2>Daftar Kategori</h2>
-                {categories.length === 0 ? (
-                    <p className={styles.empty}>Belum ada kategori. Tambahkan kategori baru menggunakan form di atas.</p>
-                ) : (
+                {(() => {
+                    const filteredCategories = categories.filter(cat => 
+                        cat.name?.toLowerCase().includes(searchQuery.toLowerCase())
+                    );
+                    
+                    if (filteredCategories.length === 0) {
+                        return (
+                            <p className={styles.empty}>
+                                {searchQuery ? `Tidak ada kategori yang cocok dengan "${searchQuery}"` : 'Belum ada kategori. Tambahkan kategori baru menggunakan form di atas.'}
+                            </p>
+                        );
+                    }
+                    
+                    return (
                     <div className={styles.tableWrapper}>
                         <table className={styles.table}>
                             <thead>
@@ -318,7 +345,7 @@ const CategoryManager = () => {
                                 </tr>
                             </thead>
                             <tbody>
-                                {categories.map((cat, idx) => (
+                                {filteredCategories.map((cat, idx) => (
                                     <tr key={cat.id}>
                                         <td className={styles.colNo}>{idx + 1}</td>
                                         <td className={styles.colIcon}>
@@ -356,7 +383,8 @@ const CategoryManager = () => {
                             </tbody>
                         </table>
                     </div>
-                )}
+                    );
+                })()}
             </div>
 
             {/* Modal Tambah Kategori */}

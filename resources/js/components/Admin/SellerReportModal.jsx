@@ -67,8 +67,28 @@ export default function SellerReportModal({ isOpen, onClose }) {
         }
     };
 
-    const handlePrint = () => {
-        window.print();
+    const handlePrint = async () => {
+        try {
+            const token = localStorage.getItem('token');
+            const response = await axios.get('/api/admin/reports/sellers/pdf', {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                },
+                responseType: 'blob'
+            });
+
+            // Create blob URL and open in new tab for printing
+            const url = window.URL.createObjectURL(new Blob([response.data], { type: 'application/pdf' }));
+            const printWindow = window.open(url, '_blank');
+            if (printWindow) {
+                printWindow.onload = () => {
+                    printWindow.print();
+                };
+            }
+        } catch (error) {
+            console.error('Error printing PDF:', error);
+            alert('Gagal mencetak PDF. Silakan coba lagi.');
+        }
     };
 
     if (!isOpen) return null;
@@ -160,13 +180,6 @@ export default function SellerReportModal({ isOpen, onClose }) {
                 </div>
 
                 <div className={styles.modalFooter}>
-                    <button 
-                        className={styles.btnSecondary} 
-                        onClick={onClose}
-                        disabled={downloading}
-                    >
-                        Tutup
-                    </button>
                     <div className={styles.actionButtons}>
                         <button 
                             className={styles.btnPrint} 

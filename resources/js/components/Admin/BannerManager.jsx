@@ -15,6 +15,7 @@ const BannerManager = () => {
     const [showAddModal, setShowAddModal] = useState(false);
     const [deleteConfirmId, setDeleteConfirmId] = useState(null);
     const [dragOver, setDragOver] = useState(false);
+    const [searchQuery, setSearchQuery] = useState('');
 
     // Load Banners saat halaman dibuka
     const fetchBanners = async () => {
@@ -229,8 +230,23 @@ const BannerManager = () => {
     return (
         <div className={styles.container}>
             <div className={styles.header}>
-                <h1>Manajemen Banner Promo</h1>
-                <p className={styles.subtitle}>Kelola semua banner promosi di Astro E-Commerce</p>
+                <div className={styles.headerContent}>
+                    <h1>Manajemen Banner Promo</h1>
+                    <p className={styles.subtitle}>Kelola semua banner promosi di Astro E-Commerce</p>
+                </div>
+                <div className={styles.searchBar}>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <circle cx="11" cy="11" r="8"/>
+                        <path d="m21 21-4.35-4.35"/>
+                    </svg>
+                    <input
+                        type="text"
+                        placeholder="Cari banner..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        className={styles.searchInput}
+                    />
+                </div>
             </div>
 
             {/* Alert Messages */}
@@ -250,9 +266,21 @@ const BannerManager = () => {
             {/* Tabel Banner */}
             <div className={styles.tableCard}>
                 <h2>Daftar Banner</h2>
-                {banners.length === 0 ? (
-                    <p className={styles.empty}>Belum ada banner. Tambahkan banner baru menggunakan tombol di atas.</p>
-                ) : (
+                {(() => {
+                    const filteredBanners = banners.filter(banner => 
+                        banner.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                        banner.link_url?.toLowerCase().includes(searchQuery.toLowerCase())
+                    );
+                    
+                    if (filteredBanners.length === 0) {
+                        return (
+                            <p className={styles.empty}>
+                                {searchQuery ? `Tidak ada banner yang cocok dengan "${searchQuery}"` : 'Belum ada banner. Tambahkan banner baru menggunakan tombol di atas.'}
+                            </p>
+                        );
+                    }
+                    
+                    return (
                     <div className={styles.tableWrapper}>
                         <table className={styles.table}>
                             <thead>
@@ -265,7 +293,7 @@ const BannerManager = () => {
                                 </tr>
                             </thead>
                             <tbody>
-                                {banners.map((banner, idx) => (
+                                {filteredBanners.map((banner, idx) => (
                                     <tr key={banner.id}>
                                         <td className={styles.colNo}>{idx + 1}</td>
                                         <td className={styles.colPreview}>
@@ -310,7 +338,8 @@ const BannerManager = () => {
                             </tbody>
                         </table>
                     </div>
-                )}
+                    );
+                })()}
             </div>
 
             {/* Modal Tambah Banner */}
