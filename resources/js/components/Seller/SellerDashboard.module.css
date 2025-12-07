@@ -28,8 +28,7 @@
     font-family: 'Helvetica Neue', Arial, sans-serif;
 }
 
-/* ==================== LOADING & ERROR STATES ==================== */
-.loadingState,
+/* ==================== ERROR STATE ONLY ==================== */
 .errorState {
     display: flex;
     flex-direction: column;
@@ -39,19 +38,6 @@
     width: 100%;
     gap: 1rem;
     color: var(--color-text-light);
-}
-
-.spinner {
-    width: 36px;
-    height: 36px;
-    border: 3px solid var(--color-border);
-    border-top-color: var(--seller-primary);
-    border-radius: 50%;
-    animation: spin 0.8s linear infinite;
-}
-
-@keyframes spin {
-    to { transform: rotate(360deg); }
 }
 
 .errorState h3 {
@@ -377,6 +363,8 @@
     margin-bottom: 1rem;
     padding-bottom: 0.75rem;
     border-bottom: 1px solid var(--color-border);
+    gap: 1rem;
+    flex-wrap: wrap;
 }
 
 .chartHeader h3 {
@@ -384,6 +372,35 @@
     font-weight: 600;
     color: var(--color-dark);
     margin: 0;
+}
+
+.chartFilter {
+    padding: 0.5rem 0.75rem;
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    color: #374151;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+}
+
+.chartFilter:hover {
+    border-color: #7A57B3;
+    background: white;
+}
+
+.chartFilter:focus {
+    outline: none;
+    border-color: #7A57B3;
+    box-shadow: 0 0 0 3px rgba(122, 87, 179, 0.1);
+}
+
+/* Wrapper for CustomSelect in chart headers */
+.chartFilterWrapper {
+    min-width: 180px;
 }
 
 /* ==================== BAR CHART ==================== */
@@ -1237,6 +1254,177 @@
     background: #f3f4f6;
 }
 
+/* ==================== STOCK DISTRIBUTION CHART ==================== */
+.stockDistributionContainer {
+    display: grid;
+    grid-template-columns: 240px 1fr;
+    gap: 2rem;
+    align-items: start;
+    padding: 0.5rem 0;
+    min-height: 240px;
+}
+
+.pieChartWrapper {
+    position: relative;
+    width: 240px;
+    height: 240px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.pieChart {
+    filter: drop-shadow(0 2px 12px rgba(122, 87, 179, 0.15));
+}
+
+.pieSlice {
+    cursor: pointer;
+    transition: opacity 0.2s ease;
+}
+
+.pieSlice:hover {
+    opacity: 1 !important;
+    filter: brightness(1.1);
+}
+
+.pieCenter {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: white;
+    width: 140px;
+    height: 140px;
+    border-radius: 50%;
+    box-shadow: 0 0 0 4px #f8f9fb, 0 4px 16px rgba(0,0,0,0.08);
+    pointer-events: none;
+}
+
+.pieCenterValue {
+    font-size: 2.25rem;
+    font-weight: 700;
+    color: #7A57B3;
+    line-height: 1;
+}
+
+.pieCenterLabel {
+    font-size: 0.7rem;
+    color: #6b7280;
+    font-weight: 600;
+    margin-top: 0.5rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+}
+
+.categoryLegend {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+    padding: 0.5rem 0;
+}
+
+.legendItem {
+    display: flex;
+    gap: 0.875rem;
+    align-items: center;
+    padding: 0.625rem 1rem;
+    background: #f9fafb;
+    border-radius: 8px;
+    border-left: 3px solid transparent;
+    transition: all 0.2s ease;
+}
+
+.legendItem:hover {
+    background: #f3f4f6;
+    transform: translateX(4px);
+}
+
+.legendColor {
+    width: 16px;
+    height: 16px;
+    border-radius: 4px;
+    flex-shrink: 0;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.legendContent {
+    flex: 1;
+    min-width: 0;
+}
+
+.legendName {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #111827;
+    margin-bottom: 0.25rem;
+    display: block;
+}
+
+.legendStats {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.8rem;
+    color: #6b7280;
+}
+
+.legendValue {
+    font-weight: 700;
+    color: #374151;
+    font-size: 0.875rem;
+}
+
+.legendPercent {
+    color: #7A57B3;
+    font-weight: 500;
+}
+
+.legendCount {
+    color: #9ca3af;
+}
+
+@media (max-width: 1024px) {
+    .stockDistributionContainer {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+        justify-items: center;
+    }
+
+    .categoryLegend {
+        width: 100%;
+        max-width: 500px;
+    }
+}
+
+@media (max-width: 768px) {
+    .pieChartWrapper {
+        width: 200px;
+        height: 200px;
+    }
+
+    .pieChart {
+        width: 200px;
+        height: 200px;
+    }
+
+    .pieCenter {
+        width: 120px;
+        height: 120px;
+    }
+
+    .pieCenterValue {
+        font-size: 1.75rem;
+    }
+
+    .categoryLegend {
+        max-height: 300px;
+        overflow-y: auto;
+    }
+}
 /* ==================== PRODUCTS TAB ==================== */
 .productsTabContainer {
     background: white;
@@ -1552,5 +1740,174 @@
         flex-direction: column;
         gap: 0.5rem;
         align-items: flex-start;
+    }
+}
+
+/* ==================== MODAL OVERLAY FOR UPLOAD FORM ==================== */
+.modalOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: 1rem;
+    backdrop-filter: blur(4px);
+    animation: fadeIn 0.2s ease;
+}
+
+.modalContent {
+    width: 100%;
+    max-width: 900px;
+    max-height: 90vh;
+    animation: slideUp 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@media (max-width: 768px) {
+    .modalOverlay {
+        padding: 0;
+    }
+
+    .modalContent {
+        max-width: 100%;
+        max-height: 100vh;
+        border-radius: 0;
+    }
+}
+
+/* ==================== REPORTS VIEW ==================== */
+.reportsViewContainer {
+    background: var(--color-bg);
+}
+
+.reportsIntro {
+    background: white;
+    border-radius: var(--radius-md);
+    padding: 2.5rem;
+    text-align: center;
+    margin-bottom: 2rem;
+    box-shadow: var(--shadow-sm);
+}
+
+.reportsIntro svg {
+    margin-bottom: 1rem;
+}
+
+.reportsIntro h2 {
+    font-size: 1.75rem;
+    font-weight: 600;
+    color: var(--color-dark);
+    margin: 0 0 0.5rem 0;
+}
+
+.reportsIntro p {
+    font-size: 0.95rem;
+    color: var(--color-text-light);
+    margin: 0;
+}
+
+/* Report Stats */
+.reportStats {
+    display: flex;
+    gap: 1rem;
+    margin-top: 0.75rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid #f3f4f6;
+    flex-wrap: wrap;
+}
+
+.statItem {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    font-size: 0.8rem;
+    color: #6b7280;
+    font-weight: 500;
+}
+
+.statItem svg {
+    flex-shrink: 0;
+}
+
+/* Reports Info */
+.reportsInfo {
+    margin-top: 2rem;
+}
+
+.infoCard {
+    background: white;
+    border-radius: var(--radius-md);
+    padding: 1.5rem;
+    display: flex;
+    gap: 1rem;
+    align-items: flex-start;
+    box-shadow: var(--shadow-sm);
+    border-left: 4px solid #7A57B3;
+}
+
+.infoCard svg {
+    flex-shrink: 0;
+    margin-top: 0.125rem;
+}
+
+.infoCard h4 {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--color-dark);
+    margin: 0 0 0.5rem 0;
+}
+
+.infoCard p {
+    font-size: 0.875rem;
+    color: var(--color-text-light);
+    margin: 0;
+    line-height: 1.6;
+}
+
+/* Responsive Reports View */
+@media (max-width: 768px) {
+    .reportsIntro {
+        padding: 1.5rem;
+    }
+
+    .reportsIntro h2 {
+        font-size: 1.375rem;
+    }
+
+    .reportsGrid {
+        grid-template-columns: 1fr;
+    }
+
+    .reportStats {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .infoCard {
+        flex-direction: column;
     }
 }
