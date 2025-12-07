@@ -171,8 +171,60 @@ function RegistrasiForm() {
         }
     };
 
+    const validateStep = () => {
+        const newErrors = {};
+        
+        if (currentStep === 1) {
+            if (!formData.store_name.trim()) {
+                newErrors.store_name = ['Nama toko harus diisi'];
+            }
+        } else if (currentStep === 2) {
+            if (!formData.pic_name.trim()) {
+                newErrors.pic_name = ['Nama lengkap PIC harus diisi'];
+            }
+            if (!formData.pic_phone.trim()) {
+                newErrors.pic_phone = ['No. HP PIC harus diisi'];
+            } else if (!/^08\d{8,11}$/.test(formData.pic_phone)) {
+                newErrors.pic_phone = ['Format No. HP tidak valid (harus dimulai dengan 08 dan max 13 digit)'];
+            }
+            if (!formData.pic_email.trim()) {
+                newErrors.pic_email = ['Email PIC harus diisi'];
+            } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.pic_email)) {
+                newErrors.pic_email = ['Format email tidak valid'];
+            }
+        } else if (currentStep === 3) {
+            if (!formData.pic_address.trim()) {
+                newErrors.pic_address = ['Alamat lengkap harus diisi'];
+            }
+            if (!formData.pic_rt.trim()) {
+                newErrors.pic_rt = ['RT harus diisi'];
+            }
+            if (!formData.pic_rw.trim()) {
+                newErrors.pic_rw = ['RW harus diisi'];
+            }
+            if (!formData.pic_province) {
+                newErrors.pic_province = ['Provinsi harus dipilih'];
+            }
+            if (!formData.pic_city) {
+                newErrors.pic_city = ['Kota/Kabupaten harus dipilih'];
+            }
+            if (!formData.pic_district.trim()) {
+                newErrors.pic_district = ['Kecamatan harus diisi'];
+            }
+        }
+        
+        return newErrors;
+    };
+
     const handleNext = (e) => {
         e.preventDefault();
+        
+        const validationErrors = validateStep();
+        if (Object.keys(validationErrors).length > 0) {
+            setErrors(validationErrors);
+            return;
+        }
+        
         setCurrentStep(currentStep + 1);
         setErrors({});
         // Scroll to top of card content

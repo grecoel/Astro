@@ -870,6 +870,48 @@
     text-align: center;
 }
 
+/* Scroll to Top Button */
+.scrollTopBtn {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    width: 48px;
+    height: 48px;
+    background: #667A30;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(102, 122, 48, 0.3);
+    transition: all 0.3s ease;
+    z-index: 999;
+    animation: fadeIn 0.3s ease;
+}
+
+.scrollTopBtn:hover {
+    background: #556628;
+    transform: translateY(-4px);
+    box-shadow: 0 6px 16px rgba(102, 122, 48, 0.4);
+}
+
+.scrollTopBtn:active {
+    transform: translateY(-2px);
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
 /* Responsive */
 @media (max-width: 1024px) {
     .header {
@@ -928,6 +970,13 @@
     .reviewStats {
         flex-direction: column;
     }
+
+    .scrollTopBtn {
+        bottom: 1.5rem;
+        right: 1.5rem;
+        width: 44px;
+        height: 44px;
+    }
 }
 
 @media (max-width: 480px) {
@@ -937,5 +986,17 @@
 
     .quickActionsGrid {
         grid-template-columns: 1fr;
+    }
+
+    .scrollTopBtn {
+        bottom: 1rem;
+        right: 1rem;
+        width: 40px;
+        height: 40px;
+    }
+
+    .scrollTopBtn svg {
+        width: 20px;
+        height: 20px;
     }
 }

@@ -249,6 +249,7 @@ export default function AdminDashboard() {
     const [isReportModalOpen, setIsReportModalOpen] = useState(false);
     const [isProvinceReportModalOpen, setIsProvinceReportModalOpen] = useState(false);
     const [isProductRatingReportModalOpen, setIsProductRatingReportModalOpen] = useState(false);
+    const [showScrollTop, setShowScrollTop] = useState(false);
     
     // ========================================
     // FILTER STATES
@@ -265,6 +266,19 @@ export default function AdminDashboard() {
     useEffect(() => {
         fetchDashboardData();
     }, []);
+
+    useEffect(() => {
+        const handleScroll = () => {
+            setShowScrollTop(window.scrollY > 300);
+        };
+
+        window.addEventListener('scroll', handleScroll);
+        return () => window.removeEventListener('scroll', handleScroll);
+    }, []);
+
+    const scrollToTop = () => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
 
     const fetchDashboardData = async () => {
         try {
@@ -795,6 +809,19 @@ export default function AdminDashboard() {
                 isOpen={isProductRatingReportModalOpen} 
                 onClose={() => setIsProductRatingReportModalOpen(false)} 
             />
+
+            {/* Scroll to Top Button */}
+            {showScrollTop && (
+                <button 
+                    className={styles.scrollTopBtn}
+                    onClick={scrollToTop}
+                    aria-label="Kembali ke atas"
+                >
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <polyline points="18 15 12 9 6 15"/>
+                    </svg>
+                </button>
+            )}
         </div>
     );
 }
