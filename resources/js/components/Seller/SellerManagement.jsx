@@ -385,7 +385,7 @@ function SellerManagement() {
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
                                 <path d="M12 2L2 7v10c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-10-5z"/>
                             </svg>
-                            Kunjungi Katalog
+                            Kunjungi Katalog Astro
                         </button>
                         
                         <div className={styles.userMenu}>
