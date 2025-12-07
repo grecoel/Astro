@@ -141,7 +141,6 @@
     color: #111827;
     font-weight: 500;
 }
-
 .tableWrapper {
     overflow-x: auto;
     border-radius: 8px;
@@ -240,7 +239,7 @@
 
 .modalFooter {
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-end;
     align-items: center;
     padding: 20px 28px;
     border-top: 1px solid #e5e7eb;
@@ -316,30 +315,9 @@
     animation: spin 0.6s linear infinite;
 }
 
-/* Print styles */
+/* Print styles - not needed anymore since we use PDF directly */
 @media print {
-    .modalOverlay {
-        background: white;
-        position: static;
-        padding: 0;
-    }
-
-    .modalContent {
-        box-shadow: none;
-        max-height: none;
-        max-width: none;
-        border-radius: 0;
-        border: none;
-    }
-
-    .modalHeader,
-    .modalFooter,
-    .closeButton {
-        display: none !important;
-    }
-
-    .modalBody {
-        padding: 0;
-        overflow: visible;
+    body {
+        display: none;
     }
 }

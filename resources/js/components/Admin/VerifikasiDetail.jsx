@@ -66,7 +66,7 @@ function VerifikasiDetail() {
             setShowConfirmModal(false);
             
             setTimeout(() => {
-                navigate('/admin/verifikasi');
+                navigate('/admin/seller-management');
             }, 2000);
         } catch (error) {
             console.error("Error:", error);
@@ -107,14 +107,14 @@ function VerifikasiDetail() {
                     {error ? (
                         <>
                             <div className={styles.error}>{error}</div>
-                            <button onClick={() => navigate('/admin/verifikasi')} className={styles.btnBack}>
+                            <button onClick={() => navigate('/admin/seller-management')} className={styles.btnBack}>
                                 ← Kembali ke Daftar
                             </button>
                         </>
                     ) : (
                         <>
                             <div className={styles.error}>Penjual tidak ditemukan</div>
-                            <button onClick={() => navigate('/admin/verifikasi')} className={styles.btnBack}>
+                            <button onClick={() => navigate('/admin/seller-management')} className={styles.btnBack}>
                                 ← Kembali ke Daftar
                             </button>
                         </>
@@ -143,7 +143,7 @@ function VerifikasiDetail() {
     return (
         <div className={styles.container}>
             <div className={styles.header}>
-                <button onClick={() => navigate('/admin/verifikasi')} className={styles.backButton}>
+                <button onClick={() => navigate('/admin/seller-management')} className={styles.backButton}>
                     ← Kembali
                 </button>
                 <h1 className={styles.title}>Detail Verifikasi Penjual</h1>
@@ -159,7 +159,7 @@ function VerifikasiDetail() {
             
             <div className={styles.card}>
                 <div className={styles.sectionHeader}>
-                    <h2 className={styles.sectionTitle}>Data Toko</h2>
+                    <div className={styles.sectionTitle}>Data Toko</div>
                 </div>
                 <div className={styles.sectionContent}>
                     <div className={styles.row}>
@@ -177,7 +177,7 @@ function VerifikasiDetail() {
             
             <div className={styles.card}>
                 <div className={styles.sectionHeader}>
-                    <h2 className={styles.sectionTitle}>Data PIC (Penanggung Jawab)</h2>
+                    <div className={styles.sectionTitle}>Data PIC (Penanggung Jawab)</div>
                 </div>
                 <div className={styles.sectionContent}>
                     <div className={styles.row}>
@@ -201,7 +201,7 @@ function VerifikasiDetail() {
             
             <div className={styles.card}>
                 <div className={styles.sectionHeader}>
-                    <h2 className={styles.sectionTitle}>Alamat Lengkap</h2>
+                    <div className={styles.sectionTitle}>Alamat Lengkap</div>
                 </div>
                 <div className={styles.sectionContent}>
                     <div className={styles.row}>
@@ -225,7 +225,7 @@ function VerifikasiDetail() {
 
             <div className={styles.card}>
                 <div className={styles.sectionHeader}>
-                    <h2 className={styles.sectionTitle}>Dokumen & Identitas</h2>
+                    <div className={styles.sectionTitle}>Dokumen & Identitas</div>
                 </div>
                 <div className={styles.sectionContent}>
                     <div className={styles.row}>

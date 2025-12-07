@@ -249,6 +249,7 @@ export default function AdminDashboard() {
     const [isReportModalOpen, setIsReportModalOpen] = useState(false);
     const [isProvinceReportModalOpen, setIsProvinceReportModalOpen] = useState(false);
     const [isProductRatingReportModalOpen, setIsProductRatingReportModalOpen] = useState(false);
+    const [showScrollTop, setShowScrollTop] = useState(false);
     
     // ========================================
     // FILTER STATES
@@ -265,6 +266,19 @@ export default function AdminDashboard() {
     useEffect(() => {
         fetchDashboardData();
     }, []);
+
+    useEffect(() => {
+        const handleScroll = () => {
+            setShowScrollTop(window.scrollY > 300);
+        };
+
+        window.addEventListener('scroll', handleScroll);
+        return () => window.removeEventListener('scroll', handleScroll);
+    }, []);
+
+    const scrollToTop = () => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
 
     const fetchDashboardData = async () => {
         try {
@@ -482,7 +496,7 @@ export default function AdminDashboard() {
                     </div>
                 </div>
 
-                <div className={`${styles.summaryCard} ${styles.highlight}`} onClick={() => navigate('/admin/verifikasi')}>
+                <div className={`${styles.summaryCard} ${styles.highlight}`} onClick={() => navigate('/admin/seller-management')}>
                     <div className={styles.summaryIcon}>
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                             <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/>
@@ -754,7 +768,7 @@ export default function AdminDashboard() {
                         <span>Kelola Kategori</span>
                     </button>
                     
-                    <button className={styles.quickAction} onClick={() => navigate('/admin/verifikasi')}>
+                    <button className={styles.quickAction} onClick={() => navigate('/admin/seller-management')}>
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                             <path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/>
                             <circle cx="8.5" cy="7" r="4"/>
@@ -795,6 +809,19 @@ export default function AdminDashboard() {
                 isOpen={isProductRatingReportModalOpen} 
                 onClose={() => setIsProductRatingReportModalOpen(false)} 
             />
+
+            {/* Scroll to Top Button */}
+            {showScrollTop && (
+                <button 
+                    className={styles.scrollTopBtn}
+                    onClick={scrollToTop}
+                    aria-label="Kembali ke atas"
+                >
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <polyline points="18 15 12 9 6 15"/>
+                    </svg>
+                </button>
+            )}
         </div>
     );
 }

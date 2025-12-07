@@ -148,7 +148,7 @@
 
 .logo {
   color: #667a30;
-  font-family: 'Helvetica Neue', 'Inter', Arial, sans-serif;
+  font-family: 'Helvetica', 'Inter', Arial, sans-serif;
   font-size: 1.75rem;
   font-weight: 700;
   margin: 0;
@@ -157,7 +157,7 @@
 
 .greeting {
   color: #999;
-  font-family: 'Helvetica Neue', 'Inter', Arial, sans-serif;
+  font-family: 'Helvetica', 'Inter', Arial, sans-serif;
   font-size: 0.9rem;
   margin: 0 0 0.5rem 0;
   text-align: center;
@@ -166,7 +166,7 @@
 
 .title {
   color: #000000;
-  font-family: 'Helvetica Neue', 'Inter', Arial, sans-serif;
+  font-family: 'Helvetica', 'Inter', Arial, sans-serif;
   font-size: 2rem;
   font-weight: 700;
   margin: 0 0 1.5rem 0;
@@ -201,7 +201,7 @@
   border: 2px solid #E5E5E5;
   border-radius: 8px;
   font-size: 0.9rem;
-  font-family: 'Helvetica Neue', 'Inter', Arial, sans-serif;
+  font-family: 'Helvetica', 'Inter', Arial, sans-serif;
   background-color: #ffffff;
   color: #000000;
   transition: all 0.3s ease;
@@ -226,7 +226,7 @@
   border-radius: 8px;
   font-size: 0.9rem;
   font-weight: 700;
-  font-family: 'Helvetica Neue', 'Inter', Arial, sans-serif;
+  font-family: 'Helvetica', 'Inter', Arial, sans-serif;
   cursor: pointer;
   transition: all 0.3s ease;
   letter-spacing: 0.5px;
@@ -280,7 +280,7 @@
 
 .signupPrompt {
   color: transparent;
-  font-family: 'Helvetica Neue', 'Inter', Arial, sans-serif;
+  font-family: 'Helvetica', 'Inter', Arial, sans-serif;
   font-size: 0.85rem;
   font-weight: 400;
   letter-spacing: 0.48px;
@@ -305,7 +305,7 @@
 
 .signupPromptLink {
   color: #667a30;
-  font-family: 'Helvetica Neue', 'Inter', Arial, sans-serif;
+  font-family: 'Helvetica', 'Inter', Arial, sans-serif;
   font-weight: 700;
   letter-spacing: 0.08px;
   cursor: pointer;
@@ -445,7 +445,7 @@
   font-size: 0.9rem;
   font-weight: 600;
   cursor: pointer;
-  font-family: 'Helvetica Neue', 'Inter', Arial, sans-serif;
+  font-family: 'Helvetica', 'Inter', Arial, sans-serif;
   transition: all 0.3s ease;
   letter-spacing: 0.5px;
 }

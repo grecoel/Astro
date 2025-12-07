@@ -23,6 +23,7 @@ function ProductUploadForm({ onSuccess, onCancel }) {
     // State Gambar (Array untuk 5 slot)
     const [images, setImages] = useState([null, null, null, null, null]); 
     const [previews, setPreviews] = useState([null, null, null, null, null]);
+    const [draggedIndex, setDraggedIndex] = useState(null);
 
     // 1. Load Kategori saat komponen dimuat
     useEffect(() => {
@@ -44,29 +45,51 @@ function ProductUploadForm({ onSuccess, onCancel }) {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
-    // 3. Handle File Upload untuk slot tertentu
+    // 3. Handle File Upload untuk slot tertentu (Support Multiple Files)
     const handleImageChange = (e, slotIndex) => {
-        const file = e.target.files[0];
-        if (!file) return;
+        const files = Array.from(e.target.files);
+        if (!files.length) return;
 
-        // Validasi ukuran file (max 2MB)
-        if (file.size > 2 * 1024 * 1024) {
-            alert(`File terlalu besar (max 2MB)`);
-            return;
-        }
-        
-        // Validasi tipe file
-        if (!file.type.startsWith('image/')) {
-            alert(`File bukan gambar!`);
-            return;
-        }
-
-        // Update state
         const newImages = [...images];
         const newPreviews = [...previews];
         
-        newImages[slotIndex] = file;
-        newPreviews[slotIndex] = URL.createObjectURL(file);
+        // Always start from the first empty slot
+        let currentIndex = newImages.findIndex(img => img === null);
+        
+        // If no empty slot found, alert and return
+        if (currentIndex === -1) {
+            alert('Semua slot sudah terisi. Hapus foto terlebih dahulu untuk menambah foto baru.');
+            return;
+        }
+        
+        for (const file of files) {
+            // Find next empty slot
+            while (currentIndex < 5 && newImages[currentIndex] !== null) {
+                currentIndex++;
+            }
+            
+            // If no more slots available
+            if (currentIndex >= 5) {
+                alert(`Maksimal 5 foto. ${files.length - (currentIndex - newImages.findIndex(img => img === null))} foto tidak dapat ditambahkan.`);
+                break;
+            }
+            
+            // Validasi ukuran file (max 2MB)
+            if (file.size > 2 * 1024 * 1024) {
+                alert(`File ${file.name} terlalu besar (max 2MB)`);
+                continue;
+            }
+            
+            // Validasi tipe file
+            if (!file.type.startsWith('image/')) {
+                alert(`File ${file.name} bukan gambar!`);
+                continue;
+            }
+
+            newImages[currentIndex] = file;
+            newPreviews[currentIndex] = URL.createObjectURL(file);
+            currentIndex++;
+        }
         
         setImages(newImages);
         setPreviews(newPreviews);
@@ -108,7 +131,11 @@ function ProductUploadForm({ onSuccess, onCancel }) {
         e.stopPropagation();
     };
 
-    // Remove photo from slot
+    const handleDragEnd = () => {
+        setDraggedIndex(null);
+    };
+
+    // Remove photo from slot and shift remaining photos to the left
     const removeImage = (slotIndex) => {
         const newImages = [...images];
         const newPreviews = [...previews];
@@ -118,11 +145,58 @@ function ProductUploadForm({ onSuccess, onCancel }) {
             URL.revokeObjectURL(newPreviews[slotIndex]);
         }
         
-        newImages[slotIndex] = null;
-        newPreviews[slotIndex] = null;
+        // Remove the image at slotIndex
+        newImages.splice(slotIndex, 1);
+        newPreviews.splice(slotIndex, 1);
+        
+        // Add null at the end to maintain 5 slots
+        newImages.push(null);
+        newPreviews.push(null);
         
         setImages(newImages);
         setPreviews(newPreviews);
+    };
+
+    // Handle drag start for reordering
+    const handleDragStart = (e, index) => {
+        if (images[index] === null) return;
+        setDraggedIndex(index);
+        e.dataTransfer.effectAllowed = 'move';
+    };
+
+    // Handle drag over for reordering
+    const handleDragOverSlot = (e, index) => {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+    };
+
+    // Handle drop for reordering
+    const handleDropSlot = (e, dropIndex) => {
+        e.preventDefault();
+        e.stopPropagation();
+
+        if (draggedIndex === null) return;
+        if (draggedIndex === dropIndex) {
+            setDraggedIndex(null);
+            return;
+        }
+
+        // Only allow swap if both slots have images
+        if (images[draggedIndex] === null || images[dropIndex] === null) {
+            setDraggedIndex(null);
+            return;
+        }
+
+        const newImages = [...images];
+        const newPreviews = [...previews];
+
+        // Swap images
+        [newImages[draggedIndex], newImages[dropIndex]] = [newImages[dropIndex], newImages[draggedIndex]];
+        [newPreviews[draggedIndex], newPreviews[dropIndex]] = [newPreviews[dropIndex], newPreviews[draggedIndex]];
+
+        setImages(newImages);
+        setPreviews(newPreviews);
+        setDraggedIndex(null);
     };
 
     // 5. Submit Form
@@ -271,14 +345,25 @@ function ProductUploadForm({ onSuccess, onCancel }) {
                 {/* Upload Foto Produk Section - NEW 5 SLOT DESIGN */}
                 <div className={styles.section}>
                     <h2 className={styles.sectionTitle}>Upload Foto Produk</h2>
-                    <p className={styles.sectionSubtitle}>Upload hingga 5 foto produk. Foto pertama akan menjadi foto utama.</p>
+                    <p className={styles.sectionSubtitle}>
+                        Upload hingga 5 foto produk (bisa sekaligus). Foto pertama akan menjadi foto utama. 
+                        Drag foto untuk mengatur urutan.
+                    </p>
                     
                     <div className={formStyles.imageSlots}>
                         {/* Main Image Slot (Larger) */}
-                        <div className={`${formStyles.imageSlot} ${formStyles.mainSlot}`}>
+                        <div 
+                            className={`${formStyles.imageSlot} ${formStyles.mainSlot} ${draggedIndex === 0 ? formStyles.dragging : ''}`}
+                            draggable={images[0] !== null}
+                            onDragStart={(e) => handleDragStart(e, 0)}
+                            onDragOver={(e) => handleDragOverSlot(e, 0)}
+                            onDrop={(e) => handleDropSlot(e, 0)}
+                            onDragEnd={handleDragEnd}
+                        >
                             <input 
                                 type="file" 
                                 accept="image/*" 
+                                multiple
                                 onChange={(e) => handleImageChange(e, 0)} 
                                 id="imageInput0" 
                                 style={{display: 'none'}} 
@@ -295,6 +380,11 @@ function ProductUploadForm({ onSuccess, onCancel }) {
                                     >
                                         ✕
                                     </button>
+                                    <div className={formStyles.dragHint}>
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="white">
+                                            <path d="M9 3h6l2 2h-10l2-2zm-5 4v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2v-12h-16zm5 10v-8l-3 3 3 3zm6 0l3-3-3-3v8z"/>
+                                        </svg>
+                                    </div>
                                 </div>
                             ) : (
                                 <label 
@@ -309,7 +399,7 @@ function ProductUploadForm({ onSuccess, onCancel }) {
                                         <polyline points="21 15 16 10 5 21"/>
                                     </svg>
                                     <span>Foto Utama</span>
-                                    <small>Klik atau Drop</small>
+                                    <small>Klik atau Drop (Multiple)</small>
                                 </label>
                             )}
                         </div>
@@ -317,10 +407,19 @@ function ProductUploadForm({ onSuccess, onCancel }) {
                         {/* Secondary Image Slots (Smaller) */}
                         <div className={formStyles.secondarySlots}>
                             {[1, 2, 3, 4].map((index) => (
-                                <div key={index} className={formStyles.imageSlot}>
+                                <div 
+                                    key={index} 
+                                    className={`${formStyles.imageSlot} ${draggedIndex === index ? formStyles.dragging : ''}`}
+                                    draggable={images[index] !== null}
+                                    onDragStart={(e) => handleDragStart(e, index)}
+                                    onDragOver={(e) => handleDragOverSlot(e, index)}
+                                    onDrop={(e) => handleDropSlot(e, index)}
+                                    onDragEnd={handleDragEnd}
+                                >
                                     <input 
                                         type="file" 
                                         accept="image/*" 
+                                        multiple
                                         onChange={(e) => handleImageChange(e, index)} 
                                         id={`imageInput${index}`} 
                                         style={{display: 'none'}} 
@@ -336,6 +435,11 @@ function ProductUploadForm({ onSuccess, onCancel }) {
                                             >
                                                 ✕
                                             </button>
+                                            <div className={formStyles.dragHint}>
+                                                <svg width="12" height="12" viewBox="0 0 24 24" fill="white">
+                                                    <path d="M9 3h6l2 2h-10l2-2zm-5 4v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2v-12h-16zm5 10v-8l-3 3 3 3zm6 0l3-3-3-3v8z"/>
+                                                </svg>
+                                            </div>
                                         </div>
                                     ) : (
                                         <label 
