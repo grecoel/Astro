@@ -252,6 +252,50 @@
   cursor: not-allowed;
 }
 
+/* Golden Rules: Required indicator */
+.required {
+  color: #FF6B6B;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+/* Golden Rules: Informative hints */
+.hint {
+  display: block;
+  margin-top: 4px;
+  color: #6B7280;
+  font-size: 0.75rem;
+  line-height: 1.2;
+  font-weight: 400;
+}
+
+/* Golden Rules: Loading spinner */
+.spinner {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(0, 0, 0, 0.3);
+  border-top-color: #000000;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+  margin-right: 8px;
+  vertical-align: middle;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Golden Rules: Keyboard shortcut hint */
+.keyboardHint {
+  display: block;
+  text-align: center;
+  color: #9CA3AF;
+  font-size: 0.75rem;
+  margin-top: 8px;
+  font-weight: 400;
+}
+
 .alertMessage {
   padding: 0.75rem 0.9rem;
   border-radius: 8px;
