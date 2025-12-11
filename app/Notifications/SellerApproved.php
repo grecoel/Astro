@@ -36,12 +36,11 @@ class SellerApproved extends Notification
         $url = url("/aktivasi-akun?token={$token}&email=" . urlencode($notifiable->pic_email));
 
         return (new MailMessage)
-            ->subject('Pendaftaran Penjual Disetujui!')
-            ->line('Selamat, ' . $notifiable->pic_name . '!') 
-            ->line('Pendaftaran Toko kamu, ' .  $notifiable->store_name . ', telah disetujui.')
-            ->line('Silakan buat password untuk mengaktifkan akun Anda dan mulai berjualan.')
-            ->action('Buat Password & Aktivasi', $url)
-            ->line('Tautan ini akan kadaluarsa dalam 60 menit.');
+            ->subject('Toko Disetujui - AstroEcomm')
+            ->view('emails.seller-approved', [
+                'notifiable' => $notifiable,
+                'actionUrl' => $url
+            ]);
     }
 
 }

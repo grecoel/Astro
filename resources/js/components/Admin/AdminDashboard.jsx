@@ -5,16 +5,24 @@ import IndonesiaMap from './IndonesiaMap';
 import SellerReportModal from './SellerReportModal';
 import ProvinceReportModal from './ProvinceReportModal';
 import ProductRatingReportModal from './ProductRatingReportModal';
+import { AdminDashboardSkeleton } from './AdminDashboardSkeleton';
 import styles from './AdminDashboard.module.css';
 
-// Filter Button Component
-const FilterButton = ({ active, onClick, children, count }) => (
+// Filter Button Component with Accessibility & Tooltip
+const FilterButton = ({ active, onClick, children, count, tooltip }) => (
     <button 
         className={`${styles.filterBtn} ${active ? styles.filterBtnActive : ''}`}
         onClick={onClick}
+        title={tooltip || `Filter berdasarkan ${children}`}
+        aria-pressed={active}
+        aria-label={`${children} - ${count !== undefined ? count + ' item' : ''}`}
     >
-        {children}
-        {count !== undefined && <span className={styles.filterCount}>{count}</span>}
+        <span>{children}</span>
+        {count !== undefined && (
+            <span className={styles.filterCount} aria-label={`${count} item`}>
+                {count}
+            </span>
+        )}
     </button>
 );
 
@@ -304,56 +312,37 @@ export default function AdminDashboard() {
     };
 
     if (loading) {
-        return (
-            <div className={styles.container}>
-                <div className={styles.loading}>
-                    <div className={styles.spinner}></div>
-                    <p>Memuat dashboard...</p>
-                </div>
-            </div>
-        );
+        return <AdminDashboardSkeleton />;
     }
 
-    const { summary, products_by_category, sellers_by_province, seller_status, review_stats, active_sellers } = dashboardData || {};
+    const { summary, products_by_category, sellers_by_province, sellers_by_province_all, sellers_by_province_active, sellers_by_province_inactive, seller_status, review_stats, active_sellers } = dashboardData || {};
     
     // ========================================
     // DATA FILTERING LOGIC
     // ========================================
-    // Simulasi filtering data berdasarkan status aktif/tidak aktif
-    // CATATAN: Dalam implementasi nyata, data ini harus berasal dari backend
-    // dengan query yang sudah di-filter berdasarkan status penjual
-    // Saat ini menggunakan proporsi simulasi:
-    // - Active sellers: 70-80% dari total
-    // - Inactive sellers: 20-30% dari total
-    
-    // Filter logic for province data
+    // Filter logic for province data - 3 kategori berbeda dari backend
     const getFilteredProvinceData = () => {
-        if (!sellers_by_province) return [];
+        // Gunakan sellers_by_province_all sebagai default untuk "Semua Toko"
+        const allData = sellers_by_province_all || sellers_by_province || [];
+        const activeData = sellers_by_province_active || [];
+        const inactiveData = sellers_by_province_inactive || [];
         
-        // Since we don't have status in province data, we'll simulate it based on active_sellers
-        // In real scenario, backend should provide this data
         if (provinceFilter === 'all') {
-            return sellers_by_province;
+            // Semua toko (ACTIVE + PENDING + REJECTED) = 20 toko
+            return allData;
         }
         
-        // For demonstration: split data proportionally
         if (provinceFilter === 'active') {
-            // Simulate showing only active sellers (70% of total)
-            return sellers_by_province.map(item => ({
-                ...item,
-                seller_count: Math.round(item.seller_count * 0.7)
-            })).filter(item => item.seller_count > 0);
+            // Hanya ACTIVE = 17 toko
+            return activeData;
         }
         
         if (provinceFilter === 'inactive') {
-            // Simulate showing only inactive sellers (30% of total)
-            return sellers_by_province.map(item => ({
-                ...item,
-                seller_count: Math.round(item.seller_count * 0.3)
-            })).filter(item => item.seller_count > 0);
+            // PENDING + REJECTED = 3 toko
+            return inactiveData;
         }
         
-        return sellers_by_province;
+        return allData;
     };
     
     // Filter logic for product data
@@ -423,10 +412,11 @@ export default function AdminDashboard() {
     const filteredProductData = getFilteredProductData();
     const filteredRatingData = getFilteredRatingData();
     
-    // Calculate total counts for filter badges
-    const totalProvinceShops = sellers_by_province?.reduce((sum, item) => sum + item.seller_count, 0) || 0;
-    const activeProvinceShops = Math.round(totalProvinceShops * 0.7);
-    const inactiveProvinceShops = Math.round(totalProvinceShops * 0.3);
+    // Calculate total counts for filter badges using REAL data from backend
+    // 3 kategori berbeda dari backend
+    const totalProvinceShops = sellers_by_province_all?.reduce((sum, item) => sum + item.seller_count, 0) || 0;      // Semua = 20
+    const activeProvinceShops = sellers_by_province_active?.reduce((sum, item) => sum + item.seller_count, 0) || 0;  // Aktif = 17
+    const inactiveProvinceShops = sellers_by_province_inactive?.reduce((sum, item) => sum + item.seller_count, 0) || 0; // Tidak Aktif = 3
     
     const totalProducts = products_by_category?.reduce((sum, item) => sum + item.product_count, 0) || 0;
     const productsFromActive = Math.round(totalProducts * 0.75);
@@ -436,17 +426,64 @@ export default function AdminDashboard() {
     const reviewsFromActive = Math.round(totalReviews * 0.8);
     const reviewsFromInactive = Math.round(totalReviews * 0.2);
 
+    const retryFetchData = () => {
+        setError(null);
+        fetchDashboardData();
+    };
+
     return (
         <div className={styles.container}>
-            {/* Header */}
-            <h1>Dashboard Admin</h1>
-            <p className={styles.subtitle}>Selamat datang kembali di panel administrasi marketplace</p>
+            {/* Header with System Status */}
+            <div className={styles.headerSection}>
+                <div>
+                    <h1 className={styles.mainTitle}>Dashboard Admin</h1>
+                    <p className={styles.subtitle}>Selamat datang kembali di panel administrasi marketplace</p>
+                </div>
+                {dashboardData && (
+                    <div className={styles.headerStatus}>
+                        <div className={styles.statusIndicator}>
+                            <span className={styles.statusDot}></span>
+                            <span className={styles.statusText}>Sistem Normal</span>
+                        </div>
+                    </div>
+                )}
+            </div>
 
-            {error && <div className={styles.alert}>{error}</div>}
+            {/* Error Alert with Recovery Action */}
+            {error && (
+                <div className={styles.alertContainer}>
+                    <div className={styles.alert}>
+                        <div className={styles.alertContent}>
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className={styles.alertIcon}>
+                                <circle cx="12" cy="12" r="10"/>
+                                <line x1="12" y1="8" x2="12" y2="12"/>
+                                <line x1="12" y1="16" x2="12.01" y2="16"/>
+                            </svg>
+                            <div>
+                                <p className={styles.alertTitle}>Gagal Memuat Data</p>
+                                <p className={styles.alertMessage}>{error}</p>
+                            </div>
+                        </div>
+                        <button 
+                            className={styles.alertRetry}
+                            onClick={retryFetchData}
+                            aria-label="Coba muat ulang data"
+                        >
+                            Coba Lagi
+                        </button>
+                    </div>
+                </div>
+            )}
 
             {/* Summary Cards */}
             <div className={styles.summaryGrid}>
-                <div className={styles.summaryCard} onClick={() => navigate('/admin/kategori')}>
+                <div 
+                    className={styles.summaryCard} 
+                    onClick={() => navigate('/admin/kategori')}
+                    title="Klik untuk mengelola kategori produk"
+                    role="button"
+                    tabIndex={0}
+                >
                     <div className={styles.summaryIcon}>
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                             <rect x="3" y="3" width="7" height="7" rx="1"/>
@@ -460,10 +497,15 @@ export default function AdminDashboard() {
                             <AnimatedCounter value={summary?.total_categories || 0} />
                         </span>
                         <span className={styles.summaryLabel}>Kategori</span>
+                        <span className={styles.summaryHelpText}>Kelola kategori produk</span>
                     </div>
                 </div>
 
-                <div className={styles.summaryCard}>
+                <div 
+                    className={styles.summaryCard}
+                    title="Total produk di marketplace"
+                    role="status"
+                >
                     <div className={styles.summaryIcon}>
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                             <path d="M20 7h-9"/>
@@ -481,7 +523,11 @@ export default function AdminDashboard() {
                     </div>
                 </div>
 
-                <div className={styles.summaryCard}>
+                <div 
+                    className={styles.summaryCard}
+                    title="Total penjual terdaftar"
+                    role="status"
+                >
                     <div className={styles.summaryIcon}>
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                             <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
@@ -493,10 +539,17 @@ export default function AdminDashboard() {
                             <AnimatedCounter value={summary?.total_sellers || 0} />
                         </span>
                         <span className={styles.summaryLabel}>Total Toko</span>
+                        <span className={styles.summaryHelpText}>Includes pending & rejected</span>
                     </div>
                 </div>
 
-                <div className={`${styles.summaryCard} ${styles.highlight}`} onClick={() => navigate('/admin/seller-management')}>
+                <div 
+                    className={`${styles.summaryCard} ${styles.highlight}`} 
+                    onClick={() => navigate('/admin/seller-management')}
+                    title="Kelola verifikasi penjual"
+                    role="button"
+                    tabIndex={0}
+                >
                     <div className={styles.summaryIcon}>
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                             <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/>

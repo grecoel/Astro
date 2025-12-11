@@ -19,6 +19,7 @@ import CategoryManager from './components/Admin/CategoryManager';
 import AdminDashboard from './components/Admin/AdminDashboard';
 import BannerManager from './components/Admin/BannerManager';
 import AdminSellerManagement from './components/Admin/SellerManagement';
+import Reports from './components/Admin/Reports';
 
 import Home from './components/Public/Home';
 import SearchResults from './components/Public/SearchResult';
@@ -54,6 +55,7 @@ root.render(
                     <Route path="kategori" element={<CategoryManager />} />
                     <Route path="banners" element={<BannerManager />} />
                     <Route path="seller-management" element={<AdminSellerManagement />} />
+                    <Route path="laporan" element={<Reports />} />
                     <Route path="verifikasi" element={<VerifikasiList />} />
                     <Route path="verifikasi/:sellerId" element={<VerifikasiDetail />} />
                 </Route>

@@ -6,51 +6,15 @@
     max-width: 100%;
 }
 
-/* Loading State */
-.loading {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    min-height: 400px;
-    gap: 1rem;
-}
-
-.spinner {
-    width: 40px;
-    height: 40px;
-    border: 4px solid var(--color-border);
-    border-top-color: var(--color-primary);
-    border-radius: 50%;
-    animation: spin 0.8s linear infinite;
-}
-
-@keyframes spin {
-    to { transform: rotate(360deg); }
-}
-
-.loading p {
-    color: var(--color-dark);
-    font-size: 0.9rem;
-    margin: 0;
-    opacity: 0.6;
-}
-
-/* Header */
-.header {
-    max-width: 100%;
-    margin: 0 0 1.5rem;
+/* Header Section with Status Visibility */
+.headerSection {
     display: flex;
     justify-content: space-between;
-    align-items: center;
-    background: var(--color-light);
-    padding: 1.5rem 2rem;
-    border-radius: 16px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
-    border: 1px solid #e5e7eb;
+    align-items: flex-start;
+    margin-bottom: 1.5rem;
 }
 
-.headerLeft h1 {
+.mainTitle {
     font-size: 1.75rem;
     color: var(--color-dark);
     margin: 0 0 0.5rem 0;
@@ -58,48 +22,128 @@
 }
 
 .subtitle {
-    color: var(--color-dark);
+    color: #666;
     font-size: 0.9rem;
     margin: 0;
-    opacity: 0.6;
+    opacity: 0.7;
 }
 
-.headerActions {
-    display: flex;
-    gap: 0.75rem;
-}
-
-.manageBtn {
+.headerStatus {
     display: flex;
     align-items: center;
-    gap: 8px;
-    padding: 0.75rem 1.25rem;
-    background: var(--color-primary);
-    color: var(--color-dark);
+    gap: 1rem;
+}
+
+.statusIndicator {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    background: rgba(102, 122, 48, 0.08);
+    border-radius: 8px;
+    border: 1px solid rgba(102, 122, 48, 0.2);
+}
+
+.statusDot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #667A30;
+    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.5;
+    }
+}
+
+.statusText {
+    font-size: 0.85rem;
+    color: #667A30;
+    font-weight: 500;
+}
+
+/* Alert Container with Error Recovery */
+.alertContainer {
+    margin-bottom: 1.5rem;
+}
+
+.alert {
+    background: linear-gradient(135deg, rgba(255, 107, 107, 0.08) 0%, rgba(198, 40, 40, 0.05) 100%);
+    border: 1px solid rgba(198, 40, 40, 0.15);
+    border-radius: 12px;
+    padding: 1.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.alertContent {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    flex: 1;
+}
+
+.alertIcon {
+    color: #C62828;
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+
+.alertTitle {
+    font-weight: 600;
+    color: #C62828;
+    margin: 0 0 0.25rem 0;
+    font-size: 0.95rem;
+}
+
+.alertMessage {
+    color: #666;
+    margin: 0;
+    font-size: 0.9rem;
+    line-height: 1.4;
+}
+
+.alertRetry {
+    padding: 0.6rem 1.2rem;
+    background: #C62828;
+    color: white;
     border: none;
     border-radius: 8px;
     font-weight: 600;
-    font-size: 0.9rem;
+    font-size: 0.85rem;
     cursor: pointer;
     transition: all 0.2s;
-    font-family: inherit;
+    flex-shrink: 0;
+    white-space: nowrap;
 }
 
-.manageBtn:hover {
-    background: #c5e866;
+.alertRetry:hover {
+    background: #E74C3C;
     transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(198, 40, 40, 0.2);
 }
 
-/* Alert */
-.alert {
-    max-width: 100%;
-    margin: 0 0 1.5rem;
-    background: rgba(198, 40, 40, 0.05);
-    color: #C62828;
-    padding: 1rem 1.25rem;
-    border-radius: 12px;
-    font-size: 0.9rem;
-    border: 1px solid rgba(198, 40, 40, 0.1);
+.alertRetry:active {
+    transform: translateY(0);
 }
 
 /* Summary Grid */
@@ -172,6 +216,18 @@
     font-size: 0.75rem;
     color: #667A30;
     font-weight: 500;
+}
+
+.summaryHelpText {
+    font-size: 0.7rem;
+    color: #999;
+    font-weight: 400;
+    margin-top: 2px;
+}
+
+.summaryCard:focus {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
 }
 
 /* Charts Grid */
@@ -999,4 +1055,84 @@
         width: 20px;
         height: 20px;
     }
+}
+
+/* ==================== ACCESSIBILITY & SMOOTH TRANSITIONS ==================== */
+
+/* Keyboard Navigation Support */
+.filterBtn:focus,
+.summaryCard:focus,
+.quickAction:focus,
+.reportCard:focus,
+.scrollTopBtn:focus {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+}
+
+/* Reduce motion for users who prefer it */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* Smooth scrolling */
+html {
+    scroll-behavior: smooth;
+}
+
+/* Better focus visible states */
+button:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+}
+
+/* Hover state consistency */
+.summaryCard[role="button"]:hover {
+    border-color: var(--color-primary);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.06);
+    transform: translateY(-4px);
+}
+
+/* Status indicator smooth animation */
+@keyframes statusPulse {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.4;
+    }
+}
+
+.statusDot {
+    animation: statusPulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Smooth chart transitions */
+.barFill,
+.ratingFill {
+    transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Alert animations */
+.alert {
+    animation: slideDown 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Tooltip/Title hover effect enhancement */
+[title] {
+    cursor: help;
 }

@@ -139,6 +139,68 @@
   to { transform: rotate(360deg); }
 }
 
+/* Nielsen's Heuristics: Search Error State */
+.rectangle31.searchError {
+  border-color: #ef4444;
+  box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.1);
+}
+
+/* Nielsen's Heuristics: Search Actions Container */
+.searchActions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+/* Nielsen's Heuristics: Reset Button */
+.resetButton {
+  background: none;
+  border: none;
+  padding: 0.25rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #a0a0a1;
+  transition: all 0.2s ease;
+  border-radius: 50%;
+}
+
+.resetButton:hover {
+  background: #f3f4f6;
+  color: #ef4444;
+  transform: scale(1.1);
+}
+
+.resetButton:active {
+  transform: scale(0.95);
+}
+
+.resetButton:focus {
+  outline: 2px solid #D3F26A;
+  outline-offset: 2px;
+}
+
+/* Nielsen's Heuristics: Search Hint */
+.searchHint {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  display: block;
+  font-size: 0.75rem;
+  color: #6b7280;
+  margin-top: 0.25rem;
+  padding: 0.5rem 1rem;
+  background-color: #ffffff;
+  border-radius: 0 0 8px 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  font-style: italic;
+  font-family: "Helvetica", sans-serif;
+  z-index: 10;
+}
+
 /* Search Dropdown */
 .searchDropdown {
   position: absolute;
@@ -520,4 +582,64 @@
   .dropdownItemStore {
     display: none;
   }
+}
+
+/* Reset Search Button */
+.resetButton {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  color: #a0a0a1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+  border-radius: 4px;
+}
+
+.resetButton:hover {
+  color: #000;
+  background-color: #f3f4f6;
+}
+
+.resetButton:active {
+  transform: scale(0.95);
+}
+
+.resetButton svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* Screen Reader Only Text */
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* Empty State Hint */
+.emptyHint {
+  margin-top: 8px;
+  font-size: 13px;
+  color: #6b7280;
+  font-weight: 400;
+}
+
+/* Search Button Disabled State */
+.searchIcon:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.searchIcon:disabled:hover {
+  color: #a0a0a1;
 }

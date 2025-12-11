@@ -303,6 +303,22 @@
     transition: width 0.3s ease, opacity 0.3s ease;
 }
 
+.provinceItemUnknown {
+    background: rgba(255, 193, 7, 0.04);
+    border-color: rgba(255, 193, 7, 0.3);
+}
+
+.provinceItemUnknown:hover,
+.provinceItemUnknown.provinceItemHovered {
+    background: rgba(255, 193, 7, 0.08);
+    border-color: rgba(255, 193, 7, 0.5);
+    box-shadow: 0 2px 6px rgba(255, 193, 7, 0.15);
+}
+
+.progressBarUnknown {
+    background: #FFC107 !important;
+}
+
 /* Responsive */
 @media (max-width: 1200px) {
     .mainLayout {

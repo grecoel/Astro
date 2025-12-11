@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Terima Kasih atas Review</title>
+    <title>Toko Kamu Disetujui</title>
     <style>
         * {
             margin: 0;
@@ -23,7 +23,7 @@
             background-color: #FFFFFF;
             border-radius: 12px;
             overflow: hidden;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
         }
         .header {
             background-color: #D3F26A;
@@ -53,7 +53,13 @@
         .content {
             padding: 35px 30px;
         }
-        .thank-badge {
+        .greeting {
+            font-size: 24px;
+            font-weight: 600;
+            color: #171719;
+            margin-bottom: 20px;
+        }
+        .congratulations-badge {
             display: inline-block;
             background-color: #D3F26A;
             color: #667A30;
@@ -65,57 +71,29 @@
             margin-bottom: 24px;
             box-shadow: 0 2px 8px rgba(211, 242, 106, 0.3);
         }
-        .greeting {
-            font-size: 24px;
-            font-weight: 700;
-            color: #171719;
-            margin-bottom: 16px;
-        }
         .message {
-            color: #171719;
             font-size: 15px;
-            line-height: 1.8;
+            color: #171719;
+            line-height: 1.7;
             margin-bottom: 20px;
         }
-        .review-card {
+        .store-card {
             background-color: #FFFEF8;
             border-left: 4px solid #D3F26A;
             border-radius: 8px;
             padding: 24px;
             margin: 24px 0;
         }
-        .product-name {
-            font-size: 18px;
+        .store-name {
+            font-size: 20px;
             font-weight: 700;
             color: #667A30;
-            margin-bottom: 12px;
+            margin-bottom: 8px;
         }
-        .rating-container {
-            margin: 12px 0;
-        }
-        .rating-stars {
-            color: #D3F26A;
-            font-size: 24px;
-            letter-spacing: 2px;
-            display: inline-block;
-            margin-right: 8px;
-        }
-        .rating-text {
-            color: #667A30;
-            font-weight: 600;
+        .store-owner {
             font-size: 14px;
-            display: inline-block;
-            vertical-align: middle;
-        }
-        .review-text {
-            background-color: #FFFFFF;
-            border-radius: 6px;
-            padding: 16px;
             color: #171719;
-            font-style: italic;
-            margin-top: 16px;
-            border: 1px solid #E0DDD8;
-            line-height: 1.7;
+            font-weight: 500;
         }
         .info-box {
             background-color: #FFF9E6;
@@ -124,16 +102,35 @@
             padding: 20px;
             margin: 24px 0;
         }
-        .info-box p {
+        .info-title {
+            font-size: 16px;
+            font-weight: 600;
             color: #667A30;
+            margin-bottom: 12px;
+        }
+        .info-steps {
+            list-style: none;
+            padding: 0;
+        }
+        .info-steps li {
+            padding: 8px 0;
+            color: #171719;
             font-size: 14px;
-            font-weight: 500;
-            margin: 0;
             line-height: 1.6;
+            position: relative;
+            padding-left: 24px;
+        }
+        .info-steps li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #D3F26A;
+            font-weight: bold;
+            font-size: 16px;
         }
         .cta-container {
             text-align: center;
-            margin: 32px 0;
+            margin: 35px 0;
         }
         .cta-button {
             display: inline-block;
@@ -149,6 +146,20 @@
         .cta-button:hover {
             background-color: #B8D354;
             color: #171719;
+        }
+        .expiry-notice {
+            background-color: #FFF9E6;
+            border: 2px solid #D3F26A;
+            border-radius: 6px;
+            padding: 16px;
+            text-align: center;
+            margin: 20px 0;
+        }
+        .expiry-notice p {
+            color: #667A30;
+            font-size: 13px;
+            font-weight: 600;
+            margin: 0;
         }
         .footer {
             background-color: #D3F26A;
@@ -181,6 +192,17 @@
             color: #171719;
             text-decoration: underline;
         }
+            font-size: 12px;
+            color: #171719;
+            line-height: 1.8;
+        }
+        .footer-contact a {
+            color: #667A30;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .footer-contact a:hover {
+            color: #7DBA30;
             text-decoration: underline;
         }
         .divider {
@@ -197,64 +219,59 @@
             <div class="logo-container">
                 <img src="{{ $message->embed(public_path('logo.png')) }}" alt="AstroEcomm" class="logo-img">
             </div>
-            <h1 class="header-title">Review Berhasil!</h1>
-            <p class="header-subtitle">Terima kasih atas kontribusinya</p>
+            <h1 class="header-title">Toko Disetujui!</h1>
+            <p class="header-subtitle">Selamat! Toko kamu siap untuk berjualan</p>
         </div>
 
         <!-- Content -->
         <div class="content">
             <div style="text-align: center;">
-                <span class="thank-badge">Review Diterima</span>
+                <span class="congratulations-badge">Pendaftaran Disetujui</span>
             </div>
 
-            <h2 class="greeting">Halo, {{ $reviewerName }}! 👋</h2>
+            <h1 class="greeting">Selamat, {{ $notifiable->pic_name }}!</h1>
             
             <p class="message">
-                Kami sangat menghargai waktu yang telah diluangkan untuk memberikan review pada produk ini. 
-                Penilaian yang diberikan sangat berarti bagi kami dan membantu pembeli lain dalam membuat 
-                keputusan pembelian yang lebih baik.
+                Kami dengan senang hati memberitahukan bahwa pendaftaran toko kamu telah berhasil disetujui 
+                oleh tim AstroEcomm. Kamu sekarang dapat mulai berjualan dan menjangkau ribuan pembeli!
             </p>
 
-            <!-- Review Card -->
-            <div class="review-card">
-                <div class="product-name">📦 {{ $productName }}</div>
-                <div class="rating-container">
-                    <div class="rating-stars">
-                        @for ($i = 1; $i <= 5; $i++)
-                            @if ($i <= $rating)
-                                ★
-                            @else
-                                ☆
-                            @endif
-                        @endfor
-                    </div>
-                    <span class="rating-text">({{ $rating }}/5)</span>
-                </div>
-                @if($comment)
-                    <div class="review-text">
-                        "{{ $comment }}"
-                    </div>
-                @endif
+            <!-- Store Card -->
+            <div class="store-card">
+                <div class="store-name">🏪 {{ $notifiable->store_name }}</div>
+                <div class="store-owner">👤 Pemilik: {{ $notifiable->pic_name }}</div>
             </div>
 
-            <!-- Info Box -->
+            <!-- Activation Instructions -->
             <div class="info-box">
-                <p>
-                    💡 Review ini akan segera ditampilkan di halaman produk dan membantu calon pembeli lain 
-                    membuat keputusan yang lebih baik. Kontribusi seperti ini membuat komunitas AstroEcomm 
-                    semakin berkualitas!
-                </p>
+                <div class="info-title">Langkah Selanjutnya:</div>
+                <ul class="info-steps">
+                    <li>Klik tombol aktivasi di bawah untuk membuat password akun</li>
+                    <li>Lengkapi profil toko kamu dengan informasi yang menarik</li>
+                    <li>Unggah produk pertama kamu dan mulai berjualan</li>
+                    <li>Kelola pesanan dan bangun reputasi toko yang baik</li>
+                </ul>
             </div>
 
             <p class="message">
-                Jangan ragu untuk terus berbagi pengalaman berbelanja di AstroEcomm. Setiap review yang 
-                diberikan membantu kami dan seller lain untuk terus meningkatkan kualitas produk dan layanan.
+                Untuk mengaktifkan akun dan mulai berjualan, silakan klik tombol di bawah ini untuk 
+                membuat password akun kamu. Pastikan password yang dibuat aman dan mudah diingat.
             </p>
 
             <!-- CTA Button -->
             <div class="cta-container">
-                <a href="{{ config('app.url') }}" class="cta-button">Kunjungi AstroEcomm</a>
+                <a href="{{ $actionUrl }}" class="cta-button">Buat Password & Aktivasi Akun 🚀</a>
             </div>
+
+            <!-- Expiry Notice -->
+            <div class="expiry-notice">
+                <p>⏰ Tautan aktivasi ini akan kadaluarsa dalam 60 menit</p>
+            </div>
+
+            <p class="message" style="font-size: 14px; color: #171719;">
+                Jika kamu mengalami kesulitan atau memiliki pertanyaan, jangan ragu untuk menghubungi 
+                tim support kami. Kami siap membantu kamu memulai perjalanan sebagai penjual di AstroEcomm!
+            </p>
         </div>
 
         <!-- Footer -->

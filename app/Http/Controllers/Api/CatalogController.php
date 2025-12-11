@@ -35,10 +35,26 @@ class CatalogController extends Controller
             ->groupBy('products.id')
             ->where('products.status', 'ACTIVE');
 
-        // --- IMPLEMENTASI SRS-05: PENCARIAN PRODUK ---
-        // A. FILTER SEARCH (nama produk, deskripsi, nama toko)
+        // --- IMPLEMENTASI SRS-05: PENCARIAN PRODUK (IMPROVED) ---
+        // A. FILTER SEARCH dengan Relevance Scoring
         if ($request->has('search') && $request->search != '') {
-            $keyword = $request->search;
+            $keyword = trim($request->search);
+            
+            // Add relevance score untuk sorting berdasarkan dimana keyword ditemukan
+            $query->addSelect([
+                DB::raw("(
+                    CASE 
+                        WHEN products.name LIKE '{$keyword}%' THEN 100
+                        WHEN products.name LIKE '% {$keyword}%' THEN 90
+                        WHEN products.name LIKE '%{$keyword}%' THEN 80
+                        WHEN products.description LIKE '{$keyword}%' THEN 40
+                        WHEN products.description LIKE '%{$keyword}%' THEN 30
+                        ELSE 10
+                    END
+                ) as relevance_score")
+            ]);
+            
+            // Filter: cari di nama produk, deskripsi, dan nama toko
             $query->where(function($q) use ($keyword) {
                 $q->where('products.name', 'LIKE', "%{$keyword}%")
                   ->orWhere('products.description', 'LIKE', "%{$keyword}%")
@@ -75,7 +91,12 @@ class CatalogController extends Controller
         }
 
         // Ambil data dengan Pagination (24 produk per load)
-        $products = $query->latest()->paginate(24);
+        // Sort by relevance jika ada search, otherwise by latest
+        if ($request->has('search') && $request->search != '') {
+            $products = $query->orderByDesc('relevance_score')->orderBy('products.created_at', 'desc')->paginate(24);
+        } else {
+            $products = $query->latest()->paginate(24);
+        }
 
         return response()->json([
             'banners' => $banners,

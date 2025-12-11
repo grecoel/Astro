@@ -92,11 +92,21 @@ const ReviewModal = ({ isOpen, onClose, product, onReviewSubmitted }) => {
   };
 
   return (
-    <div className={styles.overlay} onClick={onClose}>
-      <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
+    <div className={styles.overlay} onClick={onClose} role="presentation">
+      <div className={styles.modal} onClick={(e) => e.stopPropagation()} role="dialog" aria-labelledby="review-modal-title" aria-modal="true">
         <div className={styles.header}>
-          <h2>Ulasan</h2>
-          <button className={styles.closeBtn} onClick={onClose}>×</button>
+          <div>
+            <h2 id="review-modal-title">Tulis Ulasan Produk</h2>
+            <p className={styles.headerSubtitle}>Bagikan pengalaman kamu dengan pembeli lain</p>
+          </div>
+          <button 
+            className={styles.closeBtn} 
+            onClick={onClose}
+            aria-label="Tutup modal ulasan"
+            title="Tekan ESC atau klik untuk tutup"
+          >
+            ×
+          </button>
         </div>
 
         <form onSubmit={handleSubmit}>
@@ -118,33 +128,50 @@ const ReviewModal = ({ isOpen, onClose, product, onReviewSubmitted }) => {
               <div className={styles.productName}>{product.name}</div>
 
               <div className={styles.ratingSection}>
-                <p className={styles.ratingLabel}>Bagaimana kualitas produk ini menurut anda?</p>
+                <p className={styles.ratingLabel}>Bagaimana kualitas produk ini menurut Anda?</p>
                 <div className={styles.starsContainer}>
-                  <div className={styles.stars}>
+                  <div className={styles.stars} role="group" aria-label="Rating bintang">
                     {[1, 2, 3, 4, 5].map((star) => (
                       <button
                         key={star}
                         type="button"
                         className={`${styles.star} ${rating >= star ? styles.starActive : ''}`}
                         onClick={() => setRating(star)}
+                        aria-pressed={rating >= star}
+                        aria-label={`${star} bintang`}
+                        title={`Beri rating ${star} bintang - ${['Buruk', 'Kurang', 'Cukup', 'Baik', 'Sangat Baik'][star - 1]}`}
                       >
                         ★
                       </button>
                     ))}
                   </div>
-                  {rating > 0 && <span className={styles.ratingText}>{getRatingLabel(rating)}</span>}
+                  {rating > 0 && (
+                    <span className={styles.ratingText} role="status" aria-live="polite">
+                      {getRatingLabel(rating)}
+                    </span>
+                  )}
                 </div>
+                {!rating && <span className={styles.requiredFeedback} role="alert">Rating diperlukan</span>}
               </div>
 
               <div className={styles.commentSection}>
-                <label>Berikan komentar untuk produk ini:</label>
-                <textarea
-                  value={comment}
-                  onChange={(e) => setComment(e.target.value)}
-                  placeholder=""
-                  rows={4}
-                  required
-                />
+                <label htmlFor="comment-input">Berikan komentar untuk produk ini:</label>
+                <div className={styles.commentInputWrapper}>
+                  <textarea
+                    id="comment-input"
+                    value={comment}
+                    onChange={(e) => setComment(e.target.value.slice(0, 500))}
+                    placeholder="Jelaskan pengalaman Anda dengan produk ini..."
+                    rows={4}
+                    aria-describedby="comment-helper"
+                    required
+                  />
+                  <div className={styles.commentHelper} id="comment-helper">
+                    <span className={comment.length > 450 ? styles.warningText : ''}>
+                      {comment.length}/500 karakter
+                    </span>
+                  </div>
+                </div>
               </div>
 
               <div className={styles.biodataSection}>
@@ -152,19 +179,22 @@ const ReviewModal = ({ isOpen, onClose, product, onReviewSubmitted }) => {
             
             <div className={styles.formRow}>
               <div className={styles.formGroup}>
-                <label>Nama:</label>
+                <label htmlFor="name-input">Nama Lengkap:</label>
                 <input
+                  id="name-input"
                   type="text"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  placeholder=""
+                  placeholder="Masukkan nama lengkap Anda"
+                  aria-required="true"
                   required
                 />
               </div>
 
               <div className={styles.formGroup}>
-                <label>Provinsi Asal:</label>
+                <label htmlFor="province-input">Provinsi Asal:</label>
                 <CustomSelect
+                  id="province-input"
                   value={province}
                   onChange={(value) => {
                     setProvince(value);
@@ -172,6 +202,7 @@ const ReviewModal = ({ isOpen, onClose, product, onReviewSubmitted }) => {
                   }}
                   options={Object.keys(locations)}
                   placeholder="Pilih Provinsi"
+                  aria-required="true"
                   required
                 />
               </div>
@@ -179,39 +210,48 @@ const ReviewModal = ({ isOpen, onClose, product, onReviewSubmitted }) => {
 
             <div className={styles.formRow}>
               <div className={styles.formGroup}>
-                <label>Nomor HP:</label>
+                <label htmlFor="phone-input">Nomor HP:</label>
                 <input
+                  id="phone-input"
                   type="tel"
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
-                  placeholder=""
+                  placeholder="Contoh: 08123456789"
+                  aria-required="true"
                   required
                 />
               </div>
 
               <div className={styles.formGroup}>
-                <label>Kota / Kabupaten Asal:</label>
+                <label htmlFor="city-input">Kota / Kabupaten Asal:</label>
                 <CustomSelect
+                  id="city-input"
                   value={city}
                   onChange={setCity}
                   options={cities}
                   placeholder="Pilih Kabupaten/Kota"
                   disabled={!province}
+                  aria-required="true"
                   required
+                  aria-label={province ? undefined : 'Pilih provinsi terlebih dahulu'}
                 />
               </div>
             </div>
 
             <div className={styles.formRow}>
               <div className={styles.formGroup}>
-                <label>Email:</label>
+                <label htmlFor="email-input">Email:</label>
                 <input
+                  id="email-input"
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder=""
+                  placeholder="Contoh: nama@email.com"
+                  aria-describedby="email-hint"
+                  aria-required="true"
                   required
                 />
+                <span className={styles.fieldHint} id="email-hint">Kami akan mengirim pemberitahuan ke email ini</span>
               </div>
               <div className={styles.formGroup}></div>
             </div>
@@ -241,7 +281,15 @@ const ReviewModal = ({ isOpen, onClose, product, onReviewSubmitted }) => {
             </div>
           </div>
 
-          {error && <div className={styles.error}>{error}</div>}
+          {error && (
+            <div className={styles.errorBox} role="alert" aria-live="assertive">
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none" style={{flexShrink: 0}}>
+                <circle cx="10" cy="10" r="9" stroke="#DC2626" strokeWidth="2"/>
+                <path d="M10 6v4M10 14h.01" stroke="#DC2626" strokeWidth="2" strokeLinecap="round"/>
+              </svg>
+              <span>{error}</span>
+            </div>
+          )}
 
           <div className={styles.footer}>
             <button 
@@ -249,17 +297,19 @@ const ReviewModal = ({ isOpen, onClose, product, onReviewSubmitted }) => {
               className={styles.cancelBtn} 
               onClick={onClose}
               disabled={isSubmitting}
+              aria-label="Batal dan tutup modal"
             >
               Batal
             </button>
             <button 
               type="submit" 
               className={styles.submitBtn}
-              disabled={isSubmitting}
+              disabled={isSubmitting || !rating || !comment.trim()}
+              aria-label={isSubmitting ? 'Sedang mengirim review' : 'Kirim review'}
             >
               {isSubmitting ? (
                 <span className={styles.loadingWrapper}>
-                  <span className={styles.spinner}></span>
+                  <span className={styles.spinner} aria-hidden="true"></span>
                   Mengirim Review...
                 </span>
               ) : 'Kirim'}
