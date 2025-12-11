@@ -22,6 +22,7 @@ const ProductDetail = () => {
     const [showAllReviewsModal, setShowAllReviewsModal] = useState(false);
     const [reviewModalType, setReviewModalType] = useState('all');
     const [reviewFade, setReviewFade] = useState({ left: false, right: true });
+    const [showHelpModal, setShowHelpModal] = useState(false);
 
     useEffect(() => {
         fetchProductData();
@@ -42,6 +43,11 @@ const ProductDetail = () => {
     const fetchProductData = async () => {
         try {
             const res = await axios.get(`/api/catalog/${id}`);
+            
+            if (!res.data || !res.data.product) {
+                throw new Error('Data produk tidak ditemukan');
+            }
+            
             setProduct(res.data.product);
             setStats(res.data.rating_counts);
             setSellerRating({
@@ -56,6 +62,19 @@ const ProductDetail = () => {
             setLoading(false);
         } catch (err) {
             console.error('Error fetching product data:', err);
+            setLoading(false);
+            
+            // Error handling dengan user-friendly message
+            if (err.response?.status === 404) {
+                alert('Produk tidak ditemukan. Anda akan dialihkan ke halaman utama.');
+                window.location.href = '/';
+            } else if (err.response?.status === 500) {
+                alert('Terjadi kesalahan server. Silakan coba lagi nanti.');
+            } else if (!navigator.onLine) {
+                alert('Tidak ada koneksi internet. Periksa koneksi Anda.');
+            } else {
+                alert('Gagal memuat data produk. Silakan refresh halaman.');
+            }
         }
     };
 
@@ -63,6 +82,11 @@ const ProductDetail = () => {
     const refreshProductData = async () => {
         try {
             const res = await axios.get(`/api/catalog/${id}`);
+            
+            if (!res.data || !res.data.product) {
+                throw new Error('Gagal memperbarui data produk');
+            }
+            
             setProduct(res.data.product);
             setStats(res.data.rating_counts);
             setSellerRating({
@@ -71,6 +95,7 @@ const ProductDetail = () => {
             });
         } catch (err) {
             console.error('Error refreshing product data:', err);
+            // Silent error, tidak mengganggu user experience
         }
     };
 
@@ -184,27 +209,48 @@ const ProductDetail = () => {
             <Navbar />
             <div className={styles.container}>
                 {/* Breadcrumb */}
-                <div className={styles.breadcrumb}>
-                    <Link to="/" className={styles.breadcrumbLink}>Home</Link>
-                    <span className={styles.breadcrumbSeparator}>&gt;</span>
-                    <Link to="/search" className={styles.breadcrumbLink}>Produk</Link>
-                    <span className={styles.breadcrumbSeparator}>&gt;</span>
-                    <span className={styles.breadcrumbCurrent}>{product.category?.name}</span>
-                </div>
+                <nav aria-label="Breadcrumb" className={styles.breadcrumb}>
+                    <Link to="/" className={styles.breadcrumbLink} aria-label="Kembali ke beranda">Home</Link>
+                    <span className={styles.breadcrumbSeparator} aria-hidden="true">&gt;</span>
+                    <Link to="/search" className={styles.breadcrumbLink} aria-label="Kembali ke halaman produk">Produk</Link>
+                    <span className={styles.breadcrumbSeparator} aria-hidden="true">&gt;</span>
+                    <span className={styles.breadcrumbCurrent} aria-current="page">{product.category?.name}</span>
+                </nav>
 
             {/* --- TOP SECTION --- */}
             <div className={styles.topSection}>
                 
                 {/* 1. Galeri Gambar */}
                 <div className={styles.gallery}>
-                    <img src={selectedImage} alt={product.name} className={styles.mainImage} />
+                    <img 
+                        src={selectedImage} 
+                        alt={`Gambar produk ${product.name}`} 
+                        className={styles.mainImage}
+                        loading="lazy"
+                        onError={(e) => {
+                            e.target.src = 'https://placehold.co/400x400?text=Gambar+Tidak+Tersedia';
+                        }}
+                    />
                     <div className={styles.thumbnailContainer}>
                         {product.images.map((img, idx) => (
                             <img 
                                 key={idx} 
                                 src={img.image_url} 
+                                alt={`Thumbnail ${idx + 1} dari ${product.name}`}
                                 className={`${styles.thumbnail} ${selectedImage === img.image_url ? styles.active : ''}`}
                                 onClick={() => setSelectedImage(img.image_url)}
+                                loading="lazy"
+                                onError={(e) => {
+                                    e.target.src = 'https://placehold.co/60x60?text=N/A';
+                                }}
+                                role="button"
+                                tabIndex={0}
+                                aria-label={`Lihat gambar ${idx + 1}`}
+                                onKeyPress={(e) => {
+                                    if (e.key === 'Enter' || e.key === ' ') {
+                                        setSelectedImage(img.image_url);
+                                    }
+                                }}
                             />
                         ))}
                     </div>
@@ -266,13 +312,27 @@ const ProductDetail = () => {
                 <div className={styles.actionCard}>
                     <div className={styles.actionTitle}>Jumlah Produk & Total Harga</div>
                     
-                    <div className={styles.qtyControl}>
-                        <div className={styles.qtyInputGroup}>
-                            <button className={styles.qtyBtn} onClick={() => setQty(Math.max(1, qty - 1))}>-</button>
-                            <span className={styles.qtyValue}>{qty}</span>
-                            <button className={styles.qtyBtn} onClick={() => setQty(Math.min(product.stock, qty + 1))}>+</button>
+                    {/* Stock Status Section */}
+                    <div className={`${styles.stockSection} ${product.stock < 5 ? styles.lowStock : styles.inStock}`}>
+                        <div className={styles.stockHeader}>
+                            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" style={{marginRight: '8px'}}>
+                                <path d="M10 18C14.4183 18 18 14.4183 18 10C18 5.58172 14.4183 2 10 2C5.58172 2 2 5.58172 2 10C2 14.4183 5.58172 18 10 18Z" stroke="currentColor" strokeWidth="1.5" fill="none"/>
+                                <path d="M6 10L9 13L14 7" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                            </svg>
+                            <div>
+                                <div className={styles.stockStatus}>
+                                    {product.stock > 0 ? 'Stok Tersedia' : 'Stok Habis'}
+                                </div>
+                                <div className={styles.stockCount}>
+                                    <strong>{product.stock}</strong> unit
+                                </div>
+                            </div>
                         </div>
-                        <span className={styles.stockLabel}>Jumlah Stok: {product.stock}</span>
+                        {product.stock < 5 && product.stock > 0 && (
+                            <div className={styles.stockWarning}>
+                                ⚠️ Stok terbatas, buruan pesan!
+                            </div>
+                        )}
                     </div>
 
                     <div className={styles.totalPriceRow}>
@@ -284,10 +344,28 @@ const ProductDetail = () => {
                     <button 
                         className={styles.btnBlack}
                         onClick={() => setShowReviewModal(true)}
+                        aria-label="Beri rating dan komentar untuk produk ini"
                     >
                         Beri Rating & Komentar
                     </button>
-                    <button className={styles.btnOutline}>Bagikan Produk</button>
+                    <button 
+                        className={styles.btnOutline}
+                        onClick={() => {
+                            if (navigator.share) {
+                                navigator.share({
+                                    title: product.name,
+                                    text: `Lihat ${product.name} di AstroEcomm`,
+                                    url: window.location.href
+                                }).catch(err => console.log('Share cancelled'));
+                            } else {
+                                navigator.clipboard.writeText(window.location.href);
+                                alert('Link produk berhasil disalin!');
+                            }
+                        }}
+                        aria-label="Bagikan produk ini"
+                    >
+                        Bagikan Produk
+                    </button>
                 </div>
             </div>
 
@@ -352,22 +430,27 @@ const ProductDetail = () => {
             <div className={styles.sectionBox}>
                 <div className={styles.sectionHeader}>
                     <h3>Komentar Produk</h3>
-                    <a 
-                        href="#" 
-                        className={styles.seeMore}
-                        onClick={(e) => {
-                            e.preventDefault();
-                            setReviewModalType('comments');
-                            setShowAllReviewsModal(true);
-                        }}
-                    >
-                        Lihat Semua
-                    </a>
+                    {product.reviews.length > 0 && (
+                        <a 
+                            href="#" 
+                            className={styles.seeMore}
+                            onClick={(e) => {
+                                e.preventDefault();
+                                setReviewModalType('comments');
+                                setShowAllReviewsModal(true);
+                            }}
+                            aria-label={`Lihat semua ${product.reviews.length} komentar`}
+                        >
+                            Lihat Semua ({product.reviews.length})
+                        </a>
+                    )}
                 </div>
 
                 <div 
                     className={`${styles.reviewScroll} ${reviewFade.left ? styles.fadeLeft : ''} ${reviewFade.right ? styles.fadeRight : ''}`}
                     onScroll={handleReviewScroll}
+                    role="region"
+                    aria-label="Daftar komentar produk"
                 >
                     {product.reviews.length > 0 ? product.reviews.map(review => (
                         <div key={review.id} className={styles.reviewCard}>
@@ -376,15 +459,118 @@ const ProductDetail = () => {
                             <div className={styles.reviewText}>{review.comment}</div>
                         </div>
                     )) : (
-                        <p className={styles.noReviews}>Belum ada komentar.</p>
+                        <div className={styles.noReviews}>
+                            <svg width="48" height="48" viewBox="0 0 48 48" fill="none" style={{marginBottom: '12px', opacity: 0.3}}>
+                                <path d="M24 44C35.0457 44 44 35.0457 44 24C44 12.9543 35.0457 4 24 4C12.9543 4 4 12.9543 4 24C4 35.0457 12.9543 44 24 44Z" stroke="#D1D5DB" strokeWidth="2"/>
+                                <path d="M16 20H16.02M32 20H32.02M16 28C16 28 19 32 24 32C29 32 32 28 32 28" stroke="#D1D5DB" strokeWidth="2" strokeLinecap="round"/>
+                            </svg>
+                            <p style={{margin: 0, fontSize: '14px', color: '#6B7280'}}>Belum ada komentar untuk produk ini.</p>
+                            <p style={{margin: '8px 0 0 0', fontSize: '13px', color: '#9CA3AF'}}>Jadilah yang pertama memberikan ulasan!</p>
+                        </div>
                     )}
                 </div>
             </div>
 
                 {/* Help Button */}
-                <div className={styles.helpButton}>
+                <button 
+                    className={styles.helpButton}
+                    onClick={() => setShowHelpModal(true)}
+                    aria-label="Bantuan halaman detail produk"
+                    title="Klik untuk melihat bantuan"
+                >
                     <div className={styles.helpCircle}>?</div>
-                </div>
+                    <span className={styles.helpTooltip}>Butuh bantuan?</span>
+                </button>
+
+                {/* Help Modal Island */}
+                {showHelpModal && (
+                    <div className={styles.helpModalOverlay} onClick={() => setShowHelpModal(false)}>
+                        <div className={styles.helpModal} onClick={(e) => e.stopPropagation()}>
+                            <div className={styles.helpModalHeader}>
+                                <h2>Bantuan Halaman Detail Produk</h2>
+                                <button 
+                                    className={styles.helpModalClose}
+                                    onClick={() => setShowHelpModal(false)}
+                                    aria-label="Tutup bantuan"
+                                >
+                                    ✕
+                                </button>
+                            </div>
+
+                            <div className={styles.helpModalContent}>
+                                <div className={styles.helpItem}>
+                                    <div className={styles.helpIcon}>
+                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                                            <rect x="2" y="3" width="20" height="18" rx="2" stroke="#D3F26A" strokeWidth="2"/>
+                                            <path d="M2 8h20M8 3v18" stroke="#D3F26A" strokeWidth="2"/>
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <h3>Lihat Detail Gambar</h3>
+                                        <p>Klik gambar kecil di bawah untuk melihat berbagai sudut pandang produk dengan lebih detail.</p>
+                                    </div>
+                                </div>
+
+                                <div className={styles.helpItem}>
+                                    <div className={styles.helpIcon}>
+                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" fill="#D3F26A"/>
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <h3>Baca Rating & Ulasan</h3>
+                                        <p>Scroll ke bawah untuk melihat rating, ulasan, dan pengalaman pembeli lain dengan produk ini.</p>
+                                    </div>
+                                </div>
+
+                                <div className={styles.helpItem}>
+                                    <div className={styles.helpIcon}>
+                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                                            <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 12h-8v-2h8v2zm0-3h-8V9h8v2zm0-3H6V6h12v2z" fill="#D3F26A"/>
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <h3>Berikan Ulasan Anda</h3>
+                                        <p>Klik "Beri Rating & Komentar" untuk berbagi pengalaman Anda dengan pembeli lain.</p>
+                                    </div>
+                                </div>
+
+                                <div className={styles.helpItem}>
+                                    <div className={styles.helpIcon}>
+                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm3.5-9c.83 0 1.5-.67 1.5-1.5S16.33 8 15.5 8 14 8.67 14 9.5s.67 1.5 1.5 1.5zm-7 0c.83 0 1.5-.67 1.5-1.5S9.33 8 8.5 8 7 8.67 7 9.5 7.67 11 8.5 11zm3.5 6.5c2.33 0 4.31-1.46 5.11-3.5H6.89c.8 2.04 2.78 3.5 5.11 3.5z" fill="#D3F26A"/>
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <h3>Lihat Produk Penjual Lain</h3>
+                                        <p>Klik nama toko penjual untuk melihat koleksi produk lengkap dari toko tersebut.</p>
+                                    </div>
+                                </div>
+
+                                <div className={styles.helpItem}>
+                                    <div className={styles.helpIcon}>
+                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                                            <path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.82 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.82 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92 1.61 0 2.92-1.31 2.92-2.92s-1.31-2.92-2.92-2.92z" fill="#D3F26A"/>
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <h3>Bagikan Produk</h3>
+                                        <p>Gunakan tombol "Bagikan Produk" untuk membagikan link produk kepada teman melalui berbagai platform.</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className={styles.helpModalFooter}>
+                                <button 
+                                    className={styles.helpModalButton}
+                                    onClick={() => setShowHelpModal(false)}
+                                >
+                                    Mengerti, Terima Kasih
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
             </div>
             
             {/* Review Modal */}

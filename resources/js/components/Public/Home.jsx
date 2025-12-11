@@ -6,12 +6,15 @@ import ProductCard from './ProductCard';
 import Footer from './Footer';
 import SplashScreen from './SplashScreen';
 import { BannerSkeleton, CategorySkeleton, ProductGridSkeleton } from './SkeletonLoader';
+import { useToast } from '../Common/ToastContext';
 import styles from './Home.module.css';
 
 const Home = () => {
+    const { showError, showInfo } = useToast();
     const [banners, setBanners] = useState([]);
     const [categories, setCategories] = useState([]);
     const [products, setProducts] = useState([]);
+    const [hasError, setHasError] = useState(false);
     // Check if user has visited before
     const [showSplash, setShowSplash] = useState(() => {
         const hasVisited = localStorage.getItem('astro_visited');
@@ -26,6 +29,7 @@ const Home = () => {
     const [selectedCategoryId, setSelectedCategoryId] = useState('');
     const [categoryFade, setCategoryFade] = useState({ left: false, right: true });
     const [bannerHovered, setBannerHovered] = useState(false);
+    const [showHelpModal, setShowHelpModal] = useState(false);
     
     const [searchParams, setSearchParams] = useSearchParams();
     const searchQuery = searchParams.get('search') || '';
@@ -62,8 +66,37 @@ const Home = () => {
             }
             
             setHasMore(res.data.products?.current_page < res.data.products?.last_page);
+            setHasError(false);
         } catch (err) {
             console.error('Error fetching catalog:', err);
+            setHasError(true);
+            
+            let errorMsg = 'Terjadi kesalahan saat memuat katalog.';
+            let shouldRetry = true;
+            
+            // Comprehensive error handling
+            if (err.code === 'ERR_NETWORK' || err.message === 'Network Error') {
+                errorMsg = 'Tidak dapat terhubung ke server. Periksa koneksi internet Anda.';
+            } else if (err.code === 'ECONNABORTED') {
+                errorMsg = 'Koneksi timeout. Silakan coba lagi.';
+            } else if (err.response?.status === 500) {
+                errorMsg = 'Terjadi kesalahan pada server. Silakan coba lagi.';
+            } else if (err.response?.status === 404) {
+                errorMsg = 'Data tidak ditemukan.';
+                shouldRetry = false;
+            } else if (err.response?.status === 403) {
+                errorMsg = 'Akses ditolak. Silakan login kembali.';
+                shouldRetry = false;
+            } else if (err.response?.status === 429) {
+                errorMsg = 'Terlalu banyak permintaan. Tunggu sebentar dan coba lagi.';
+            } else if (!navigator.onLine) {
+                errorMsg = 'Anda sedang offline. Periksa koneksi internet.';
+            }
+            
+            if (isInitial || page === 1) {
+                showError(errorMsg, shouldRetry ? 5000 : 7000);
+            }
+            
             if (page === 1) {
                 if (isInitial) {
                     setBanners([]);
@@ -145,13 +178,17 @@ const Home = () => {
         if (selectedCategoryId === id) {
             setSelectedCategoryId('');
             setSearchParams({});
+            showInfo('Filter kategori dihapus');
         } else {
             // Jika kategori berbeda, set kategori baru
             setSelectedCategoryId(id);
             if (id === '') {
                 setSearchParams({});
+                showInfo('Menampilkan semua produk');
             } else {
+                const categoryName = categories.find(cat => cat.id === id)?.name || 'kategori';
                 setSearchParams({ category_id: id });
+                showInfo(`Filter: ${categoryName}`);
             }
         }
     };
@@ -357,22 +394,136 @@ const Home = () => {
                             )}
                         </>
                     ) : (
-                        <div style={{
-                            textAlign: 'center',
-                            padding: '3rem',
-                            color: '#666'
-                        }}>
-                            Tidak ada produk ditemukan.
+                        <div className={styles.emptyState}>
+                            <svg className={styles.emptyIcon} width="80" height="80" viewBox="0 0 24 24" fill="none">
+                                <path d="M9.5 2C8.67 2 8 2.67 8 3.5V4H6.5C5.67 4 5 4.67 5 5.5V21C5 21.83 5.67 22.5 6.5 22.5H17.5C18.33 22.5 19 21.83 19 21V5.5C19 4.67 18.33 4 17.5 4H16V3.5C16 2.67 15.33 2 14.5 2H9.5Z" stroke="#D3F26A" strokeWidth="1.5" fill="#F4FADF"/>
+                                <path d="M9 10H15M9 14H13" stroke="#667a30" strokeWidth="1.5" strokeLinecap="round"/>
+                            </svg>
+                            <h3 className={styles.emptyTitle}>Tidak ada produk ditemukan</h3>
+                            <p className={styles.emptyDescription}>
+                                {searchQuery ? `Pencarian "${searchQuery}" tidak ditemukan.` : 'Produk belum tersedia untuk kategori ini.'}
+                            </p>
+                            {(searchQuery || categoryQuery) && (
+                                <button 
+                                    className={styles.emptyButton}
+                                    onClick={() => {
+                                        setSearchParams({});
+                                        setSelectedCategoryId('');
+                                        showInfo('Filter telah direset');
+                                    }}
+                                    aria-label="Reset filter pencarian"
+                                >
+                                    Lihat Semua Produk
+                                </button>
+                            )}
                         </div>
                     )}
                 </>
             )}
 
-            {/* HELP BUTTONS */}
-            <div className={styles.group9First}>
-                <div className={styles.rectangle26}></div>
-                <div className={styles.textWrapper57}>?</div>
-            </div>
+            {/* HELP BUTTON */}
+            <button 
+                className={styles.helpButton}
+                onClick={() => setShowHelpModal(true)}
+                aria-label="Bantuan halaman katalog"
+                title="Klik untuk melihat bantuan"
+            >
+                <div className={styles.helpCircle}>?</div>
+                <span className={styles.helpTooltip}>Butuh bantuan?</span>
+            </button>
+
+            {/* Help Modal */}
+            {showHelpModal && (
+                <div className={styles.helpModalOverlay} onClick={() => setShowHelpModal(false)} role="presentation">
+                    <div className={styles.helpModal} onClick={(e) => e.stopPropagation()} role="dialog" aria-labelledby="help-modal-title" aria-modal="true">
+                        <div className={styles.helpModalHeader}>
+                            <h2 id="help-modal-title">Bantuan Halaman Katalog</h2>
+                            <button 
+                                className={styles.helpModalClose}
+                                onClick={() => setShowHelpModal(false)}
+                                aria-label="Tutup bantuan"
+                            >
+                                ×
+                            </button>
+                        </div>
+
+                        <div className={styles.helpModalContent}>
+                            <div className={styles.helpItem}>
+                                <div className={styles.helpIcon}>
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                                        <path d="M21 21L15 15M17 10C17 13.866 13.866 17 10 17C6.13401 17 3 13.866 3 10C3 6.13401 6.13401 3 10 3C13.866 3 17 6.13401 17 10Z" stroke="#D3F26A" strokeWidth="2" strokeLinecap="round"/>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <h3>Cari Produk</h3>
+                                    <p>Gunakan kolom pencarian di navbar untuk mencari produk yang Anda inginkan dengan cepat.</p>
+                                </div>
+                            </div>
+
+                            <div className={styles.helpItem}>
+                                <div className={styles.helpIcon}>
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                                        <rect x="3" y="3" width="7" height="7" rx="2" fill="#D3F26A"/>
+                                        <rect x="14" y="3" width="7" height="7" rx="2" fill="#D3F26A"/>
+                                        <rect x="3" y="14" width="7" height="7" rx="2" fill="#D3F26A"/>
+                                        <rect x="14" y="14" width="7" height="7" rx="2" fill="#D3F26A"/>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <h3>Filter Kategori</h3>
+                                    <p>Klik kategori di bagian atas untuk melihat produk berdasarkan kategori tertentu.</p>
+                                </div>
+                            </div>
+
+                            <div className={styles.helpItem}>
+                                <div className={styles.helpIcon}>
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                                        <rect x="2" y="3" width="20" height="18" rx="2" stroke="#D3F26A" strokeWidth="2"/>
+                                        <path d="M2 8h20" stroke="#D3F26A" strokeWidth="2"/>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <h3>Lihat Detail Produk</h3>
+                                    <p>Klik pada kartu produk untuk melihat informasi lengkap, rating, dan ulasan pembeli.</p>
+                                </div>
+                            </div>
+
+                            <div className={styles.helpItem}>
+                                <div className={styles.helpIcon}>
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                                        <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" fill="#D3F26A"/>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <h3>Rating & Ulasan</h3>
+                                    <p>Lihat rating bintang dan jumlah ulasan untuk mengetahui kualitas produk dari pembeli lain.</p>
+                                </div>
+                            </div>
+
+                            <div className={styles.helpItem}>
+                                <div className={styles.helpIcon}>
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                                        <path d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" stroke="#D3F26A" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <h3>Scroll untuk Muat Lebih</h3>
+                                    <p>Scroll ke bawah halaman untuk memuat produk lebih banyak secara otomatis.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className={styles.helpModalFooter}>
+                            <button 
+                                className={styles.helpModalButton}
+                                onClick={() => setShowHelpModal(false)}
+                            >
+                                Mengerti, Terima Kasih
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             <Footer />
         </div>

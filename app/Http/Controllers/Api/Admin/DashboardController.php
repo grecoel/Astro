@@ -27,14 +27,35 @@ class DashboardController extends Controller
             ->orderByDesc('product_count')
             ->get();
 
-        // 2. Sebaran jumlah toko berdasarkan lokasi provinsi
-        $sellersByProvince = Seller::select('pic_province as province')
+        // 2. Sebaran jumlah toko berdasarkan lokasi provinsi - 3 KATEGORI FILTER
+        // Filter "Semua Toko" = ACTIVE + PENDING + REJECTED (20 toko)
+        $allSellersByProvince = Seller::select('pic_province as province')
+            ->selectRaw('COUNT(*) as seller_count')
+            ->whereNotNull('pic_province')
+            ->groupBy('pic_province')
+            ->orderByDesc('seller_count')
+            ->get();
+
+        // Filter "Toko Aktif" = hanya ACTIVE (17 toko)
+        $activeSellersByProvince = Seller::select('pic_province as province')
             ->selectRaw('COUNT(*) as seller_count')
             ->where('status', SellerStatus::ACTIVE)
             ->whereNotNull('pic_province')
             ->groupBy('pic_province')
             ->orderByDesc('seller_count')
             ->get();
+
+        // Filter "Toko Tidak Aktif" = PENDING + REJECTED (3 toko)
+        $inactiveSellersByProvince = Seller::select('pic_province as province')
+            ->selectRaw('COUNT(*) as seller_count')
+            ->whereIn('status', [SellerStatus::PENDING, SellerStatus::REJECTED])
+            ->whereNotNull('pic_province')
+            ->groupBy('pic_province')
+            ->orderByDesc('seller_count')
+            ->get();
+
+        // Default to "Semua Toko" untuk backward compatibility
+        $sellersByProvince = $allSellersByProvince;
 
         // 3. Jumlah user penjual aktif dan tidak aktif
         $sellerStatus = [
@@ -82,6 +103,9 @@ class DashboardController extends Controller
                 'summary' => $summary,
                 'products_by_category' => $productsByCategory,
                 'sellers_by_province' => $sellersByProvince,
+                'sellers_by_province_all' => $allSellersByProvince,
+                'sellers_by_province_active' => $activeSellersByProvince,
+                'sellers_by_province_inactive' => $inactiveSellersByProvince,
                 'seller_status' => $sellerStatus,
                 'review_stats' => $reviewStats,
                 'active_sellers' => $activeSellers,

@@ -41,16 +41,24 @@
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  padding: 20px 28px;
+  padding: 24px 28px;
   border-bottom: 1px solid #e5e7eb;
   flex-shrink: 0;
+  background: linear-gradient(135deg, #FEFEF8 0%, #FFFEF8 100%);
 }
 
 .header h2 {
-  margin: 0;
+  margin: 0 0 4px 0;
   font-size: 22px;
   font-weight: 700;
-  color: #000;
+  color: #171719;
+}
+
+.headerSubtitle {
+  margin: 0;
+  font-size: 13px;
+  color: #6B7280;
+  font-weight: 400;
 }
 
 .sellerInfo {
@@ -334,46 +342,68 @@
 
 .footer {
   display: flex;
-  justify-content: flex-end;
   gap: 12px;
-  padding: 16px 28px;
-  background-color: #fff;
+  padding: 20px 28px;
+  border-top: 1px solid #e5e7eb;
+  justify-content: flex-end;
+  background: linear-gradient(135deg, #FFFEF8 0%, #FEFEF8 100%);
   flex-shrink: 0;
-  border-top: 1px solid #f0f0f0;
 }
 
-.cancelBtn,
-.submitBtn {
-  padding: 11px 32px;
+.cancelBtn {
+  padding: 12px 24px;
+  background-color: #F3F4F6;
+  color: #171719;
+  border: 1px solid #D1D5DB;
   border-radius: 8px;
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s;
-  border: none;
-  min-width: 100px;
-}
-
-.cancelBtn {
-  background-color: #fff;
-  color: #000;
-  border: 1px solid #d0d0d0;
+  transition: all 0.2s ease;
+  font-family: inherit;
 }
 
 .cancelBtn:hover:not(:disabled) {
-  background-color: #f5f5f5;
-  border-color: #b0b0b0;
+  background-color: #E5E7EB;
+  border-color: #9CA3AF;
+}
+
+.cancelBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .submitBtn {
+  padding: 12px 32px;
   background-color: #D3F26A;
-  color: #000;
-
+  color: #667A30;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  font-family: inherit;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .submitBtn:hover:not(:disabled) {
-  background-color: #000;
-  color: #D3F26A;
+  background-color: #B8D354;
+  color: #171719;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(211, 242, 106, 0.3);
+}
+
+.submitBtn:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.submitBtn:disabled {
+  background-color: #E5E8E0;
+  color: #9CA3AF;
+  cursor: not-allowed;
 }
 
 .cancelBtn:disabled,
@@ -507,5 +537,134 @@
 
   .biodataSection {
     padding: 16px;
+  }
+}
+
+/* Error and Feedback Styles */
+.errorBox {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 20px;
+  background-color: #FEE2E2;
+  border: 1px solid #FCA5A5;
+  border-left: 4px solid #DC2626;
+  border-radius: 8px;
+  margin: 0 28px 16px 28px;
+  font-size: 14px;
+  color: #991B1B;
+  font-weight: 500;
+  animation: slideDown 0.3s ease-out;
+}
+
+.commentInputWrapper {
+  position: relative;
+}
+
+.commentHelper {
+  display: block;
+  text-align: right;
+  font-size: 12px;
+  color: #9CA3AF;
+  margin-top: 4px;
+  padding-right: 2px;
+}
+
+.warningText {
+  color: #FF9800;
+  font-weight: 600;
+}
+
+.fieldHint {
+  display: block;
+  font-size: 12px;
+  color: #6B7280;
+  margin-top: 4px;
+  font-weight: 400;
+}
+
+.requiredFeedback {
+  display: block;
+  font-size: 12px;
+  color: #DC2626;
+  margin-top: 6px;
+  font-weight: 500;
+}
+
+/* Updated Footer */
+.footer {
+  display: flex;
+  gap: 12px;
+  padding: 20px 28px;
+  border-top: 1px solid #e5e7eb;
+  justify-content: flex-end;
+  background: linear-gradient(135deg, #FFFEF8 0%, #FEFEF8 100%);
+  flex-shrink: 0;
+}
+
+.cancelBtn {
+  padding: 12px 24px;
+  background-color: #F3F4F6;
+  color: #171719;
+  border: 1px solid #D1D5DB;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: inherit;
+}
+
+.cancelBtn:hover:not(:disabled) {
+  background-color: #E5E7EB;
+  border-color: #9CA3AF;
+}
+
+.cancelBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.submitBtn {
+  padding: 12px 32px;
+  background-color: #D3F26A;
+  color: #667A30;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  font-family: inherit;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.submitBtn:hover:not(:disabled) {
+  background-color: #B8D354;
+  color: #171719;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(211, 242, 106, 0.3);
+}
+
+.submitBtn:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.submitBtn:disabled {
+  background-color: #E5E8E0;
+  color: #9CA3AF;
+  cursor: not-allowed;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }

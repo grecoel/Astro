@@ -3,18 +3,16 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import styles from './Auth.module.css';
 import loginIllustration from '../Public/images/login-illustration.png';
+import { useToast } from '../Common/ToastContext';
 
 function LoginForm() {
     const navigate = useNavigate();
+    const { showSuccess, showError } = useToast();
     const [formData, setFormData] = useState({
         email: '',
         password: ''
     });
-    const [error, setError] = useState('');
     const [isLoading, setIsLoading] = useState(false);
-    const [showModal, setShowModal] = useState(false);
-    const [modalType, setModalType] = useState('error');
-    const [modalMessage, setModalMessage] = useState('');
 
     const handleChange = (e) => {
         setFormData({
@@ -25,14 +23,26 @@ function LoginForm() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        
+        // Client-side validation
+        if (!formData.email.trim()) {
+            showError('Email harus diisi');
+            return;
+        }
+        if (!formData.password.trim()) {
+            showError('Password harus diisi');
+            return;
+        }
+        if (formData.password.length < 6) {
+            showError('Password minimal 6 karakter');
+            return;
+        }
+        
         setIsLoading(true);
 
         try {
-            // Login request (no CSRF needed for token auth)
             const response = await axios.post('/api/login', formData);
             
-            console.log('Login response:', response.data);
-
             if (response.data.token) {
                 // Store token and user
                 localStorage.setItem('token', response.data.token);
@@ -41,38 +51,43 @@ function LoginForm() {
                 // Set token in axios header for future requests
                 axios.defaults.headers.common['Authorization'] = `Bearer ${response.data.token}`;
                 
-                console.log('User role:', response.data.user.role);
-                console.log('User data:', response.data.user);
+                // Show success message
+                showSuccess(`Selamat datang, ${response.data.user.name}!`);
                 
-                // Redirect based on role
-                if (response.data.user.role === 'admin') {
-                    console.log('Redirecting to admin dashboard');
-                    navigate('/admin/dashboard');
-                } else if (response.data.user.role === 'seller') {
-                    console.log('Redirecting to seller dashboard');
-                    navigate('/seller/dashboard');
-                } else {
-                    console.log('Unknown role, redirecting to home');
-                    navigate('/');
-                }
+                // Redirect based on role with slight delay for toast
+                setTimeout(() => {
+                    if (response.data.user.role === 'admin') {
+                        navigate('/admin/dashboard');
+                    } else if (response.data.user.role === 'seller') {
+                        navigate('/seller/dashboard');
+                    } else {
+                        navigate('/');
+                    }
+                }, 1000);
             }
         } catch (err) {
             console.error('Login error:', err);
-            let errorMsg = 'Terjadi kesalahan. Silakan coba lagi.';
+            let errorMsg = 'Terjadi kesalahan pada server. Silakan coba lagi.';
             
             if (err.response?.status === 422) {
-                errorMsg = 'Email atau password tidak boleh kosong';
+                const errors = err.response.data.errors;
+                if (errors) {
+                    const firstError = Object.values(errors)[0];
+                    errorMsg = Array.isArray(firstError) ? firstError[0] : firstError;
+                } else {
+                    errorMsg = 'Data yang dimasukkan tidak valid';
+                }
             } else if (err.response?.status === 401) {
-                errorMsg = 'Email atau password salah';
+                errorMsg = 'Email atau password salah. Silakan periksa kembali.';
             } else if (err.response?.status === 403) {
-                errorMsg = 'Akun Anda belum diaktivasi. Periksa email Anda untuk link aktivasi.';
-            } else {
-                console.error('Error details:', err.response?.data || err.message);
+                errorMsg = 'Akun Anda belum diaktivasi. Periksa email untuk link aktivasi.';
+            } else if (err.response?.status === 429) {
+                errorMsg = 'Terlalu banyak percobaan login. Coba lagi dalam beberapa menit.';
+            } else if (err.code === 'ERR_NETWORK') {
+                errorMsg = 'Tidak dapat terhubung ke server. Periksa koneksi internet Anda.';
             }
             
-            setModalType('error');
-            setModalMessage(errorMsg);
-            setShowModal(true);
+            showError(errorMsg);
         } finally {
             setIsLoading(false);
         }
@@ -102,9 +117,11 @@ function LoginForm() {
                 <p className={styles.greeting}>Selamat datang!</p>
                 <h2 className={styles.title}>Log In</h2>
 
-                <form onSubmit={handleSubmit} className={styles.form}>
+                <form onSubmit={handleSubmit} className={styles.form} noValidate>
                     <div className={styles.formGroup}>
-                        <label className={styles.label} htmlFor="email">Email</label>
+                        <label className={styles.label} htmlFor="email">
+                            Email <span className={styles.required} aria-label="wajib diisi">*</span>
+                        </label>
                         <input
                             type="email"
                             id="email"
@@ -112,13 +129,19 @@ function LoginForm() {
                             value={formData.email}
                             onChange={handleChange}
                             className={styles.input}
-                            placeholder="Masukkan email Anda"
+                            placeholder="contoh@email.com"
                             required
+                            autoComplete="email"
+                            aria-required="true"
+                            aria-describedby="email-hint"
                         />
+                        <small id="email-hint" className={styles.hint}>Gunakan email yang terdaftar</small>
                     </div>
 
                     <div className={styles.formGroup}>
-                        <label className={styles.label} htmlFor="password">Password</label>
+                        <label className={styles.label} htmlFor="password">
+                            Password <span className={styles.required} aria-label="wajib diisi">*</span>
+                        </label>
                         <input
                             type="password"
                             id="password"
@@ -126,8 +149,11 @@ function LoginForm() {
                             value={formData.password}
                             onChange={handleChange}
                             className={styles.input}
-                            placeholder="Masukkan password"
+                            placeholder="Masukkan password Anda"
                             required
+                            autoComplete="current-password"
+                            aria-required="true"
+                            minLength="6"
                         />
                     </div>
 
@@ -135,9 +161,18 @@ function LoginForm() {
                         type="submit" 
                         className={styles.submitButton}
                         disabled={isLoading}
+                        aria-busy={isLoading}
                     >
-                        {isLoading ? 'Loading...' : 'LOG IN'}
+                        {isLoading ? (
+                            <>
+                                <span className={styles.spinner} aria-hidden="true"></span>
+                                <span>Memproses...</span>
+                            </>
+                        ) : 'LOG IN'}
                     </button>
+                    
+                    {/* Keyboard shortcut hint */}
+                    <small className={styles.keyboardHint}>Tekan Enter untuk login</small>
                 </form>
 
                 <p className={styles.signupPrompt}>
@@ -153,28 +188,6 @@ function LoginForm() {
                 </p>
             </div>
 
-            {/* Modal Popup untuk Error */}
-            {showModal && (
-                <div className={styles.modalOverlay} onClick={() => setShowModal(false)}>
-                    <div className={`${styles.modal} ${styles[`modal-${modalType}`]}`} onClick={(e) => e.stopPropagation()}>
-                        <div className={styles.modalHeader}>
-                            <div className={styles.modalIcon + ' ' + (modalType === 'success' ? styles.iconSuccess : styles.iconError)}></div>
-                        </div>
-                        <div className={styles.modalContent}>
-                            <h3>{modalType === 'success' ? 'Berhasil!' : 'Terjadi Kesalahan'}</h3>
-                            <p>{modalMessage}</p>
-                        </div>
-                        <div className={styles.modalFooter}>
-                            <button 
-                                className={styles.modalButton}
-                                onClick={() => setShowModal(false)}
-                            >
-                                Coba Lagi
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            )}
             </div>
         </>
     );
